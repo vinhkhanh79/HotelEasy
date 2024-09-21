@@ -73,68 +73,81 @@
         </div>
         <hr>
         <div class="row mt-5 mb-4">
-            <div class="col-md-12">
-                <form action="/booking/initiate" method="post" id="booking-form">
-                    <table class="table table-bordered">
-                        <thead>
-                        <tr>
-                        	<th>Image</th>
-                            <th>Room Type</th>
-                            <th>Number of Guests</th>
-                            <th>Price for <span th:text="${durationDays}"></span> Night(s)</th>
-                            <th>Select Rooms</th>
-                            <th></th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr th:each="room, iterStat : ${hotel.roomDTOs}">
-	                        <td>
-	                        	<img th:src="@{/img/room/{img}(img=${room.img})}" class="img-fluid rounded" alt="Room Image" style="max-width: 250px;"></img>
-	                        </td>
-                            <td th:text="${room.roomType.name()}">Room Type</td>
-                            <td>
-                                <span th:if="${room.roomType.name() == 'SINGLE'}"><i class="bi-person-fill"></i></span>
-                                <span th:if="${room.roomType.name() == 'DOUBLE'}"><i class="bi-person-fill"></i><i class="bi-person-fill"></i></span>
-                                <span th:if="${room.roomType.name() == 'SUITE'}"><i class="bi-person-fill"></i><i class="bi-person-fill"></i><i class="bi-person-fill"></i></span>
-                            </td>
-                            <td th:utext="'$ ' + ${#numbers.formatDecimal(room.pricePerNight * durationDays, 0, 'COMMA', 2, 'POINT')}">Price</td>
-                            <td>
-                                <select class="form-select room-select"
-                                        th:data-duration-price="${room.pricePerNight * durationDays}">
-                                    <option th:if="${room.roomType.name() == 'SINGLE'}"
-                                            th:each="num : ${#numbers.sequence(0, hotel.maxAvailableSingleRooms)}"
-                                            th:value="${num}" th:text="${num}"></option>
-                                    <option th:if="${room.roomType.name() == 'DOUBLE'}"
-                                            th:each="num : ${#numbers.sequence(0, hotel.maxAvailableDoubleRooms)}"
-                                            th:value="${num}" th:text="${num}"></option>
-                                    <option th:if="${room.roomType.name() == 'SUITE'}"
-                                            th:each="num : ${#numbers.sequence(0, hotel.maxAvailableDoubleRooms)}"
-                                            th:value="${num}" th:text="${num}"></option>
-                                </select>
-                                <input type="hidden" th:name="${'roomSelections[' + iterStat.index + '].roomType'}"
-                                       th:value="${room.roomType.name()}"/>
-                                <input type="hidden" th:name="${'roomSelections[' + iterStat.index + '].count'}"
-                                       value="0" id="roomCountInput"/>
-                            </td>
-                            <!-- Display the button only on the first row, but make it span all rows -->
-                            <td th:if="${iterStat.index == 0}" th:attr="rowspan=${#lists.size(hotel.roomDTOs)}">
-                                <div class="mb-2">
-                                    <h4><strong>Total:</strong></h4>
-                                    <div id="totalPrice">$0.00</div>
-                                </div>
-                                <button class="btn btn-secondary w-100" id="reserve-button" disabled>Reserve</button>
-                            </td>
-                        </tr>
-                        </tbody>
-                    </table>
-                    <input type="hidden" id="totalPriceInput" name="totalPrice"/>
-                    <input type="hidden" name="hotelId" th:value="${hotel.id}"/>
-                    <input type="hidden" name="checkinDate" th:value="${checkinDate}"/>
-                    <input type="hidden" name="checkoutDate" th:value="${checkoutDate}"/>
-                    <input type="hidden" name="durationDays" th:value="${durationDays}"/>
-                </form>
-            </div>
-        </div>
+    <div class="col-md-12">
+        <form action="/booking/initiate" method="post" id="booking-form">
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>Image</th>
+                    <th>Room Type</th>
+                    <th>Number of Guests</th>
+                    <th>Price for <span th:text="${durationDays}"></span> Night(s)</th>
+                    <th>Select Rooms</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="room, iterStat : ${hotel.roomDTOs}">
+                    <td>
+                        <img th:src="@{/img/room/{img}(img=${room.img})}" class="img-fluid rounded" alt="Room Image"
+                             style="max-width: 250px;">
+                    </td>
+                    <td th:text="${room.roomType.name()}">Room Type</td>
+                    <td>
+                        <span th:if="${room.roomType.name() == 'SINGLE'}"><i class="bi-person-fill"></i></span>
+                        <span th:if="${room.roomType.name() == 'DOUBLE'}"><i class="bi-person-fill"></i><i class="bi-person-fill"></i></span>
+                        <span th:if="${room.roomType.name() == 'SUITE'}"><i class="bi-person-fill"></i><i class="bi-person-fill"></i><i class="bi-person-fill"></i></span>
+                    </td>
+                    <td th:utext="'$ ' + ${#numbers.formatDecimal(room.pricePerNight * durationDays, 0, 'COMMA', 2, 'POINT')}">Price</td>
+                    <td>
+                        <select class="form-select room-select"
+                                th:data-duration-price="${room.pricePerNight * durationDays}">
+                            <option th:if="${room.roomType.name() == 'SINGLE'}"
+                                    th:each="num : ${#numbers.sequence(0, hotel.maxAvailableSingleRooms)}"
+                                    th:value="${num}" th:text="${num}"></option>
+                            <option th:if="${room.roomType.name() == 'DOUBLE'}"
+                                    th:each="num : ${#numbers.sequence(0, hotel.maxAvailableDoubleRooms)}"
+                                    th:value="${num}" th:text="${num}"></option>
+                            <option th:if="${room.roomType.name() == 'SUITE'}"
+                                    th:each="num : ${#numbers.sequence(0, hotel.maxAvailableDoubleRooms)}"
+                                    th:value="${num}" th:text="${num}"></option>
+                        </select>
+                        <input type="hidden" th:name="${'roomSelections[' + iterStat.index + '].roomType'}"
+                               th:value="${room.roomType.name()}"/>
+                        <input type="hidden" th:name="${'roomSelections[' + iterStat.index + '].count'}"
+                               value="0" id="roomCountInput"/>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+
+            <!-- Total Price Section Below the Table -->
+<!-- Total Price Section Below the Table -->
+<div class="row mb-2 justify-content-end">
+    <div class="col-auto">
+        <h4><strong>Total:</strong></h4>
+    </div>
+    <div class="col-auto">
+        <span id="totalPrice">$0.00</span>
+    </div>
+</div>
+<div class="row justify-content-end">
+    <div class="col-auto">
+        <button class="btn btn-secondary" id="reserve-button" disabled>Reserve</button>
+    </div>
+</div>
+
+
+
+            <!-- Hidden Inputs -->
+            <input type="hidden" id="totalPriceInput" name="totalPrice"/>
+            <input type="hidden" name="hotelId" th:value="${hotel.id}"/>
+            <input type="hidden" name="checkinDate" th:value="${checkinDate}"/>
+            <input type="hidden" name="checkoutDate" th:value="${checkoutDate}"/>
+            <input type="hidden" name="durationDays" th:value="${durationDays}"/>
+        </form>
+    </div>
+</div>
+
         <session id="facilities" class="mt-4">
 		    <div class="container">
 		        <h2 class="fw-bold mb-4 text-center">Facilities</h2>
