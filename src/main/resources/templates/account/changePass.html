@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{/layout/layout-main}">
+<head>
+    <title>Change Password</title>
+</head>
+<body>
+<th:block layout:fragment="content">
+	<section class="py-3 py-md-5 py-xl-8">
+	    <div class="container">
+	        <div class="row">
+	            <div class="col-12">
+	            	<div class="mb-5 text-center">
+	            		<h2 class="display-5 fw-bold">Change Password</h2>
+	            	</div>
+	                <div th:if="${param.logout}">
+	                    <div class="alert alert-success">You have successfully logged out</div>
+	                </div>
+	                <div class="row justify-content-center">
+	                	<div class="col-12 col-lg-10 col-xl-8">
+	                		<div class="row gy-5 justify-content-center">
+	                			<div class="col-12">
+	                				<form method="post" th:action="@{/customer/changePass}" th:object="${passwordChangeDTO}">
+		                				<div class="row gy-3 overflow-hidden">
+		                					<div class="col-12">
+				                				<div class="form-floating mb-3">
+			                                        <input class="form-control border-0 border-bottom rounded-0" type="password" id="CurrentPassword" th:field="*{currentPassword}" placeholder=" " required/>
+			                                        <label for="CurrentPassword">Current Password</label>
+			                                        <div class="text-danger" th:if="${#fields.hasErrors('currentPassword')}" th:errors="*{currentPassword}"></div>
+			                                    </div>
+			                                </div>
+			                                <div class="col-12">
+								                <div class="form-floating mb-3">
+			                                        <input class="form-control border-0 border-bottom rounded-0" type="password" id="NewPassword" th:field="*{newPassword}" placeholder=" " required/>
+			                                        <label for="NewPassword">New Password</label>
+			                                        <div class="text-danger" th:if="${#fields.hasErrors('newPassword')}" th:errors="*{newPassword}"></div>
+			                                    </div>
+	                                    	</div>
+	                                    	<div class="col-12">
+								                <div class="form-floating mb-3">
+			                                        <input class="form-control border-0 border-bottom rounded-0" type="password" id="ConfirmNewPassword" th:field="*{confirmNewPassword}" placeholder="" required/>
+			                                        <label for="ConfirmNewPassword">Confirm New Password</label>
+			                                        <div class="text-danger" th:if="${#fields.hasErrors('confirmNewPassword')}" th:errors="*{confirmNewPassword}"></div>
+			                                    </div>
+		                                    </div>
+		                                    <div th:if="${success}">
+							                    <p class="alert alert-success" th:text="${success}">Password reset email sent successfully.</p>
+							                </div>
+							                <div th:if="${error}">
+							                    <p class="alert alert-danger" th:text="${error}">Error occurred while processing your request.</p>
+							                </div>
+							                <div class="col-12">
+		                                        <div class="d-grid">
+		                                            <button class="btn btn-primary btn-lg" type="submit">Change Password</button>
+		                                        </div>
+		                                    </div>
+				                        </div>
+			                        </form>
+	                			</div>
+	                		</div>
+	                	</div>
+	                </div>
+	            </div>
+	        </div>
+	    </div>
+    </section>
+</th:block>
+</body>
+</html>
