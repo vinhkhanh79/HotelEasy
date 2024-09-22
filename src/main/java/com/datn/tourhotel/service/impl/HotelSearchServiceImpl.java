@@ -91,8 +91,11 @@ public class HotelSearchServiceImpl implements HotelSearchService {
                 .name(hotel.getName())
                 .describe(hotel.getDescribe())
                 .addressDTO(addressDTO)
+                .location(hotel.getLocation())
                 .roomDTOs(roomDTOs)
                 .img(hotel.getImg())  // Set the image field
+                .img2(hotel.getImg2())
+                .img3(hotel.getImg3())
                 .build();
         
         // For each room type, find the minimum available rooms across the date range
@@ -109,6 +112,13 @@ public class HotelSearchServiceImpl implements HotelSearchService {
                 .max()
                 .orElse(0); // Assume no double rooms if none match the filter
         hotelAvailabilityDTO.setMaxAvailableDoubleRooms(maxAvailableDoubleRooms);
+        
+        int maxAvailableSuiteRooms = hotel.getRooms().stream()
+                .filter(room -> room.getRoomType() == RoomType.SUITE)
+                .mapToInt(room -> availabilityService.getMinAvailableRooms(room.getId(), checkinDate, checkoutDate))
+                .max()
+                .orElse(0); // Assume no double rooms if none match the filter
+        hotelAvailabilityDTO.setMaxAvailableSuiteRooms(maxAvailableSuiteRooms);
 
         return hotelAvailabilityDTO;
     }

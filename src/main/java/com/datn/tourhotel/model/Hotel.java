@@ -22,13 +22,20 @@ public class Hotel {
     @Column(unique = true, nullable = false)
     private String name;
 
-    private String img; 
+    private String img;
+    
+    private String img2; 
+    
+    private String img3; 
     
     @Column(unique = true, nullable = true)
     private String describe;
     
     @OneToOne(cascade = CascadeType.ALL)
     private Address address;
+    
+    @Column(length = 1000)
+    private String location; 
 
     @OneToMany(mappedBy = "hotel", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
@@ -47,6 +54,8 @@ public class Hotel {
                 "id=" + id +
                 ", name='" + name + '\'' +
                 ", img='" + img + '\'' +
+                ", img2='" + img2 + '\'' +
+                ", img3='" + img3 + '\'' +
                 ", describe='" + describe + '\'' +
                 ", address=" + address +
                 ", rooms=" + rooms +
@@ -62,12 +71,14 @@ public class Hotel {
         return Objects.equals(id, hotel.id) &&
                 Objects.equals(name, hotel.name) &&
                 Objects.equals(img, hotel.img) &&
+                Objects.equals(img2, hotel.img2) &&
+                Objects.equals(img3, hotel.img3) &&
                 Objects.equals(describe, hotel.describe) &&
                 Objects.equals(hotelManager, hotel.hotelManager);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, img, describe, hotelManager);
+        return Objects.hash(id, name, img, img2, img3, describe, hotelManager);
     }
 }

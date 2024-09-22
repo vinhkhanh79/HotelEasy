@@ -47,20 +47,17 @@
         <div class="row align-items-stretch mb-5">
         <div class="col-md-6">
         	<div class="row text-center">
-        		<img id="mainImage" th:src="@{/img/hotel/{img}(img=${hotel.img})}" class="mian-image">
+        		<img id="mainImage" th:src="@{/img/hotel/{img}(img=${hotel.img})}" class="main-image">
         	</div>
         <div class="row mt-3">
         	<div class="col text-center">
         		<img th:src="@{/img/hotel/{img}(img=${hotel.img})}" class="thumbnail-img img-thumbnail" alt="Image 1" onclick="changeImage(this)">
         	</div>
         	<div class="col text-center">
-        		<img th:src="@{/img/hotel/{img}(img=${hotel.img})}" class="thumbnail-img img-thumbnail" alt="Image 2" onclick="changeImage(this)">
+        		<img th:src="@{/img/hotel/{img2}(img2=${hotel.img2})}" class="thumbnail-img img-thumbnail" alt="Image 2" onclick="changeImage(this)">
         	</div>
         	<div class="col text-center">
-        		<img th:src="@{/img/hotel/{img}(img=${hotel.img})}" class="thumbnail-img img-thumbnail" alt="Image 3" onclick="changeImage(this)">
-        	</div>
-        	<div class="col text-center">
-        		<img th:src="@{/img/hotel/{img}(img=${hotel.img})}" class="thumbnail-img img-thumbnail" alt="Image 4" onclick="changeImage(this)">
+        		<img th:src="@{/img/hotel/{img3}(img3=${hotel.img3})}" class="thumbnail-img img-thumbnail" alt="Image 3" onclick="changeImage(this)">
         	</div>
         </div>
         </div>
@@ -87,9 +84,34 @@
                 </thead>
                 <tbody>
                 <tr th:each="room, iterStat : ${hotel.roomDTOs}">
-                    <td>
-                        <img th:src="@{/img/room/{img}(img=${room.img})}" class="img-fluid rounded" alt="Room Image"
-                             style="max-width: 250px;">
+                    <td class="col-3">
+                    	<div th:id="'carouselExampleIndicators-' + ${iterStat.index}" class="carousel slide justify-content-center" data-bs-ride="carousel" style="max-width:250px;">
+						  <div class="carousel-indicators">
+						    <button type="button" th:data-bs-target="'#carouselExampleIndicators-' + ${iterStat.index}" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+						    <button type="button" th:data-bs-target="'#carouselExampleIndicators-' + ${iterStat.index}" data-bs-slide-to="1" aria-label="Slide 2"></button>
+						    <button type="button" th:data-bs-target="'#carouselExampleIndicators-' + ${iterStat.index}" data-bs-slide-to="2" aria-label="Slide 3"></button>
+						  </div>
+						  <div class="carousel-inner">
+						    <div class="carousel-item active">
+						      <img th:src="@{/img/room/{img}(img=${room.img})}" class="d-block w-100" alt="..." style="width: 200px; height: 150px;">
+						    </div>
+						    <div class="carousel-item">
+						      <img th:src="@{/img/room/{img2}(img2=${room.img2})}" class="d-block w-100" alt="..." style="width: 200px; height: 150px;">
+						    </div>
+						    <div class="carousel-item">
+						      <img th:src="@{/img/room/{img3}(img3=${room.img3})}" class="d-block w-100" alt="..." style="width: 200px; height: 150px;">
+						    </div>
+						  </div>
+						  <button class="carousel-control-prev" type="button" th:data-bs-target="'#carouselExampleIndicators-' + ${iterStat.index}" data-bs-slide="prev">
+						    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+						    <span class="visually-hidden">Previous</span>
+						  </button>
+						  <button class="carousel-control-next" type="button" th:data-bs-target="'#carouselExampleIndicators-' + ${iterStat.index}" data-bs-slide="next">
+						    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+						    <span class="visually-hidden">Next</span>
+						  </button>
+						</div>
+
                     </td>
                     <td th:text="${room.roomType.name()}">Room Type</td>
                     <td>
@@ -119,25 +141,21 @@
                 </tr>
                 </tbody>
             </table>
-
             <!-- Total Price Section Below the Table -->
-<!-- Total Price Section Below the Table -->
-<div class="row mb-2 justify-content-end">
-    <div class="col-auto">
-        <h4><strong>Total:</strong></h4>
-    </div>
-    <div class="col-auto">
-        <span id="totalPrice">$0.00</span>
-    </div>
-</div>
-<div class="row justify-content-end">
-    <div class="col-auto">
-        <button class="btn btn-secondary" id="reserve-button" disabled>Reserve</button>
-    </div>
-</div>
-
-
-
+			<!-- Total Price Section Below the Table -->
+			<div class="row mb-2 justify-content-end">
+			    <div class="col-auto">
+			        <h4><strong>Total:</strong></h4>
+			    </div>
+			    <div class="col-auto">
+			        <span id="totalPrice">$0.00</span>
+			    </div>
+			</div>
+			<div class="row justify-content-end">
+			    <div class="col-auto">
+			        <button class="btn btn-secondary" id="reserve-button" disabled>Reserve</button>
+			    </div>
+			</div>
             <!-- Hidden Inputs -->
             <input type="hidden" id="totalPriceInput" name="totalPrice"/>
             <input type="hidden" name="hotelId" th:value="${hotel.id}"/>
@@ -147,7 +165,6 @@
         </form>
     </div>
 </div>
-
         <session id="facilities" class="mt-4">
 		    <div class="container">
 		        <h2 class="fw-bold mb-4 text-center">Facilities</h2>
@@ -196,7 +213,7 @@
         <section id="policy" class="mt-4">
         	<div id="container">
         		<h2 class="fw-bold mb-4 text-center">Address</h2>
-        		<iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d31355.756642930344!2d106.67776294118973!3d10.775301487072866!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31752f39281c2f69%3A0x65f5e93190fb3464!2sSunrise%20Central%20Hotel!5e0!3m2!1svi!2s!4v1726589087215!5m2!1svi!2s" width="100%" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+        		<iframe th:src="${hotel.location}" width="100%" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
         	</div>
         </section>
         <section id="policy" class="mt-4">
@@ -244,6 +261,7 @@
         $(document).ready(function () {
             const roomSelect = $(".room-select");
             const reserveButton = $("#reserve-button");
+            const thumbnails = document.querySelectorAll('.thumbnail');
 
             // Reset the room selection
             function resetRoomSelection() {

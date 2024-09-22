@@ -23,9 +23,15 @@ public class HotelDTO {
     private String describe;
     
     private String img;
+    
+    private String img2;
+    
+    private String img3;
 
     @Valid
     private AddressDTO addressDTO;
+    
+    private String location;
 
     @Valid
     private List<RoomDTO> roomDTOs = new ArrayList<>();

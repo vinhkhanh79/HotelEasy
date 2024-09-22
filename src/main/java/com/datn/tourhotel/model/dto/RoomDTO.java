@@ -22,6 +22,10 @@ public class RoomDTO {
     private RoomType roomType;
     
     private String img;
+    
+    private String img2;
+    
+    private String img3;
 
     @NotNull(message = "Room count cannot be empty")
     @PositiveOrZero(message = "Room count must be 0 or more")

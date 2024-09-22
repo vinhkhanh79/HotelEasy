@@ -80,6 +80,8 @@ public class RoomServiceImpl implements RoomService {
                 .hotel(hotel)
                 .roomType(roomDTO.getRoomType())
                 .img(roomDTO.getImg())
+                .img2(roomDTO.getImg2())
+                .img3(roomDTO.getImg3())
                 .roomCount(roomDTO.getRoomCount())
                 .pricePerNight(roomDTO.getPricePerNight())
                 .build();
@@ -95,6 +97,8 @@ public class RoomServiceImpl implements RoomService {
                 .hotelId(room.getHotel().getId())
                 .roomType(room.getRoomType())
                 .img(room.getImg())
+                .img2(room.getImg2())
+                .img3(room.getImg3())
                 .roomCount(room.getRoomCount())
                 .pricePerNight(room.getPricePerNight())
                 .build();

@@ -28,6 +28,12 @@ public class Room {
     @Column(unique = true, nullable = true)
     private String img;
     
+    @Column(unique = true, nullable = true)
+    private String img2;
+    
+    @Column(unique = true, nullable = true)
+    private String img3;
+    
     @Enumerated(EnumType.STRING)
     private RoomType roomType;
 
@@ -45,6 +51,8 @@ public class Room {
                 "id=" + id +
                 ", hotel=" + hotel +
                 ", img=" + img +
+                ", img2=" + img2 +
+                ", img3=" + img3 +
                 ", roomType=" + roomType +
                 ", roomCount=" + roomCount +
                 ", pricePerNight=" + pricePerNight +

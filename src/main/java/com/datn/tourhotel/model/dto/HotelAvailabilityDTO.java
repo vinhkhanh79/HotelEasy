@@ -16,14 +16,22 @@ public class HotelAvailabilityDTO {
     
     private String img;
     
+    private String img2;
+    
+    private String img3;
+    
     private String describe;
 
     private AddressDTO addressDTO;
+    
+    private String location;
 
     private List<RoomDTO> roomDTOs = new ArrayList<>();
 
     private Integer maxAvailableSingleRooms;
 
     private Integer maxAvailableDoubleRooms;
+    
+    private Integer maxAvailableSuiteRooms;
 
 }
