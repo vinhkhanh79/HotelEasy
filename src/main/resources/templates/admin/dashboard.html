@@ -1,42 +1,198 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{/layout/layout-main}">
+      layout:decorate="~{/admin/layout/layout-main}">
 <head>
-    <title>Admin Dashboard</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bootstrap 5 Simple Admin Dashboard</title>
 </head>
 <body>
 <th:block layout:fragment="content">
-    <div class="container mt-5 mb-4">
+    <div class="container-fluid">
         <div class="row">
-            <div class="col-md-4">
-                <div class="card">
-                    <div class="card-body text-center">
-                        <i class="bi bi-people-fill fs-1"></i>
-                        <h5 class="card-title">List Users</h5>
-                        <a th:href="@{/admin/users}" class="btn btn-primary">Go</a>
+            <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+                <div class="position-sticky justify-content-center">
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                          <a class="nav-link" aria-current="page" href="#">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-home"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                            <span class="ml-2">Dashboard</span>
+                          </a>
+                        </li>
+                        <hr>
+                        <li class="nav-item">
+                          <a class="nav-link" th:href="@{/admin/users}">
+                          	<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-users"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                            <span class="ml-2">Users</span>
+                          </a>
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" th:href="@{/admin/hotels}">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-building" viewBox="0 0 16 16"><path d="M4 2.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5zm3 0a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5zm3.5-.5a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5zM4 5.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5zM7.5 5a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5zm2.5.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5zM4.5 8a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5zm2.5.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5zm3.5-.5a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5z"/><path d="M2 1a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1zm11 0H3v14h3v-2.5a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 .5.5V15h3z"/></svg>
+                            <span class="ml-2">Hotels</span>
+                          </a>
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" th:href="@{/admin/bookings}">
+                          	<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-file"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path><polyline points="13 2 13 9 20 9"></polyline></svg>
+                            <span class="ml-2">Bookings</span>
+                          </a>
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" href="#">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-bar-chart-2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+                            <span class="ml-2">Reports</span>
+                          </a>
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" href="#">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-layers"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
+                            <span class="ml-2">Integrations</span>
+                          </a>
+                        </li>
+                      </ul>
+                </div>
+            </nav>
+            <main class="col-md-9 ml-sm-auto col-lg-10 px-md-4 py-4">
+                <h1 class="h2">Dashboard</h1>
+                <p>This is the homepage of a simple admin interface which is part of a tutorial written on Themesberg</p>
+                <div class="row my-4">
+                    <div class="col-12 col-md-6 col-lg-3 mb-4 mb-lg-0">
+                        <div class="card">
+                            <h5 class="card-header">Customers</h5>
+                            <div class="card-body">
+                              <h5 class="card-title">345k</h5>
+                              <p class="card-text">Feb 1 - Apr 1, United States</p>
+                              <p class="card-text text-success">18.2% increase since last month</p>
+                            </div>
+                          </div>
+                    </div>
+                    <div class="col-12 col-md-6 mb-4 mb-lg-0 col-lg-3">
+                        <div class="card">
+                            <h5 class="card-header">Revenue</h5>
+                            <div class="card-body">
+                              <h5 class="card-title">$2.4k</h5>
+                              <p class="card-text">Feb 1 - Apr 1, United States</p>
+                              <p class="card-text text-success">4.6% increase since last month</p>
+                            </div>
+                          </div>
+                    </div>
+                    <div class="col-12 col-md-6 mb-4 mb-lg-0 col-lg-3">
+                        <div class="card">
+                            <h5 class="card-header">Purchases</h5>
+                            <div class="card-body">
+                              <h5 class="card-title">43</h5>
+                              <p class="card-text">Feb 1 - Apr 1, United States</p>
+                              <p class="card-text text-danger">2.6% decrease since last month</p>
+                            </div>
+                          </div>
+                    </div>
+                    <div class="col-12 col-md-6 mb-4 mb-lg-0 col-lg-3">
+                        <div class="card">
+                            <h5 class="card-header">Traffic</h5>
+                            <div class="card-body">
+                              <h5 class="card-title">64k</h5>
+                              <p class="card-text">Feb 1 - Apr 1, United States</p>
+                              <p class="card-text text-success">2.5% increase since last month</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card">
-                    <div class="card-body text-center">
-                        <i class="bi bi-building fs-1"></i>
-                        <h5 class="card-title">List Hotels</h5>
-                        <a th:href="@{/admin/hotels}" class="btn btn-primary">Go</a>
+                <div class="row">
+                    <div class="col-12 col-xl-8 mb-4 mb-lg-0">
+                        <div class="card">
+                            <h5 class="card-header">Latest transactions</h5>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table">
+                                        <thead>
+                                          <tr>
+                                            <th scope="col">Order</th>
+                                            <th scope="col">Product</th>
+                                            <th scope="col">Customer</th>
+                                            <th scope="col">Total</th>
+                                            <th scope="col">Date</th>
+                                            <th scope="col"></th>
+                                          </tr>
+                                        </thead>
+                                        <tbody>
+                                          <tr>
+                                            <th scope="row">17371705</th>
+                                            <td>Volt Premium Bootstrap 5 Dashboard</td>
+                                            <td>johndoe@gmail.com</td>
+                                            <td>€61.11</td>
+                                            <td>Aug 31 2020</td>
+                                            <td><a href="#" class="btn btn-sm btn-primary">View</a></td>
+                                          </tr>
+                                          <tr>
+                                            <th scope="row">17370540</th>
+                                            <td>Pixel Pro Premium Bootstrap UI Kit</td>
+                                            <td>jacob.monroe@company.com</td>
+                                            <td>$153.11</td>
+                                            <td>Aug 28 2020</td>
+                                            <td><a href="#" class="btn btn-sm btn-primary">View</a></td>
+                                          </tr>
+                                          <tr>
+                                            <th scope="row">17371705</th>
+                                            <td>Volt Premium Bootstrap 5 Dashboard</td>
+                                            <td>johndoe@gmail.com</td>
+                                            <td>€61.11</td>
+                                            <td>Aug 31 2020</td>
+                                            <td><a href="#" class="btn btn-sm btn-primary">View</a></td>
+                                          </tr>
+                                          <tr>
+                                            <th scope="row">17370540</th>
+                                            <td>Pixel Pro Premium Bootstrap UI Kit</td>
+                                            <td>jacob.monroe@company.com</td>
+                                            <td>$153.11</td>
+                                            <td>Aug 28 2020</td>
+                                            <td><a href="#" class="btn btn-sm btn-primary">View</a></td>
+                                          </tr>
+                                          <tr>
+                                            <th scope="row">17371705</th>
+                                            <td>Volt Premium Bootstrap 5 Dashboard</td>
+                                            <td>johndoe@gmail.com</td>
+                                            <td>€61.11</td>
+                                            <td>Aug 31 2020</td>
+                                            <td><a href="#" class="btn btn-sm btn-primary">View</a></td>
+                                          </tr>
+                                          <tr>
+                                            <th scope="row">17370540</th>
+                                            <td>Pixel Pro Premium Bootstrap UI Kit</td>
+                                            <td>jacob.monroe@company.com</td>
+                                            <td>$153.11</td>
+                                            <td>Aug 28 2020</td>
+                                            <td><a href="#" class="btn btn-sm btn-primary">View</a></td>
+                                          </tr>
+                                        </tbody>
+                                      </table>
+                                </div>
+                                <a href="#" class="btn btn-block btn-light">View all</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-xl-4">
+                        <div class="card">
+                            <h5 class="card-header">Traffic last 6 months</h5>
+                            <div class="card-body">
+                                <div id="traffic-chart"></div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card">
-                    <div class="card-body text-center">
-                        <i class="bi bi-bookmark-check fs-1"></i>
-                        <h5 class="card-title">List Bookings</h5>
-                        <a th:href="@{/admin/bookings}" class="btn btn-primary">Go</a>
-                    </div>
-                </div>
-            </div>
+            </main>
         </div>
     </div>
 </th:block>
+<script>        
+new Chartist.Line('#traffic-chart', {
+    labels: ['January', 'Februrary', 'March', 'April', 'May', 'June'],
+    series: [
+        [23000, 25000, 19000, 34000, 56000, 64000]
+    ]
+    }, {
+    low: 0,
+    showArea: true
+});</script>
 </body>
 </html>

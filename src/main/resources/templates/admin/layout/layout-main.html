@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+    <meta charset="UTF-8">
+    <title>Layout: Main</title>
+    <th:block th:insert="~{admin/fragment/bootstrap :: bootstrap-css}"></th:block>
+</head>
+<body class="d-flex flex-column vh-100">
+<th:block th:insert="~{admin/fragment/navbar :: navbar}"></th:block>
+<main>
+    <th:block layout:fragment="content"></th:block>
+</main>
+<th:block th:insert="~{admin/fragment/footer :: footer}"></th:block>
+<th:block th:insert="~{admin/fragment/bootstrap :: bootstrap-js}"></th:block>
+<th:block layout:fragment="additional-scripts"></th:block>
+</body>
+</html>
