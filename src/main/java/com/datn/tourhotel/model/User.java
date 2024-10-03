@@ -42,6 +42,12 @@ public class User {
     @Column(unique = true, nullable = true)
     private String img;
 
+    @Column(nullable = true) // Optionally nullable
+    private String phone; // Contact number
+
+    @Column(nullable = true) // Optionally nullable
+    private LocalDate birthday; // Date of birth
+
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(nullable = false)
     private Role role;
@@ -65,7 +71,9 @@ public class User {
                 ", name='" + name + '\'' +
                 ", lastName='" + lastName + '\'' +
                 ", img='" + img + '\'' +
-                ", role=" + role +
+                ", img='" + img + '\'' +
+                ", phone='" + phone + '\'' +
+                ", birthday=" + birthday +
                 '}';
     }
 
