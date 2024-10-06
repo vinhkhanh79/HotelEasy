@@ -56,6 +56,24 @@
                                         </div>
                                         <p class="text-danger mt-1" th:if="${#fields.hasErrors('username')}" th:errors="*{username}"></p>
                                     </div>
+                                    <!-- New phone field -->
+                                    <div class="col-12">
+                                        <div class="form-floating">
+                                            <input class="form-control border-0 border-bottom rounded-0" id="phone" 
+                                                   type="tel" th:field="*{phone}" placeholder="">
+                                            <label for="phone">Phone</label>
+                                        </div>
+                                        <p class="text-danger mt-1" th:if="${#fields.hasErrors('phone')}" th:errors="*{phone}"></p>
+                                    </div>
+                                    <!-- New birthday field -->
+                                    <div class="col-12">
+                                        <div class="form-floating">
+                                            <input class="form-control border-0 border-bottom rounded-0" id="birthday" 
+                                                   type="date" th:field="*{birthday}" placeholder="">
+                                            <label for="birthday">Birthday</label>
+                                        </div>
+                                        <p class="text-danger mt-1" th:if="${#fields.hasErrors('birthday')}" th:errors="*{birthday}"></p>
+                                    </div>
                                     <div class="col-12">
                                         <div class="form-floating">
                                             <input class="form-control border-0 border-bottom rounded-0" id="password" 

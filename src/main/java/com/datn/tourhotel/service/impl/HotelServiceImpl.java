@@ -195,7 +195,6 @@ public class HotelServiceImpl implements HotelService {
                 .img(hotel.getImg())
                 .describe(hotel.getDescribe())
                 .addressDTO(addressDTO)
-                .location(hotel.getLocation())
                 .roomDTOs(roomDTOs)
                 .managerUsername(hotel.getHotelManager().getUser().getUsername())
                 .build();

@@ -78,3 +78,63 @@ var swiper = new Swiper(".our-partner", {
         },
     },
 });
+
+$(document).ready(function () {
+    const roomSelect = $(".room-select");
+    const reserveButton = $("#reserve-button");
+    const thumbnails = document.querySelectorAll('.thumbnail');
+
+    // Reset the room selection
+    function resetRoomSelection() {
+        roomSelect.each(function () {
+            $(this).val(0);
+        });
+    }
+
+    // Function to format the price with two decimal places and thousand separators
+    function formatPrice(price) {
+        return '$ ' + price.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
+
+    // Calculate the total cost
+    function calculateTotal() {
+        let total = 0;
+        roomSelect.each(function () {
+            let roomDurationPrice = parseFloat($(this).data("duration-price"));
+            let roomCount = parseInt($(this).val(), 10);
+            total += roomDurationPrice * roomCount;
+        });
+
+        $("#totalPrice").html('<strong>' + formatPrice(total) + '</strong>');
+        $("#totalPriceInput").val(total.toFixed(2));
+
+        if (total === 0) {
+            reserveButton.prop('disabled', true);
+            reserveButton.removeClass('btn-primary').addClass('btn-secondary');
+        } else {
+            reserveButton.prop('disabled', false);
+            reserveButton.removeClass('btn-secondary').addClass('btn-primary');
+        }
+    }
+
+    // Reset room selection whenever page is shown
+    $(window).on("pageshow", function () {
+        resetRoomSelection();
+        calculateTotal();
+    });
+
+    // Update the room count and calculate the total when room selection changes
+    roomSelect.on("change", function () {
+        let count = $(this).val();
+        $(this).siblings("#roomCountInput").val(count);
+        calculateTotal();
+    });
+
+    // Event for clicking the reserve button
+    reserveButton.click(function () {
+        $("#booking-form").submit();
+    });
+
+    // Initial function calls
+    calculateTotal();
+});

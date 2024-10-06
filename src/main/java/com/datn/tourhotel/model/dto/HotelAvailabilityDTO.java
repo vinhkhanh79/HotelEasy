@@ -23,8 +23,6 @@ public class HotelAvailabilityDTO {
     private String describe;
 
     private AddressDTO addressDTO;
-    
-    private String location;
 
     private List<RoomDTO> roomDTOs = new ArrayList<>();
 

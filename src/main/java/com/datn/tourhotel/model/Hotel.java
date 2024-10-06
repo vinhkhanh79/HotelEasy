@@ -33,9 +33,6 @@ public class Hotel {
     
     @OneToOne(cascade = CascadeType.ALL)
     private Address address;
-    
-    @Column(length = 1000)
-    private String location; 
 
     @OneToMany(mappedBy = "hotel", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default

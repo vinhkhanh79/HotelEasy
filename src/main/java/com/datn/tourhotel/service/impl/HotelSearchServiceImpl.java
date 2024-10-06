@@ -91,7 +91,6 @@ public class HotelSearchServiceImpl implements HotelSearchService {
                 .name(hotel.getName())
                 .describe(hotel.getDescribe())
                 .addressDTO(addressDTO)
-                .location(hotel.getLocation())
                 .roomDTOs(roomDTOs)
                 .img(hotel.getImg())  // Set the image field
                 .img2(hotel.getImg2())

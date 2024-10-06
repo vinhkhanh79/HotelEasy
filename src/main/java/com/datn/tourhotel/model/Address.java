@@ -25,6 +25,9 @@ public class Address {
 
     @Column(nullable = false)
     private String country;
+    
+    @Column(length = 1000)
+    private String location;
 
     @Override
     public String toString() {
@@ -33,6 +36,7 @@ public class Address {
                 ", addressLine='" + addressLine + '\'' +
                 ", city='" + city + '\'' +
                 ", country='" + country + '\'' +
+                ", location='" + location + '\'' +
                 '}';
     }
 

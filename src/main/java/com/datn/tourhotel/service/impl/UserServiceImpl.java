@@ -190,6 +190,8 @@ public class UserServiceImpl implements UserService {
                 .password(passwordEncoder.encode(registrationDTO.getPassword()))
                 .name(formatText(registrationDTO.getName()))
                 .lastName(formatText(registrationDTO.getLastName()))
+                .phone(registrationDTO.getPhone())
+                .birthday(registrationDTO.getBirthday())
                 .role(userRole)
                 .build();
     }
@@ -202,6 +204,8 @@ public class UserServiceImpl implements UserService {
                 .name(user.getName())
                 .lastName(user.getLastName())
                 .img(user.getImg())
+                .phone(user.getPhone())
+                .birthday(user.getBirthday())
                 .role(user.getRole())
                 .build();
     }
@@ -216,9 +220,13 @@ public class UserServiceImpl implements UserService {
     }
 
     private void setFormattedDataToUser(User user, UserDTO userDTO) {
-        user.setUsername(userDTO.getUsername());
+        user.setUsername(formatText(userDTO.getUsername()));
         user.setName(formatText(userDTO.getName()));
         user.setLastName(formatText(userDTO.getLastName()));
+        user.setEmail(userDTO.getEmail());
+        user.setPhone(formatText(userDTO.getPhone()));
+        user.setBirthday(userDTO.getBirthday());
+        user.setImg(userDTO.getImg());
     }
     
     @Override

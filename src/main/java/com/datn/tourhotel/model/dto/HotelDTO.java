@@ -30,8 +30,6 @@ public class HotelDTO {
 
     @Valid
     private AddressDTO addressDTO;
-    
-    private String location;
 
     @Valid
     private List<RoomDTO> roomDTOs = new ArrayList<>();

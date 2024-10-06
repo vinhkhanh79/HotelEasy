@@ -26,4 +26,6 @@ public class AddressDTO {
     @NotBlank(message = "Country cannot be empty")
     @Pattern(regexp = "^(?!\\s*$)[A-Za-z ]+$", message = "Country must only contain letters")
     private String country;
+    
+    private String location;
 }

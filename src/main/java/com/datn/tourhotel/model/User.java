@@ -5,7 +5,9 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
+import org.springframework.format.annotation.DateTimeFormat;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
@@ -21,7 +23,7 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
-    @Column(unique = true, nullable = true)
+    @Column(nullable = true)
     private String email;
 
     @Column(unique = true, nullable = false)
@@ -39,14 +41,15 @@ public class User {
     @Column(nullable = false)
     private String lastName;
     
-    @Column(unique = true, nullable = true)
+    @Column(nullable = true)
     private String img;
 
-    @Column(nullable = true) // Optionally nullable
-    private String phone; // Contact number
+    @Column(nullable = true) 
+    private String phone; 
 
-    @Column(nullable = true) // Optionally nullable
-    private LocalDate birthday; // Date of birth
+    @Column(nullable = true) 
+    @DateTimeFormat(pattern = "dd-MM-yyyy")
+    private LocalDate birthday; 
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(nullable = false)
@@ -70,7 +73,6 @@ public class User {
                 ", createdDate=" + createdDate +
                 ", name='" + name + '\'' +
                 ", lastName='" + lastName + '\'' +
-                ", img='" + img + '\'' +
                 ", img='" + img + '\'' +
                 ", phone='" + phone + '\'' +
                 ", birthday=" + birthday +

@@ -66,6 +66,7 @@ public class AddressServiceImpl implements AddressService {
                 .addressLine(formatText(dto.getAddressLine()))
                 .city(formatText(dto.getCity()))
                 .country(formatText(dto.getCountry()))
+                .location(dto.getLocation())
                 .build();
     }
 
@@ -76,6 +77,7 @@ public class AddressServiceImpl implements AddressService {
                 .addressLine(address.getAddressLine())
                 .city(address.getCity())
                 .country(address.getCountry())
+                .location(address.getLocation())
                 .build();
     }
 

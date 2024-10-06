@@ -1,9 +1,16 @@
 package com.datn.tourhotel.model.dto;
 
+import java.time.LocalDate;
+
+import org.springframework.format.annotation.DateTimeFormat;
+
 import com.datn.tourhotel.model.Role;
 
+import jakarta.persistence.Column;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Past;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.Builder;
@@ -35,11 +42,15 @@ public class UserDTO {
     @Pattern(regexp = "^(?!\\s*$)[A-Za-z ]+$", message = "Last name must only contain letters")
     private String lastName;
     
-    @NotBlank(message = "Password cannot be empty")
-    @Size(min = 6, max = 20, message = "Password must be between 6 to 20 characters")
-    private String password;
-    
     private String img;
+    
+    @Pattern(regexp = "^(\\+\\d{1,3}( )?)?(\\d{10})$", message = "Invalid phone number")
+    private String phone; 
+    
+    @NotNull(message = "Birthday is required")
+    @Past(message = "Birthday must be in the past")
+    @DateTimeFormat(pattern = "dd-MM-yyyy")
+    private LocalDate birthday; 
 
     private Role role;
 

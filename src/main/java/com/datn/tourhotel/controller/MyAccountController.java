@@ -41,10 +41,20 @@ public class MyAccountController {
     @PostMapping("/customer/account/edit")
     public String editCustomerAccount(@Valid @ModelAttribute("user") UserDTO userDTO, BindingResult result) {
         log.info("Attempting to edit customer account details for ID: {}", userDTO.getId());
+        
+     // Lấy thông tin người dùng hiện tại từ service
+        UserDTO currentUserDTO = userService.findUserById(userDTO.getId());
+
+        // Nếu người dùng không chọn ảnh mới, giữ nguyên ảnh cũ
+        if (userDTO.getImg() == null || userDTO.getImg().isEmpty()) {
+            userDTO.setImg(currentUserDTO.getImg()); // Giữ nguyên ảnh cũ
+        }
+        // Kiểm tra xem form có lỗi không
         if (result.hasErrors()) {
             log.warn("Validation errors occurred while editing customer account");
             return "customer/account-edit";
         }
+
         try {
             userService.updateLoggedInUser(userDTO);
             log.info("Successfully edited customer account");
@@ -53,8 +63,11 @@ public class MyAccountController {
             result.rejectValue("username", "user.exists", "Username is already registered!");
             return "customer/account-edit";
         }
+
         return "redirect:/customer/account?success";
     }
+
+
 
     // Hotel Manager actions
     @GetMapping("/manager/account")
@@ -74,6 +87,14 @@ public class MyAccountController {
     @PostMapping("/manager/account/edit")
     public String editHotelManagerAccount(@Valid @ModelAttribute("user") UserDTO userDTO, BindingResult result) {
         log.info("Attempting to edit hotel manager account details for ID: {}", userDTO.getId());
+        
+     // Lấy thông tin người dùng hiện tại từ service
+        UserDTO currentUserDTO = userService.findUserById(userDTO.getId());
+
+        // Nếu người dùng không chọn ảnh mới, giữ nguyên ảnh cũ
+        if (userDTO.getImg() == null || userDTO.getImg().isEmpty()) {
+            userDTO.setImg(currentUserDTO.getImg()); // Giữ nguyên ảnh cũ
+        }
         if (result.hasErrors()) {
             log.warn("Validation errors occurred while editing hotel manager account");
             return "hotelmanager/account-edit";
