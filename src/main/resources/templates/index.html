@@ -104,7 +104,7 @@
                                             collection that are
                                             destined to be worn and loved immediately</p>
                                         <p class="text-white fw-bold mt-lg-4">$220/ Per Night</p>
-                                        <a class="main-btn border-white text-white mt-lg-5 book-now-link" th:href="@{/hotel-details/{id}(id=${hotel.id})}">Book Now</a>
+                                        <a class="main-btn border-white text-white mt-lg-5 book-now-link" th:href="@{/hotel-details/{id}(id=${hotel.id}, checkinDate=${checkinDate}, checkoutDate=${checkoutDate}, language=${#locale.language})}">Book Now</a>
                                     </div>
                                 </div>
                             </div>
@@ -496,69 +496,74 @@
 </body>
 <th:block layout:fragment="additional-scripts">
     <script>
-        $(document).ready(function () {
-            const displayFormat = "dd.mm.yy";
-            const submitFormat = "yy-mm-dd"; // Format that Spring Boot expects for LocalDate
+    $(document).ready(function () {
+        const displayFormat = "dd.mm.yy";
+        const submitFormat = "yy-mm-dd"; // Format that Spring Boot expects for LocalDate
 
-            // Block invalid characters for city input
-            $("#city").on("input", function () {
-                var value = $(this).val();
-                var filteredValue = value.replace(/[^A-Za-z\s'-]/g, "");
-                $(this).val(filteredValue);
-            });
-
-            // Initialize checkinDate
-            $("#checkinDate").datepicker({
-                dateFormat: displayFormat,
-                minDate: 0,
-                onClose: function (selectedDate) {
-                    if (selectedDate) {
-                        var checkoutMinDate = $.datepicker.parseDate(displayFormat, selectedDate);
-                        checkoutMinDate.setDate(checkoutMinDate.getDate() + 1); // Minimum 1 day after check-in
-                        $("#checkoutDate").datepicker("option", "minDate", checkoutMinDate);
-                    }
-                }
-            }).attr('readonly', 'readonly');
-
-            // Initialize checkoutDate
-            $("#checkoutDate").datepicker({
-                dateFormat: displayFormat,
-                minDate: +1
-            }).attr('readonly', 'readonly');
-
-            // Reformat dates on form submit
-            $("form").on("submit", function () {
-                var checkinDate = $('#checkinDate').datepicker('getDate');
-                var checkoutDate = $('#checkoutDate').datepicker('getDate');
-                $('#checkinDate').val($.datepicker.formatDate(submitFormat, checkinDate));
-                $('#checkoutDate').val($.datepicker.formatDate(submitFormat, checkoutDate));
-            });
-
-            // Placeholder
-            $("#checkinDate, #checkoutDate").each(function () {
-                $(this).attr("placeholder", "Select date");
-            });
+        // Block invalid characters for city input
+        $("#city").on("input", function () {
+            var value = $(this).val();
+            var filteredValue = value.replace(/[^A-Za-z\s'-]/g, "");
+            $(this).val(filteredValue);
         });
 
-        function getFormattedDate(date) {
-            const day = String(date.getDate()).padStart(2, '0');
-            const month = String(date.getMonth() + 1).padStart(2, '0');
-            const year = date.getFullYear();
-            return `${year}-${month}-${day}`;
-        }
+        // Initialize checkinDate
+        $("#checkinDate").datepicker({
+            dateFormat: displayFormat,
+            minDate: 0,
+            onClose: function (selectedDate) {
+                if (selectedDate) {
+                    var checkoutMinDate = $.datepicker.parseDate(displayFormat, selectedDate);
+                    checkoutMinDate.setDate(checkoutMinDate.getDate() + 1); // Minimum 1 day after check-in
+                    $("#checkoutDate").datepicker("option", "minDate", checkoutMinDate);
+                }
+            }
+        }).attr('readonly', 'readonly');
 
-        function setBookingDates() {
-            const today = new Date();
-            const checkinDate = getFormattedDate(today);
-            const checkoutDate = getFormattedDate(new Date(today.setDate(today.getDate() + 1))); // Set checkout date to the next day
+        // Initialize checkoutDate
+        $("#checkoutDate").datepicker({
+            dateFormat: displayFormat,
+            minDate: +1
+        }).attr('readonly', 'readonly');
 
-            const bookingLinks = document.querySelectorAll('.book-now-link');
-            bookingLinks.forEach(link => {
-                link.href = link.href.split('?')[0] + `?checkinDate=${checkinDate}&checkoutDate=${checkoutDate}`;
-            });
-        }
+        // Reformat dates on form submit
+        $("form").on("submit", function () {
+            var checkinDate = $('#checkinDate').datepicker('getDate');
+            var checkoutDate = $('#checkoutDate').datepicker('getDate');
+            $('#checkinDate').val($.datepicker.formatDate(submitFormat, checkinDate));
+            $('#checkoutDate').val($.datepicker.formatDate(submitFormat, checkoutDate));
+        });
 
-        document.addEventListener('DOMContentLoaded', setBookingDates);
+        // Placeholder
+        $("#checkinDate, #checkoutDate").each(function () {
+            $(this).attr("placeholder", "Select date");
+        });
+    });
+
+    function getFormattedDate(date) {
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = date.getFullYear();
+        return `${year}-${month}-${day}`;
+    }
+
+    function setBookingDates() {
+        const today = new Date();
+        const checkinDate = getFormattedDate(today);
+        const checkoutDate = getFormattedDate(new Date(today.setDate(today.getDate() + 1))); // Set checkout date to the next day
+
+        // Lấy giá trị language từ URL hiện tại
+        const urlParams = new URLSearchParams(window.location.search);
+        const language = urlParams.get('language') || 'en'; // Nếu không có, mặc định là 'en'
+
+        const bookingLinks = document.querySelectorAll('.book-now-link');
+        bookingLinks.forEach(link => {
+            link.href = link.href.split('?')[0] + `?checkinDate=${checkinDate}&checkoutDate=${checkoutDate}&language=${language}`;
+        });
+    }
+
+
+    document.addEventListener('DOMContentLoaded', setBookingDates);
     </script>
 </th:block>
 </html>

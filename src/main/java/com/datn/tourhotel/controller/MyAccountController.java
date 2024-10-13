@@ -1,8 +1,12 @@
 package com.datn.tourhotel.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
@@ -20,19 +24,23 @@ import com.datn.tourhotel.service.UserService;
 @RequiredArgsConstructor
 @Slf4j
 public class MyAccountController {
-
+	
+	@Autowired
+	private MessageSource messageSource;
     private final UserService userService;
 
     // Customer actions
     @GetMapping("/customer/account")
-    public String showCustomerAccount(Model model){
+    public String showCustomerAccount(Model model, HttpServletRequest request){
+    	String message = messageSource.getMessage("hello", null, "default message", request.getLocale());
         log.debug("Displaying customer account");
         addLoggedInUserDataToModel(model);
         return "customer/account";
     }
 
     @GetMapping("/customer/account/edit")
-    public String showCustomerEditForm(Model model){
+    public String showCustomerEditForm(Model model, HttpServletRequest request){
+    	String message = messageSource.getMessage("hello", null, "default message", request.getLocale());
         log.debug("Displaying customer account edit form");
         addLoggedInUserDataToModel(model);
         return "customer/account-edit";
@@ -71,14 +79,16 @@ public class MyAccountController {
 
     // Hotel Manager actions
     @GetMapping("/manager/account")
-    public String showHotelManagerAccount(Model model){
+    public String showHotelManagerAccount(Model model, HttpServletRequest request){
+    	String message = messageSource.getMessage("hello", null, "default message", request.getLocale());
         log.debug("Displaying hotel manager account");
         addLoggedInUserDataToModel(model);
         return "hotelmanager/account";
     }
 
     @GetMapping("/manager/account/edit")
-    public String showHotelManagerEditForm(Model model){
+    public String showHotelManagerEditForm(Model model, HttpServletRequest request){
+    	String message = messageSource.getMessage("hello", null, "default message", request.getLocale());
         log.debug("Displaying hotel manager account edit form");
         addLoggedInUserDataToModel(model);
         return "hotelmanager/account-edit";

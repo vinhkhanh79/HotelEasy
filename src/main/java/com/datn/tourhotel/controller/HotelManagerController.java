@@ -1,9 +1,13 @@
 package com.datn.tourhotel.controller;
 
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -30,16 +34,25 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 public class HotelManagerController {
-
+	
+	@Autowired
+	private MessageSource messageSource;
     private final HotelService hotelService;
     private final UserService userService;
     private final BookingService bookingService;
 
     @GetMapping("/dashboard")
-    public String dashboard() {
+    public String dashboard(HttpServletRequest request) {
+    	String message = messageSource.getMessage("hello", null, "default message", request.getLocale());
         return "hotelmanager/dashboard";
     }
-
+    @GetMapping("/index")
+    public String index(Model model, HttpServletRequest request) {
+    	String message = messageSource.getMessage("hello", null, "default message", request.getLocale());
+        List<HotelDTO> hotels = hotelService.findAllHotels();
+        model.addAttribute("hotels", hotels);
+        return "redirect:/index?language=" + request.getParameter("language");
+    }
     @GetMapping("/hotels/add")
     public String showAddHotelForm(Model model) {
         HotelRegistrationDTO hotelRegistrationDTO = new HotelRegistrationDTO();
@@ -64,7 +77,7 @@ public class HotelManagerController {
         }
         try {
             hotelService.saveHotel(hotelRegistrationDTO);
-            redirectAttributes.addFlashAttribute("message", "Hotel (" + hotelRegistrationDTO.getName() + ") added successfully");
+            redirectAttributes.addFlashAttribute("message", "Hotel " + hotelRegistrationDTO.getName() + " added successfully");
             return "redirect:/manager/hotels";
         } catch (HotelAlreadyExistsException e) {
             result.rejectValue("name", "hotel.exists", e.getMessage());
@@ -97,7 +110,7 @@ public class HotelManagerController {
             Long managerId = getCurrentManagerId();
             hotelDTO.setId(id);
             hotelService.updateHotelByManagerId(hotelDTO, managerId);
-            redirectAttributes.addFlashAttribute("message", "Hotel (ID: " + id + ") updated successfully");
+            redirectAttributes.addFlashAttribute("message", "Hotel ID: " + id + " updated successfully");
             return "redirect:/manager/hotels";
 
         } catch (HotelAlreadyExistsException e) {

@@ -1,8 +1,12 @@
 package com.datn.tourhotel.controller;
 
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -26,7 +30,9 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 public class CustomerController {
-
+	
+	@Autowired
+	private MessageSource messageSource;
     private final UserService userService;
     private final BookingService bookingService;
     private final HotelService hotelService;
@@ -36,16 +42,16 @@ public class CustomerController {
     }
 
     @GetMapping("/index")
-    public String index(Model model) {
+    public String index(Model model, HttpServletRequest request) {
+    	String message = messageSource.getMessage("hello", null, "default message", request.getLocale());
         List<HotelDTO> hotels = hotelService.findAllHotels();
         model.addAttribute("hotels", hotels);
-        return "customer/index";
+        return "redirect:/index?language=" + request.getParameter("language");
     }
 
-
-
     @GetMapping("/bookings")
-    public String listBookings(Model model, RedirectAttributes redirectAttributes) {
+    public String listBookings(Model model, RedirectAttributes redirectAttributes, HttpServletRequest request) {
+    	String message = messageSource.getMessage("hello", null, "default message", request.getLocale());
         try {
             Long customerId = getCurrentCustomerId();
             List<BookingDTO> bookingDTOs = bookingService.findBookingsByCustomerId(customerId);
@@ -58,12 +64,13 @@ public class CustomerController {
         } catch (Exception e) {
             log.error("An error occurred while listing bookings", e);
             redirectAttributes.addFlashAttribute("errorMessage", "An unexpected error occurred. Please try again later.");
-            return "redirect:/";
+            return "redirect:/index";
         }
     }
 
     @GetMapping("/bookings/{id}")
-    public String viewBookingDetails(@PathVariable Long id, Model model, RedirectAttributes redirectAttributes) {
+    public String viewBookingDetails(@PathVariable Long id, Model model, RedirectAttributes redirectAttributes, HttpServletRequest request) {
+    	String message = messageSource.getMessage("hello", null, "default message", request.getLocale());
         try {
             Long customerId = getCurrentCustomerId();
             BookingDTO bookingDTO = bookingService.findBookingByIdAndCustomerId(id, customerId);

@@ -1,9 +1,13 @@
 package com.datn.tourhotel.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
@@ -28,7 +32,9 @@ import java.time.temporal.ChronoUnit;
 @RequiredArgsConstructor
 @Slf4j
 public class BookingController {
-
+	
+	@Autowired
+	private MessageSource messageSource;
     private final HotelService hotelService;
     private final UserService userService;
     private final BookingService bookingService;
@@ -41,7 +47,8 @@ public class BookingController {
     }
 
     @GetMapping("/payment")
-    public String showPaymentPage(Model model, RedirectAttributes redirectAttributes, HttpSession session) {
+    public String showPaymentPage(Model model, RedirectAttributes redirectAttributes, HttpSession session, HttpServletRequest request) {
+    	String message = messageSource.getMessage("hello", null, "default message", request.getLocale());
         BookingInitiationDTO bookingInitiationDTO = (BookingInitiationDTO) session.getAttribute("bookingInitiationDTO");
         log.debug("BookingInitiationDTO retrieved from session: {}", bookingInitiationDTO);
 
@@ -91,7 +98,8 @@ public class BookingController {
     }
 
     @GetMapping("/confirmation")
-    public String showConfirmationPage(Model model, RedirectAttributes redirectAttributes) {
+    public String showConfirmationPage(Model model, RedirectAttributes redirectAttributes, HttpServletRequest request) {
+    	String message = messageSource.getMessage("hello", null, "default message", request.getLocale());
         // Attempt to retrieve the bookingDTO from flash attributes
         BookingDTO bookingDTO = (BookingDTO) model.asMap().get("bookingDTO");
 

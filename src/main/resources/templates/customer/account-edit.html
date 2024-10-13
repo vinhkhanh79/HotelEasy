@@ -39,7 +39,7 @@
                                         <label for="img-input" class="img-upload-container" style="height: 310px; width:295px;">
                                             <img id="img-preview" th:src="@{/img/user/{img}(img=${user.img})}" alt="User Image" class="img-fluid w-100 rounded-3" style="height: 100%; width: 100%; object-fit: cover;">
                                         </label>
-                                        <input class="form-control mt-2" id="img-input" type="file" th:field="*{img}" accept="image/*" onchange="previewImage(event)" style="margin: 0 auto; width: 90%; display: inline-block;">
+                                        <input class="form-control mt-2" id="img-input" type="file" th:field="*{img}" accept="image/*" onchange="previewImage(event)" style="display: none;">
                                         <p class="text-danger" th:if="${#fields.hasErrors('img')}" th:errors="*{img}"></p>
                                     </div>
                                 </div>

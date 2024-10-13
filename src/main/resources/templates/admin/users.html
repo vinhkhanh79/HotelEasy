@@ -6,13 +6,13 @@
 </head>
 <body>
 <th:block layout:fragment="content">
-    <div class="container">
-        <div class="row">
+    <div class="container mt-5">
+        <div class="row" style="min-height: 50vh;">
             <div class="col-md-12">
                 <h2>User List</h2>
                 <div th:if="${param.success}">
                     <div class="alert alert-success">
-                        User (ID: <span th:text="${updatedUserId}"></span>) info has been successfully updated
+                        User ID: <span th:text="${updatedUserId}"></span> info has been successfully updated
                     </div>
                 </div>
                 <table class="table table-striped align-middle">

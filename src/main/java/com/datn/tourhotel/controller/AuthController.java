@@ -1,11 +1,14 @@
 package com.datn.tourhotel.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Controller;
@@ -33,12 +36,15 @@ import com.datn.tourhotel.service.UserService;
 @RequiredArgsConstructor
 @Slf4j
 public class AuthController {
-
+	
+	@Autowired
+	private MessageSource messageSource;
     private final UserService userService;
     private final HotelService hotelService;
 
     @GetMapping("/")
-    public String homePage(Authentication authentication, Model model, @ModelAttribute("hotelSearchDTO") HotelSearchDTO hotelSearchDTO) {
+    public String homePage(Authentication authentication, Model model, HttpServletRequest request, @ModelAttribute("hotelSearchDTO") HotelSearchDTO hotelSearchDTO) {
+    	String message = messageSource.getMessage("hello", null, "default message", request.getLocale());
         String redirect = getAuthenticatedUserRedirectUrl(authentication);
         List<HotelDTO> hotels = hotelService.findAllHotels();
         model.addAttribute("hotels", hotels);
@@ -49,12 +55,21 @@ public class AuthController {
     }
 
     @GetMapping("/login")
-    public String loginPage(Authentication authentication) {
+    public String loginPage(Authentication authentication, HttpServletRequest request) {
+        String language = (String) request.getSession().getAttribute("language");
+        
+        // Set a default language if none is set
+        if (language == null) {
+            language = "en"; // or any default language you prefer
+            request.getSession().setAttribute("language", language);
+        }
+
         String redirect = getAuthenticatedUserRedirectUrl(authentication);
         if (redirect != null) return redirect;
         log.debug("Accessing login page");
         return "account/login";
     }
+
     
     @GetMapping("/register/customer")
     public String showCustomerRegistrationForm(@ModelAttribute("user") UserRegistrationDTO registrationDTO, Authentication authentication) {
@@ -96,7 +111,8 @@ public class AuthController {
     }
 
     @GetMapping("/register/manager")
-    public String showManagerRegistrationForm(@ModelAttribute("user") UserRegistrationDTO registrationDTO, Authentication authentication) {
+    public String showManagerRegistrationForm(@ModelAttribute("user") UserRegistrationDTO registrationDTO, Authentication authentication, HttpServletRequest request) {
+    	String message = messageSource.getMessage("hello", null, "default message", request.getLocale());
         String redirect = getAuthenticatedUserRedirectUrl(authentication);
         if (redirect != null) return redirect;
         log.info("Showing manager registration form");
@@ -111,7 +127,8 @@ public class AuthController {
     }
     
     @GetMapping("/customer/changePass")
-    public String showChangePasswordForm(Model model) {
+    public String showChangePasswordForm(Model model, HttpServletRequest request) {
+    	String message = messageSource.getMessage("hello", null, "default message", request.getLocale());
         model.addAttribute("passwordChangeDTO", new PasswordChangeDTO());
         return "account/changePass";
     }

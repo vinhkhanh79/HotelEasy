@@ -2,26 +2,70 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{/layout/layout-main}">
 <head>
-    <title>Edit Hotel</title>
+    <title>Edit My Hotel</title>
+        <script type="text/javascript">
+        function previewImage(event, previewId) {
+            var reader = new FileReader();
+            var imgElement = document.getElementById(previewId);
+
+            reader.onload = function() {
+                if (reader.readyState === 2) {
+                    imgElement.src = reader.result; // Set the src to the file's result
+                }
+            }
+            reader.readAsDataURL(event.target.files[0]); // Read the file input as DataURL
+        }
+    </script>
 </head>
 <body>
 <th:block layout:fragment="content">
-    <div class="container">
-        <div class="row">
+    <div class="container mt-5">
+        <div class="row mt-4">
             <div class="col-md-8 offset-md-2">
                 <div class="card">
                     <div class="card-header">
-                        <h2 class="text-center">Edit Hotel</h2>
+                        <h2 class="text-center">Edit My Hotel</h2>
                     </div>
                     <div class="card-body">
                         <form method="post" th:action="@{/admin/hotels/edit/{id}(id=${hotel.id})}" th:object="${hotel}">
+                        	<div class="row me-3">
+                                <div class="col-md-4">
+                                    <div class="form-group mb-3">
+                                        <label for="img-input1" class="img-upload-container" style="cursor: pointer; height: 170px; width:270px;">
+                                            <img id="img-preview1" th:src="@{/img/hotel/{img}(img=${hotel.img})}" alt="Choose Your Image" class="img-fluid rounded-3" style="height: 100%; width:100%; object-fit: cover;">
+                                        </label>
+                                        <input class="form-control mt-2" id="img-input1" type="file" th:field="*{img}" accept="image/*" onchange="previewImage(event, 'img-preview1')" style="display: none;">
+                                        <p class="text-danger" th:if="${#fields.hasErrors('img')}" th:errors="*{img}"></p>
+                                    </div>
+                                </div>
+                                <!-- Second Image Upload -->
+                                <div class="col-md-4">
+                                    <div class="form-group mb-3">
+                                        <label for="img-input2" class="img-upload-container" style="cursor: pointer; height: 170px; width:270px;">
+                                            <img id="img-preview2" th:src="@{/img/hotel/{img2}(img2=${hotel.img2})}" alt="Choose Your Image" class="img-fluid rounded-3" style="height: 100%; width:100%; object-fit: cover;">
+                                        </label>
+                                        <input class="form-control mt-2" id="img-input2" type="file" th:field="*{img2}" accept="image/*" onchange="previewImage(event, 'img-preview2')" style="display: none;">
+                                        <p class="text-danger" th:if="${#fields.hasErrors('img2')}" th:errors="*{img2}"></p>
+                                    </div>
+                                </div>
+                                <!-- Third Image Upload -->
+                                <div class="col-md-4">
+                                    <div class="form-group mb-3">
+                                        <label for="img-input3" class="img-upload-container" style="cursor: pointer; height: 170px; width:270px;">
+                                            <img id="img-preview3" th:src="@{/img/hotel/{img3}(img3=${hotel.img3})}" alt="Choose Your Image" class="img-fluid rounded-3" style="height: 100%; width:100%; object-fit: cover;">
+                                        </label>
+                                        <input class="form-control mt-2" id="img-input3" type="file" th:field="*{img3}" accept="image/*" onchange="previewImage(event, 'img-preview3')" style="display: none;">
+                                        <p class="text-danger" th:if="${#fields.hasErrors('img3')}" th:errors="*{img3}"></p>
+                                    </div>
+                                </div>
+                            </div>
+                            <input type="hidden" th:field="*{addressDTO.id}">
                             <div class="form-group mb-3">
                                 <label class="form-label" for="name">Hotel Name:</label>
                                 <input class="form-control" id="name" type="text" th:field="*{name}"
                                        placeholder="Enter hotel name">
                                 <p class="text-danger" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></p>
                             </div>
-                            <input type="hidden" th:field="*{addressDTO.id}">
                             <div class="form-group mb-3">
                                 <label class="form-label" for="addressLine">Address Line:</label>
                                 <input class="form-control" id="addressLine" type="text"
@@ -44,6 +88,13 @@
                                 <p class="text-danger" th:if="${#fields.hasErrors('addressDTO.country')}"
                                    th:errors="*{addressDTO.country}"></p>
                             </div>
+                            <div class="form-group mb-3">
+                                <label class="form-label" for="describe">Describe:</label>
+                                <input class="form-control" id="describe" type="text" th:field="*{describe}"
+                                       placeholder="Enter Describe">
+                                <p class="text-danger" th:if="${#fields.hasErrors('describe')}"
+                                   th:errors="*{describe}"></p>
+                            </div>
                             <!-- Single Room Details -->
                             <div class="form-group mb-3">
                                 <input type="hidden" th:field="*{roomDTOs[0].id}">
@@ -54,7 +105,8 @@
                                 <input type="hidden" th:field="*{roomDTOs[0].roomType}">
                                 <p class="text-danger" th:if="${#fields.hasErrors('roomDTOs[0].roomCount')}"
                                    th:errors="*{roomDTOs[0].roomCount}"></p>
-                                <label class="form-label" for="singleRoomPrice">Single Room Price:</label>
+
+                                <label class="form-label" for="singleRoomPrice">Single Room Price ($):</label>
                                 <input class="form-control" id="singleRoomPrice" type="number" step="0.01"
                                        th:field="*{roomDTOs[0].pricePerNight}"
                                        placeholder="Enter price for single rooms">
@@ -71,7 +123,7 @@
                                 <input type="hidden" th:field="*{roomDTOs[1].roomType}">
                                 <p class="text-danger" th:if="${#fields.hasErrors('roomDTOs[1].roomCount')}"
                                    th:errors="*{roomDTOs[1].roomCount}"></p>
-                                <label class="form-label" for="doubleRoomPrice">Double Room Price:</label>
+                                <label class="form-label" for="doubleRoomPrice">Double Room Price ($):</label>
                                 <input class="form-control" id="doubleRoomPrice" type="number" step="0.01"
                                        th:field="*{roomDTOs[1].pricePerNight}"
                                        placeholder="Enter price for double rooms">

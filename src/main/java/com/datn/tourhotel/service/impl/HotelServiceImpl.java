@@ -40,23 +40,36 @@ public class HotelServiceImpl implements HotelService {
             throw new HotelAlreadyExistsException("This hotel name is already registered!");
         }
 
+     // Nếu không tồn tại hotel, tạo mới hotel
         Hotel hotel = mapHotelRegistrationDtoToHotel(hotelRegistrationDTO);
+        
+            if (StringUtils.hasText(hotelRegistrationDTO.getImg())) {
+            	hotel.setImg(hotelRegistrationDTO.getImg());
+            }
+            if (StringUtils.hasText(hotelRegistrationDTO.getImg2())) {
+            	hotel.setImg2(hotelRegistrationDTO.getImg2());
+            }
+            if (StringUtils.hasText(hotelRegistrationDTO.getImg3())) {
+            	hotel.setImg3(hotelRegistrationDTO.getImg3());
+            }
 
+        // Lưu địa chỉ
         Address savedAddress = addressService.saveAddress(hotelRegistrationDTO.getAddressDTO());
         hotel.setAddress(savedAddress);
 
-        // Get the username of the currently logged-in hotel manager
+        // Lấy thông tin người quản lý hiện tại
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        // Retrieve the Hotel Manager associated with this username
         HotelManager hotelManager = hotelManagerService.findByUser(userService.findUserByUsername(username));
         hotel.setHotelManager(hotelManager);
 
-        // Saving hotel to be able to bind rooms to hotel id
+        // Lưu hotel để có thể liên kết với các phòng
         hotel = hotelRepository.save(hotel);
 
+        // Lưu các phòng của hotel
         List<Room> savedRooms = roomService.saveRooms(hotelRegistrationDTO.getRoomDTOs(), hotel);
         hotel.setRooms(savedRooms);
 
+        // Lưu lần cuối hotel với thông tin đầy đủ
         Hotel savedHotel = hotelRepository.save(hotel);
         log.info("Successfully saved new hotel with ID: {}", hotel.getId());
         return savedHotel;
@@ -102,6 +115,16 @@ public class HotelServiceImpl implements HotelService {
         }
 
         existingHotel.setName(hotelDTO.getName());
+        
+        if (StringUtils.hasText(hotelDTO.getImg())) {
+        	existingHotel.setImg(hotelDTO.getImg());
+        }
+        if (StringUtils.hasText(hotelDTO.getImg2())) {
+        	existingHotel.setImg2(hotelDTO.getImg2());
+        }
+        if (StringUtils.hasText(hotelDTO.getImg3())) {
+        	existingHotel.setImg3(hotelDTO.getImg3());
+        }
 
         Address updatedAddress = addressService.updateAddress(hotelDTO.getAddressDTO());
         existingHotel.setAddress(updatedAddress);
@@ -156,6 +179,16 @@ public class HotelServiceImpl implements HotelService {
         }
 
         existingHotel.setName(hotelDTO.getName());
+        
+        if (StringUtils.hasText(hotelDTO.getImg())) {
+            existingHotel.setImg(hotelDTO.getImg());
+        }
+        if (StringUtils.hasText(hotelDTO.getImg2())) {
+            existingHotel.setImg2(hotelDTO.getImg2());
+        }
+        if (StringUtils.hasText(hotelDTO.getImg3())) {
+            existingHotel.setImg3(hotelDTO.getImg3());
+        }
 
         Address updatedAddress = addressService.updateAddress(hotelDTO.getAddressDTO());
         existingHotel.setAddress(updatedAddress);
@@ -164,7 +197,9 @@ public class HotelServiceImpl implements HotelService {
 
         hotelRepository.save(existingHotel);
         log.info("Successfully updated existing hotel with ID: {} for Manager ID: {}", hotelDTO.getId(), managerId);
-        return mapHotelToHotelDto(existingHotel);    }
+        return mapHotelToHotelDto(existingHotel);    
+        
+    }
 
     @Override
     public void deleteHotelByIdAndManagerId(Long hotelId, Long managerId) {
@@ -178,6 +213,12 @@ public class HotelServiceImpl implements HotelService {
     private Hotel mapHotelRegistrationDtoToHotel(HotelRegistrationDTO dto) {
         return Hotel.builder()
                 .name(formatText(dto.getName()))
+                .describe(formatText(dto.getDescribe()))
+                .img(dto.getImg())
+                .img2(dto.getImg2())
+                .img3(dto.getImg3())
+//                .addressDTO(addressDTO)
+//                .roomDTOs(roomDTOs)
                 .build();
     }
 
@@ -193,6 +234,8 @@ public class HotelServiceImpl implements HotelService {
                 .id(hotel.getId())
                 .name(hotel.getName())
                 .img(hotel.getImg())
+                .img2(hotel.getImg2())
+                .img3(hotel.getImg3())
                 .describe(hotel.getDescribe())
                 .addressDTO(addressDTO)
                 .roomDTOs(roomDTOs)

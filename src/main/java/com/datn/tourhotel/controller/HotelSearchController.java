@@ -1,9 +1,13 @@
 package com.datn.tourhotel.controller;
 
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -20,16 +24,21 @@ import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Locale;
 
 @Controller
 @RequiredArgsConstructor
 @Slf4j
 public class HotelSearchController {
-
+	
+	@Autowired
+	private MessageSource messageSource;
     private final HotelSearchService hotelSearchService;
     private final HotelService hotelService;
+    
     @GetMapping("/index")
-    public String showSearchForm(@ModelAttribute("hotelSearchDTO") HotelSearchDTO hotelSearchDTO, Model model) {
+    public String showSearchForm(@ModelAttribute("hotelSearchDTO") HotelSearchDTO hotelSearchDTO, Model model, HttpServletRequest request) {
+    	 String message = messageSource.getMessage("hello", null, "default message", request.getLocale());
     	 List<HotelDTO> hotels = hotelService.findAllHotels();
          model.addAttribute("hotels", hotels);
         return "index";
@@ -52,7 +61,8 @@ public class HotelSearchController {
     }
 
     @GetMapping("/search-results")
-    public String showSearchResults(@RequestParam String city, @RequestParam String checkinDate, @RequestParam String checkoutDate, Model model, RedirectAttributes redirectAttributes) {
+    public String showSearchResults(@RequestParam String city, @RequestParam String checkinDate, @RequestParam String checkoutDate, Model model, RedirectAttributes redirectAttributes, HttpServletRequest request) {
+    	String message = messageSource.getMessage("hello", null, "default message", request.getLocale());
         try {
             LocalDate parsedCheckinDate = LocalDate.parse(checkinDate);
             LocalDate parsedCheckoutDate = LocalDate.parse(checkoutDate);
@@ -92,7 +102,13 @@ public class HotelSearchController {
     }
 
     @GetMapping("/hotel-details/{id}")
-    public String showHotelDetails(@PathVariable Long id, @RequestParam String checkinDate, @RequestParam String checkoutDate, Model model, RedirectAttributes redirectAttributes) {
+    public String showHotelDetails(@PathVariable Long id, @RequestParam String checkinDate, @RequestParam String checkoutDate, @RequestParam(required = false) String language, Model model, RedirectAttributes redirectAttributes, HttpServletRequest request) {
+    	String message = messageSource.getMessage("hello", null, "default message", request.getLocale());
+    	if (language != null) {
+            Locale locale = new Locale(language);
+            request.getSession().setAttribute("language", language);
+            request.getSession().setAttribute("locale", locale);
+        }
         try {
             LocalDate parsedCheckinDate = LocalDate.parse(checkinDate);
             LocalDate parsedCheckoutDate = LocalDate.parse(checkoutDate);
@@ -156,6 +172,7 @@ public class HotelSearchController {
             return "redirect:/index";
         }
     }
+
 
 
     private void validateCheckinAndCheckoutDates(LocalDate checkinDate, LocalDate checkoutDate) {

@@ -571,7 +571,16 @@ p {
     height: auto;
     border-radius: 10px;
 }
-
+/* CSS cho khung ảnh với viền */
+.img-upload-container img {
+    border: 2px solid #ccc; /* Viền khung dạng nét đứt màu xám nhạt */
+    height: 170px;
+    width: 275px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+}
 /* 12. Footer */
 .footer_wrapper {
     background-color: var(--bg-black);
