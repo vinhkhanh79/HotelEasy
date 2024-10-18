@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{/layout/layout-main}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account Details</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<th:block layout:fragment="content">
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-md-8 offset-md-2">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="text-center">User Account Details</h2>
+                    </div>
+                    <div th:if="${param.success}">
+	                    <div class="alert alert-success">User info successfully updated</div>
+	                </div>
+                    <div class="card-body">
+                        <form>
+                            <div class="row mb-3">
+                                <div class="col-md-5" style="height: 310px; width:295px;">
+                                    <img th:src="@{/img/user/{img}(img=${user.img})}" class="img-fluid w-100 rounded-3" style="height: 100%; width: 100%; object-fit: cover;">
+                                </div>
+                                <div class="col-md-7">
+                                    <div class="mb-3">
+                                        <label for="username" class="form-label fw-bold">Username:</label>
+                                        <input class="form-control-plaintext" id="username" readonly type="text" th:value="${user.username}">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="name" class="form-label fw-bold">First Name:</label>
+                                        <input class="form-control-plaintext" id="name" readonly type="text" th:value="${user.name}">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="lastName" class="form-label fw-bold">Last Name:</label>
+                                        <input class="form-control-plaintext" id="lastName" readonly type="text" th:value="${user.lastName}">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="email" class="form-label fw-bold">Email:</label>
+                                        <input class="form-control-plaintext" id="email" readonly type="text" th:value="${user.email}">
+                                    </div>
+									<div class="mb-3">
+                                        <label for="phone" class="form-label fw-bold">Phone:</label>
+                                        <input class="form-control-plaintext" id="phone" readonly type="text" th:value="${user.phone}">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="phone" class="form-label fw-bold">Birthday:</label>
+                                        <input class="form-control-plaintext" id="birthday" readonly type="date" th:value="${user.birthday}">
+                                    </div>
+                                    <div class="d-flex justify-content-end">
+                                        <a th:href="@{/customer/account/edit}" class="btn btn-primary">Edit User Info</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+	            </div>
+            </div>
+        </div>
+    </div>
+</th:block>
+</body>
+</html>

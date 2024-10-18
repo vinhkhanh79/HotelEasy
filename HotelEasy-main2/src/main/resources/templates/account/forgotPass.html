@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{/layout/layout-main}">
+<head>
+    <title>Forgot Password</title>
+</head>
+<body>
+<th:block layout:fragment="content">
+	<section class="py-3 py-md-5 py-xl-8">
+	    <div class="container">
+	        <div class="row">
+	            <div class="col-12">
+	            	<div class="mb-5 text-center">
+	            		<h2 class="display-5 fw-bold">Forgot Password</h2>
+	            	</div>
+	                <div th:if="${param.error}">
+	                    <div class="alert alert-danger">Invalid Email</div>
+	                </div>
+	                <div th:if="${param.logout}">
+	                    <div class="alert alert-success">You have successfully logged out</div>
+	                </div>
+	            </div>
+	        </div>
+	        <div class="row justify-content-center">
+	            <div class="col-12 col-lg-10 col-xl-8">
+	                <div class="row gy-5 justify-content-center">
+	                    <div class="col-12">
+	                        <form method="post" th:action="@{/forgotPass/customer}">
+	                            <div class="mb-3">
+	                                <div class="form-floating mb-3">
+	                                    <input type="email" class="form-control border-0 border-bottom rounded-0" 
+	                                           id="email" name="email" placeholder="" required>
+	                                    <label for="email">Email</label>
+	                                </div>
+	                                <small class="form-text text-muted mb-3">example@gmail.com</small>
+	                                <div th:if="${success}">
+					                    <p class="text-success" th:text="${success}">Password reset email sent successfully.</p>
+					                </div>
+					                <!-- Hiển thị thông báo lỗi -->
+					                <div th:if="${error}">
+					                    <p class="text-danger" th:text="${error}">Error occurred while processing your request.</p>
+					                </div>
+	                            </div>
+	                            <div class="d-grid">
+	                                <button type="submit" class="btn btn-primary btn-lg">Forgot Password</button>
+	                            </div>
+	                        </form>
+	                    </div>
+	                </div>
+	            </div>
+	        </div>
+	    </div>
+    </section>
+</th:block>
+</body>
+</html>
