@@ -36,4 +36,9 @@ public class BookingDTO {
     private PaymentStatus paymentStatus;
     private PaymentMethod paymentMethod;
     
+    private String orderInfo;
+    private String paymentTime;
+    private String transactionId;
+    private Long userId;
+    
 }

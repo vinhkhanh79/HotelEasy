@@ -5,6 +5,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import java.io.IOException;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.security.core.Authentication;
@@ -15,9 +17,12 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.datn.tourhotel.exception.UsernameAlreadyExistsException;
 import com.datn.tourhotel.model.dto.UserDTO;
+import com.datn.tourhotel.service.CloudinaryService;
 import com.datn.tourhotel.service.UserService;
 
 @Controller
@@ -28,7 +33,9 @@ public class MyAccountController {
 	@Autowired
 	private MessageSource messageSource;
     private final UserService userService;
-
+    @Autowired
+    private CloudinaryService cloudinaryService;
+    
     // Customer actions
     @GetMapping("/customer/account")
     public String showCustomerAccount(Model model, HttpServletRequest request){
@@ -39,32 +46,35 @@ public class MyAccountController {
     }
 
     @GetMapping("/customer/account/edit")
-    public String showCustomerEditForm(Model model, HttpServletRequest request){
-    	String message = messageSource.getMessage("hello", null, "default message", request.getLocale());
+    public String showCustomerEditForm(Model model, HttpServletRequest request) {
+        String message = messageSource.getMessage("hello", null, "default message", request.getLocale());
         log.debug("Displaying customer account edit form");
         addLoggedInUserDataToModel(model);
         return "customer/account-edit";
     }
 
     @PostMapping("/customer/account/edit")
-    public String editCustomerAccount(@Valid @ModelAttribute("user") UserDTO userDTO, BindingResult result) {
+    public String editCustomerAccount(@Valid @ModelAttribute("user") UserDTO userDTO, 
+                                       BindingResult result, 
+                                       @RequestParam("multipartFile") MultipartFile multipartFile) throws IOException {
         log.info("Attempting to edit customer account details for ID: {}", userDTO.getId());
-        
-     // Lấy thông tin người dùng hiện tại từ service
+
+        // Get the current user information from the service
         UserDTO currentUserDTO = userService.findUserById(userDTO.getId());
 
-        // Nếu người dùng không chọn ảnh mới, giữ nguyên ảnh cũ
-        if (userDTO.getImg() == null || userDTO.getImg().isEmpty()) {
-            userDTO.setImg(currentUserDTO.getImg()); // Giữ nguyên ảnh cũ
+        // If the user did not select a new image, keep the old image
+        if (multipartFile.isEmpty()) {
+            userDTO.setImg(currentUserDTO.getImg()); // Keep the old image
         }
-        // Kiểm tra xem form có lỗi không
+
+        // Check for validation errors
         if (result.hasErrors()) {
             log.warn("Validation errors occurred while editing customer account");
             return "customer/account-edit";
         }
 
         try {
-            userService.updateLoggedInUser(userDTO);
+            userService.updateLoggedInUser(userDTO, multipartFile);
             log.info("Successfully edited customer account");
         } catch (UsernameAlreadyExistsException e) {
             log.error("Username already exists error", e);
@@ -76,7 +86,7 @@ public class MyAccountController {
     }
 
 
-
+    
     // Hotel Manager actions
     @GetMapping("/manager/account")
     public String showHotelManagerAccount(Model model, HttpServletRequest request){
@@ -95,28 +105,34 @@ public class MyAccountController {
     }
 
     @PostMapping("/manager/account/edit")
-    public String editHotelManagerAccount(@Valid @ModelAttribute("user") UserDTO userDTO, BindingResult result) {
-        log.info("Attempting to edit hotel manager account details for ID: {}", userDTO.getId());
-        
-     // Lấy thông tin người dùng hiện tại từ service
+    public String editManagerAccount(@Valid @ModelAttribute("user") UserDTO userDTO, 
+                                       BindingResult result, 
+                                       @RequestParam("multipartFile") MultipartFile multipartFile) throws IOException {
+        log.info("Attempting to edit manager account details for ID: {}", userDTO.getId());
+
+        // Get the current user information from the service
         UserDTO currentUserDTO = userService.findUserById(userDTO.getId());
 
-        // Nếu người dùng không chọn ảnh mới, giữ nguyên ảnh cũ
-        if (userDTO.getImg() == null || userDTO.getImg().isEmpty()) {
-            userDTO.setImg(currentUserDTO.getImg()); // Giữ nguyên ảnh cũ
+        // If the user did not select a new image, keep the old image
+        if (multipartFile.isEmpty()) {
+            userDTO.setImg(currentUserDTO.getImg()); // Keep the old image
         }
+
+        // Check for validation errors
         if (result.hasErrors()) {
-            log.warn("Validation errors occurred while editing hotel manager account");
-            return "hotelmanager/account-edit";
+            log.warn("Validation errors occurred while editing manager account");
+            return "manager/account-edit";
         }
+
         try {
-            userService.updateLoggedInUser(userDTO);
-            log.info("Successfully edited hotel manager account");
+            userService.updateLoggedInUser(userDTO, multipartFile);
+            log.info("Successfully edited manager account");
         } catch (UsernameAlreadyExistsException e) {
             log.error("Username already exists error", e);
             result.rejectValue("username", "user.exists", "Username is already registered!");
-            return "hotelmanager/account-edit";
+            return "manager/account-edit";
         }
+
         return "redirect:/manager/account?success";
     }
 

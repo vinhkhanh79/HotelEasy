@@ -7,16 +7,21 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+import org.springframework.web.multipart.MultipartFile;
 
+import com.cloudinary.Cloudinary;
 import com.datn.tourhotel.exception.HotelAlreadyExistsException;
 import com.datn.tourhotel.model.*;
 import com.datn.tourhotel.model.dto.*;
 import com.datn.tourhotel.repository.HotelRepository;
 import com.datn.tourhotel.service.*;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -29,10 +34,11 @@ public class HotelServiceImpl implements HotelService {
     private final RoomService roomService;
     private final UserService userService;
     private final HotelManagerService hotelManagerService;
+    private final Cloudinary cloudinary;
 
     @Override
     @Transactional
-    public Hotel saveHotel(HotelRegistrationDTO hotelRegistrationDTO) {
+    public Hotel saveHotel(HotelRegistrationDTO hotelRegistrationDTO, MultipartFile multipartFile, MultipartFile multipartFile2, MultipartFile multipartFile3) {
         log.info("Attempting to save a new hotel: {}", hotelRegistrationDTO.toString());
 
         Optional<Hotel> existingHotel = hotelRepository.findByName(hotelRegistrationDTO.getName());
@@ -43,15 +49,37 @@ public class HotelServiceImpl implements HotelService {
      // Nếu không tồn tại hotel, tạo mới hotel
         Hotel hotel = mapHotelRegistrationDtoToHotel(hotelRegistrationDTO);
         
-            if (StringUtils.hasText(hotelRegistrationDTO.getImg())) {
-            	hotel.setImg(hotelRegistrationDTO.getImg());
+     // Upload file lên Cloudinary nếu có MultipartFile
+     // Upload file lên Cloudinary nếu có MultipartFile
+        if (multipartFile != null && !multipartFile.isEmpty()) {
+            try {
+                Map uploadResult = cloudinary.uploader().upload(multipartFile.getBytes(), Map.of("public_id", UUID.randomUUID().toString()));
+                hotel.setImg(uploadResult.get("url").toString()); // Set URL của hình ảnh đầu tiên
+            } catch (IOException e) {
+                log.error("Image upload failed: {}", e.getMessage());
+                throw new RuntimeException("Image upload failed", e);
             }
-            if (StringUtils.hasText(hotelRegistrationDTO.getImg2())) {
-            	hotel.setImg2(hotelRegistrationDTO.getImg2());
+        }
+        
+        if (multipartFile2 != null && !multipartFile2.isEmpty()) {
+            try {
+                Map uploadResult2 = cloudinary.uploader().upload(multipartFile2.getBytes(), Map.of("public_id", UUID.randomUUID().toString()));
+                hotel.setImg2(uploadResult2.get("url").toString()); // Set URL của hình ảnh thứ hai
+            } catch (IOException e) {
+                log.error("Image upload failed: {}", e.getMessage());
+                throw new RuntimeException("Image upload failed", e);
             }
-            if (StringUtils.hasText(hotelRegistrationDTO.getImg3())) {
-            	hotel.setImg3(hotelRegistrationDTO.getImg3());
+        }
+
+        if (multipartFile3 != null && !multipartFile3.isEmpty()) {
+            try {
+                Map uploadResult3 = cloudinary.uploader().upload(multipartFile3.getBytes(), Map.of("public_id", UUID.randomUUID().toString()));
+                hotel.setImg3(uploadResult3.get("url").toString()); // Set URL của hình ảnh thứ ba
+            } catch (IOException e) {
+                log.error("Image upload failed: {}", e.getMessage());
+                throw new RuntimeException("Image upload failed", e);
             }
+        }
 
         // Lưu địa chỉ
         Address savedAddress = addressService.saveAddress(hotelRegistrationDTO.getAddressDTO());
@@ -104,7 +132,7 @@ public class HotelServiceImpl implements HotelService {
 
     @Override
     @Transactional
-    public HotelDTO updateHotel(HotelDTO hotelDTO) {
+    public HotelDTO updateHotel(HotelDTO hotelDTO, MultipartFile multipartFile, MultipartFile multipartFile2, MultipartFile multipartFile3){
         log.info("Attempting to update hotel with ID: {}", hotelDTO.getId());
 
         Hotel existingHotel = hotelRepository.findById(hotelDTO.getId())
@@ -116,15 +144,36 @@ public class HotelServiceImpl implements HotelService {
 
         existingHotel.setName(hotelDTO.getName());
         
-        if (StringUtils.hasText(hotelDTO.getImg())) {
-        	existingHotel.setImg(hotelDTO.getImg());
+        if (multipartFile != null && !multipartFile.isEmpty()) {
+            try {
+                Map uploadResult = cloudinary.uploader().upload(multipartFile.getBytes(), Map.of("public_id", UUID.randomUUID().toString()));
+                existingHotel.setImg(uploadResult.get("url").toString()); // Set URL của hình ảnh đầu tiên
+            } catch (IOException e) {
+                log.error("Image upload failed: {}", e.getMessage());
+                throw new RuntimeException("Image upload failed", e);
+            }
         }
-        if (StringUtils.hasText(hotelDTO.getImg2())) {
-        	existingHotel.setImg2(hotelDTO.getImg2());
+        
+        if (multipartFile2 != null && !multipartFile2.isEmpty()) {
+            try {
+                Map uploadResult2 = cloudinary.uploader().upload(multipartFile2.getBytes(), Map.of("public_id", UUID.randomUUID().toString()));
+                existingHotel.setImg2(uploadResult2.get("url").toString()); // Set URL của hình ảnh thứ hai
+            } catch (IOException e) {
+                log.error("Image upload failed: {}", e.getMessage());
+                throw new RuntimeException("Image upload failed", e);
+            }
         }
-        if (StringUtils.hasText(hotelDTO.getImg3())) {
-        	existingHotel.setImg3(hotelDTO.getImg3());
+
+        if (multipartFile3 != null && !multipartFile3.isEmpty()) {
+            try {
+                Map uploadResult3 = cloudinary.uploader().upload(multipartFile3.getBytes(), Map.of("public_id", UUID.randomUUID().toString()));
+                existingHotel.setImg3(uploadResult3.get("url").toString()); // Set URL của hình ảnh thứ ba
+            } catch (IOException e) {
+                log.error("Image upload failed: {}", e.getMessage());
+                throw new RuntimeException("Image upload failed", e);
+            }
         }
+
 
         Address updatedAddress = addressService.updateAddress(hotelDTO.getAddressDTO());
         existingHotel.setAddress(updatedAddress);
@@ -165,10 +214,11 @@ public class HotelServiceImpl implements HotelService {
                 .orElseThrow(() -> new EntityNotFoundException("Hotel not found"));
         return mapHotelToHotelDto(hotel);
     }
+    
 
     @Override
     @Transactional
-    public HotelDTO updateHotelByManagerId(HotelDTO hotelDTO, Long managerId) {
+    public HotelDTO updateHotelByManagerId(HotelDTO hotelDTO, Long managerId, MultipartFile multipartFile, MultipartFile multipartFile2, MultipartFile multipartFile3) {
         log.info("Attempting to update hotel with ID: {} for Manager ID: {}", hotelDTO.getId(), managerId);
 
         Hotel existingHotel = hotelRepository.findByIdAndHotelManager_Id(hotelDTO.getId(), managerId)
@@ -178,17 +228,39 @@ public class HotelServiceImpl implements HotelService {
             throw new HotelAlreadyExistsException("This hotel name is already registered!");
         }
 
-        existingHotel.setName(hotelDTO.getName());
+     // Upload file lên Cloudinary nếu có MultipartFile
+        if (multipartFile != null && !multipartFile.isEmpty()) {
+            try {
+                Map uploadResult = cloudinary.uploader().upload(multipartFile.getBytes(), Map.of("public_id", UUID.randomUUID().toString()));
+                existingHotel.setImg(uploadResult.get("url").toString()); // Set URL của hình ảnh đầu tiên
+            } catch (IOException e) {
+                log.error("Image upload failed: {}", e.getMessage());
+                throw new RuntimeException("Image upload failed", e);
+            }
+        }
         
-        if (StringUtils.hasText(hotelDTO.getImg())) {
-            existingHotel.setImg(hotelDTO.getImg());
+        if (multipartFile2 != null && !multipartFile2.isEmpty()) {
+            try {
+                Map uploadResult2 = cloudinary.uploader().upload(multipartFile2.getBytes(), Map.of("public_id", UUID.randomUUID().toString()));
+                existingHotel.setImg2(uploadResult2.get("url").toString()); // Set URL của hình ảnh thứ hai
+            } catch (IOException e) {
+                log.error("Image upload failed: {}", e.getMessage());
+                throw new RuntimeException("Image upload failed", e);
+            }
         }
-        if (StringUtils.hasText(hotelDTO.getImg2())) {
-            existingHotel.setImg2(hotelDTO.getImg2());
+
+        if (multipartFile3 != null && !multipartFile3.isEmpty()) {
+            try {
+                Map uploadResult3 = cloudinary.uploader().upload(multipartFile3.getBytes(), Map.of("public_id", UUID.randomUUID().toString()));
+                existingHotel.setImg3(uploadResult3.get("url").toString()); // Set URL của hình ảnh thứ ba
+            } catch (IOException e) {
+                log.error("Image upload failed: {}", e.getMessage());
+                throw new RuntimeException("Image upload failed", e);
+            }
         }
-        if (StringUtils.hasText(hotelDTO.getImg3())) {
-            existingHotel.setImg3(hotelDTO.getImg3());
-        }
+
+        existingHotel.setName(hotelDTO.getName());
+        existingHotel.setDescribe(hotelDTO.getDescribe());
 
         Address updatedAddress = addressService.updateAddress(hotelDTO.getAddressDTO());
         existingHotel.setAddress(updatedAddress);
@@ -197,9 +269,10 @@ public class HotelServiceImpl implements HotelService {
 
         hotelRepository.save(existingHotel);
         log.info("Successfully updated existing hotel with ID: {} for Manager ID: {}", hotelDTO.getId(), managerId);
-        return mapHotelToHotelDto(existingHotel);    
-        
+        return mapHotelToHotelDto(existingHotel);
     }
+
+
 
     @Override
     public void deleteHotelByIdAndManagerId(Long hotelId, Long managerId) {

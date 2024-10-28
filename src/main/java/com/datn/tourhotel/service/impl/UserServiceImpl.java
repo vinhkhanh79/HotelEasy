@@ -17,7 +17,9 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+import org.springframework.web.multipart.MultipartFile;
 
+import com.cloudinary.Cloudinary;
 import com.datn.tourhotel.exception.UsernameAlreadyExistsException;
 import com.datn.tourhotel.model.*;
 import com.datn.tourhotel.model.dto.ResetPasswordDTO;
@@ -30,8 +32,10 @@ import com.datn.tourhotel.repository.RoleRepository;
 import com.datn.tourhotel.repository.UserRepository;
 import com.datn.tourhotel.service.UserService;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -46,6 +50,7 @@ public class UserServiceImpl implements UserService {
     private final HotelManagerRepository hotelManagerRepository;
     private final PasswordEncoder passwordEncoder;
     private final JavaMailSender mailSender;
+    private final Cloudinary cloudinary;
 
     @Override
     @Transactional
@@ -125,7 +130,12 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public void updateUser(UserDTO userDTO) {
+    public void updateUser(UserDTO userDTO, MultipartFile multipartFile) throws IOException {
+    	Map uploadResult = cloudinary.uploader()
+                .upload(multipartFile.getBytes(),
+                        Map.of("public_id", UUID.randomUUID().toString()));
+
+        String url = uploadResult.get("url").toString();
         log.info("Attempting to update user with ID: {}", userDTO.getId());
 
         User user = userRepository.findById(userDTO.getId())
@@ -135,14 +145,20 @@ public class UserServiceImpl implements UserService {
             throw new UsernameAlreadyExistsException("This username is already registered!");
         }
 
-        setFormattedDataToUser(user, userDTO);
+        setFormattedDataToUser(user, userDTO, url);
         userRepository.save(user);
         log.info("Successfully updated existing user with ID: {}", userDTO.getId());
     }
 
     @Override
     @Transactional
-    public void updateLoggedInUser(UserDTO userDTO) {
+    public void updateLoggedInUser(UserDTO userDTO, MultipartFile multipartFile) throws IOException {
+    	Map uploadResult = cloudinary.uploader()
+                .upload(multipartFile.getBytes(),
+                        Map.of("public_id", UUID.randomUUID().toString()));
+
+        String url = uploadResult.get("url").toString();
+        
         String loggedInUsername = SecurityContextHolder.getContext().getAuthentication().getName();
         User loggedInUser = userRepository.findByUsername(loggedInUsername);
         log.info("Attempting to update logged in user with ID: {}", loggedInUser.getId());
@@ -151,13 +167,24 @@ public class UserServiceImpl implements UserService {
             throw new UsernameAlreadyExistsException("This username is already registered!");
         }
 
-        setFormattedDataToUser(loggedInUser, userDTO);
+        setFormattedDataToUser(loggedInUser, userDTO, url);
         userRepository.save(loggedInUser);
         log.info("Successfully updated logged in user with ID: {}", loggedInUser.getId());
 
         // Create new authentication token
         updateAuthentication(userDTO);
     }
+    @Override
+    @Transactional
+    public void updateUserImage(Long userId, String imageUrl) {
+        log.info("Updating image for user with ID: {}", userId);
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+        user.setImg(imageUrl);
+        userRepository.save(user);
+        log.info("Successfully updated image for user with ID: {}", userId);
+    }
+
 
     @Override
     public void deleteUserById(Long id) {
@@ -190,8 +217,9 @@ public class UserServiceImpl implements UserService {
                 .password(passwordEncoder.encode(registrationDTO.getPassword()))
                 .name(formatText(registrationDTO.getName()))
                 .lastName(formatText(registrationDTO.getLastName()))
-                .phone(registrationDTO.getPhone())
-                .birthday(registrationDTO.getBirthday())
+               // .phone(registrationDTO.getPhone())
+               // .birthday(registrationDTO.getBirthday())
+                .img("http://res.cloudinary.com/dliwvet1v/image/upload/v1730037767/b2f64154-56a7-49cb-8da1-638ca334c90e.jpg")
                 .role(userRole)
                 .build();
     }
@@ -219,14 +247,14 @@ public class UserServiceImpl implements UserService {
         return StringUtils.capitalize(text.trim());
     }
 
-    private void setFormattedDataToUser(User user, UserDTO userDTO) {
+    private void setFormattedDataToUser(User user, UserDTO userDTO, String url) {
         user.setUsername(formatText(userDTO.getUsername()));
         user.setName(formatText(userDTO.getName()));
         user.setLastName(formatText(userDTO.getLastName()));
         user.setEmail(userDTO.getEmail());
         user.setPhone(formatText(userDTO.getPhone()));
         user.setBirthday(userDTO.getBirthday());
-        user.setImg(userDTO.getImg());
+        user.setImg(url);
     }
     
     @Override

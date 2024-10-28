@@ -144,12 +144,15 @@
 		    <artifactId>mysql-connector-java</artifactId>
 		    <version>8.0.33</version>
 		</dependency>
-
-
 		<dependency>
-			<groupId>com.j6d4</groupId>
-			<artifactId>j6d4</artifactId>
-			<version>1.0</version>
+			<groupId>commons-fileupload</groupId>
+			<artifactId>commons-fileupload</artifactId>
+			<version>1.4</version>
+		</dependency>
+		<dependency>
+		    <groupId>com.cloudinary</groupId>
+		    <artifactId>cloudinary-http44</artifactId>
+		    <version>1.33.0</version>
 		</dependency>
     </dependencies>
 

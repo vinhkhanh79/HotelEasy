@@ -40,12 +40,14 @@ public class UserRegistrationDTO {
     @Pattern(regexp = "^(?!\\s*$)[A-Za-z ]+$", message = "Last name must only contain letters")
     private String lastName;
     
-    @Pattern(regexp = "^(\\+\\d{1,3}( )?)?(\\d{10})$", message = "Invalid phone number")
-    private String phone; 
+    private String img;
     
-    @NotNull(message = "Birthday is required")
-    @Past(message = "Birthday must be in the past")
-    private LocalDate birthday; 
+//    @Pattern(regexp = "^(\\+\\d{1,3}( )?)?(\\d{10})$", message = "Invalid phone number")
+//    private String phone; 
+    
+//    @NotNull(message = "Birthday is required")
+//    @Past(message = "Birthday must be in the past")
+//    private LocalDate birthday; 
 
     private RoleType roleType;
 

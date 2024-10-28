@@ -12,6 +12,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.datn.tourhotel.exception.HotelAlreadyExistsException;
@@ -23,6 +24,7 @@ import com.datn.tourhotel.service.BookingService;
 import com.datn.tourhotel.service.HotelService;
 import com.datn.tourhotel.service.UserService;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -62,16 +64,17 @@ public class AdminController {
     }
 
     @PostMapping("/users/edit/{id}")
-    public String editUser(@PathVariable Long id, @Valid @ModelAttribute("user") UserDTO userDTO, BindingResult result, RedirectAttributes redirectAttributes) {
+    public String editUser(@PathVariable Long id, @Valid @ModelAttribute("user") UserDTO userDTO, BindingResult result, RedirectAttributes redirectAttributes,
+    		@RequestParam("multipartFile") MultipartFile multipartFile) throws IOException {
         if (result.hasErrors()) {
             return "admin/users-edit";
         }
      // Lấy thông tin người dùng hiện tại từ service
         UserDTO currentUserDTO = userService.findUserById(userDTO.getId());
 
-        // Nếu người dùng không chọn ảnh mới, giữ nguyên ảnh cũ
-        if (userDTO.getImg() == null || userDTO.getImg().isEmpty()) {
-            userDTO.setImg(currentUserDTO.getImg()); // Giữ nguyên ảnh cũ
+     // If the user did not select a new image, keep the old image
+        if (multipartFile.isEmpty()) {
+            userDTO.setImg(currentUserDTO.getImg()); // Keep the old image
         }
         // Kiểm tra xem form có lỗi không
         if (result.hasErrors()) {
@@ -79,7 +82,7 @@ public class AdminController {
             return "customer/account-edit";
         }
         try {
-            userService.updateUser(userDTO);
+            userService.updateUser(userDTO, multipartFile);
         } catch (UsernameAlreadyExistsException e) {
             result.rejectValue("username", "user.exists", "Username is already registered!");
             return "admin/users-edit";
@@ -113,12 +116,16 @@ public class AdminController {
     }
 
     @PostMapping("/hotels/edit/{id}")
-    public String editHotel(@PathVariable Long id, @Valid @ModelAttribute("hotel") HotelDTO hotelDTO, BindingResult result, RedirectAttributes redirectAttributes) {
+    public String editHotel(@PathVariable Long id, @Valid @ModelAttribute("hotel") HotelDTO hotelDTO,
+    		@RequestParam("imageFile") MultipartFile imageFile,
+            @RequestParam("imageFile2") MultipartFile imageFile2,
+            @RequestParam("imageFile3") MultipartFile imageFile3,
+    		BindingResult result, RedirectAttributes redirectAttributes) {
         if (result.hasErrors()) {
             return "admin/hotels-edit";
         }
         try {
-            hotelService.updateHotel(hotelDTO);
+            hotelService.updateHotel(hotelDTO, imageFile, imageFile2, imageFile3);
         } catch (HotelAlreadyExistsException e) {
             result.rejectValue("name", "hotel.exists", e.getMessage());
             return "admin/hotels-edit";

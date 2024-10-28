@@ -25,5 +25,7 @@ public interface BookingService {
     BookingDTO findBookingByIdAndManagerId(Long bookingId, Long managerId);
 
     BookingDTO mapBookingModelToBookingDto(Booking booking);
+    
+    BookingDTO confirmBookingFromPayment(String confirmationNumber);
 
 }

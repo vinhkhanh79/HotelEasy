@@ -114,7 +114,20 @@ public class BookingServiceImpl implements BookingService {
             throw new IllegalArgumentException("Check-out date must be after check-in date");
         }
     }
-
+    
+    @Override
+    public BookingDTO confirmBookingFromPayment(String confirmationNumber) {
+        // Find the booking by the confirmation number
+        Booking booking = bookingRepository.findByConfirmationNumber(confirmationNumber);
+        if (booking != null) {
+            // Update the payment status, if necessary
+            // booking.getPayment().setPaymentStatus(PaymentStatus.SUCCESS); // Example
+            // Save the updated booking
+            bookingRepository.save(booking);
+            return mapBookingModelToBookingDto(booking);
+        }
+        return null; // Handle case where booking is not found
+    }
     @Override
     public BookingDTO mapBookingModelToBookingDto(Booking booking) {
         AddressDTO addressDto = AddressDTO.builder()
@@ -145,7 +158,7 @@ public class BookingServiceImpl implements BookingService {
                 .hotelName(booking.getHotel().getName())
                 .hotelAddress(addressDto)
                 .customerName(customerUser.getName() + " " + customerUser.getLastName())
-                .customerEmail(customerUser.getUsername())
+                .customerEmail(customerUser.getEmail())
                 .paymentStatus(booking.getPayment().getPaymentStatus())
                 .paymentMethod(booking.getPayment().getPaymentMethod())
                 .build();

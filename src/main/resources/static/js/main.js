@@ -31,6 +31,15 @@ var swiper = new Swiper(".mySwiper", {
     },
 });
 
+function toggleBookingDetails() {
+		const bookingDetails = document.getElementById('booking-details');
+		if (bookingDetails.style.display === 'none') {
+			bookingDetails.style.display = 'block';
+		}else{
+			bookingDetails.style.display = 'none';
+		}
+	}
+
 // Counter Design
 document.addEventListener("DOMContentLoaded", () => {
     function counter(id, start, end, duration) {
@@ -93,7 +102,7 @@ $(document).ready(function () {
 
     // Function to format the price with two decimal places and thousand separators
     function formatPrice(price) {
-        return '$ ' + price.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        return price.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",") + ' VND';
     }
 
     // Calculate the total cost

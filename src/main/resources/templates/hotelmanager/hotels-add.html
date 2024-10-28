@@ -27,14 +27,14 @@
                         <h2 class="text-center">Add New Hotel</h2>
                     </div>
                     <div class="card-body">
-                        <form method="post" th:action="@{/manager/hotels/add}" th:object="${hotel}">
+                        <form method="post" th:action="@{/manager/hotels/add}" th:object="${hotel}" enctype="multipart/form-data">
                         <div class="row me-3">
                                 <div class="col-md-4">
                                     <div class="form-group mb-3">
                                         <label for="img-input1" class="img-upload-container" style="cursor: pointer; height: 170px; width:270px;">
-                                            <img id="img-preview1" th:src="@{/img/hotel/{img}(img=${hotel.img})}" alt="Choose Your Image" class="img-fluid rounded-3" style="height: 100%; width:100%; object-fit: cover;">
+                                            <img id="img-preview1" th:src="${hotel.img}" alt="Choose Your Image" class="img-fluid rounded-3" style="height: 100%; width:100%; object-fit: cover;">
                                         </label>
-                                        <input class="form-control mt-2" id="img-input1" type="file" th:field="*{img}" accept="image/*" onchange="previewImage(event, 'img-preview1')" style="display: none;">
+                                        <input class="form-control mt-2" name="imageFile" id="img-input1" type="file" accept="image/*" onchange="previewImage(event, 'img-preview1')" style="display: none;">
                                         <p class="text-danger" th:if="${#fields.hasErrors('img')}" th:errors="*{img}"></p>
                                     </div>
                                 </div>
@@ -42,9 +42,9 @@
                                 <div class="col-md-4">
                                     <div class="form-group mb-3">
                                         <label for="img-input2" class="img-upload-container" style="cursor: pointer; height: 170px; width:270px;">
-                                            <img id="img-preview2" th:src="@{/img/hotel/{img2}(img2=${hotel.img2})}" alt="Choose Your Image" class="img-fluid rounded-3" style="height: 100%; width:100%; object-fit: cover;">
+                                            <img id="img-preview2" th:src="${hotel.img2}" alt="Choose Your Image" class="img-fluid rounded-3" style="height: 100%; width:100%; object-fit: cover;">
                                         </label>
-                                        <input class="form-control mt-2" id="img-input2" type="file" th:field="*{img2}" accept="image/*" onchange="previewImage(event, 'img-preview2')" style="display: none;">
+                                        <input class="form-control mt-2" name="imageFile2" id="img-input2" type="file" accept="image/*" onchange="previewImage(event, 'img-preview2')" style="display: none;">
                                         <p class="text-danger" th:if="${#fields.hasErrors('img2')}" th:errors="*{img2}"></p>
                                     </div>
                                 </div>
@@ -52,9 +52,9 @@
                                 <div class="col-md-4">
                                     <div class="form-group mb-3">
                                         <label for="img-input3" class="img-upload-container" style="cursor: pointer; height: 170px; width:270px;">
-                                            <img id="img-preview3" th:src="@{/img/hotel/{img3}(img3=${hotel.img3})}" alt="Choose Your Image" class="img-fluid rounded-3" style="height: 100%; width:100%; object-fit: cover;">
+                                            <img id="img-preview3" th:src="${hotel.img3}" alt="Choose Your Image" class="img-fluid rounded-3" style="height: 100%; width:100%; object-fit: cover;">
                                         </label>
-                                        <input class="form-control mt-2" id="img-input3" type="file" th:field="*{img3}" accept="image/*" onchange="previewImage(event, 'img-preview3')" style="display: none;">
+                                        <input class="form-control mt-2" name="imageFile3" id="img-input3" type="file" accept="image/*" onchange="previewImage(event, 'img-preview3')" style="display: none;">
                                         <p class="text-danger" th:if="${#fields.hasErrors('img3')}" th:errors="*{img3}"></p>
                                     </div>
                                 </div>

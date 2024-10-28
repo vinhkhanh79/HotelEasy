@@ -13,6 +13,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.datn.tourhotel.exception.HotelAlreadyExistsException;
@@ -25,6 +26,7 @@ import com.datn.tourhotel.service.BookingService;
 import com.datn.tourhotel.service.HotelService;
 import com.datn.tourhotel.service.UserService;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -70,13 +72,17 @@ public class HotelManagerController {
     }
 
     @PostMapping("/hotels/add")
-    public String addHotel(@Valid @ModelAttribute("hotel") HotelRegistrationDTO hotelRegistrationDTO, BindingResult result, RedirectAttributes redirectAttributes) {
+    public String addHotel(@Valid @ModelAttribute("hotel") HotelRegistrationDTO hotelRegistrationDTO,
+    		@RequestParam("imageFile") MultipartFile imageFile,
+            @RequestParam("imageFile2") MultipartFile imageFile2,
+            @RequestParam("imageFile3") MultipartFile imageFile3,
+    		BindingResult result, RedirectAttributes redirectAttributes) {
         if (result.hasErrors()) {
             log.warn("Hotel creation failed due to validation errors: {}", result.getAllErrors());
             return "hotelmanager/hotels-add";
         }
         try {
-            hotelService.saveHotel(hotelRegistrationDTO);
+            hotelService.saveHotel(hotelRegistrationDTO, imageFile, imageFile2, imageFile3);
             redirectAttributes.addFlashAttribute("message", "Hotel " + hotelRegistrationDTO.getName() + " added successfully");
             return "redirect:/manager/hotels";
         } catch (HotelAlreadyExistsException e) {
@@ -102,14 +108,19 @@ public class HotelManagerController {
     }
 
     @PostMapping("/hotels/edit/{id}")
-    public String editHotel(@PathVariable Long id, @Valid @ModelAttribute("hotel") HotelDTO hotelDTO, BindingResult result, RedirectAttributes redirectAttributes) {
+    public String editHotel(@PathVariable Long id, @Valid @ModelAttribute("hotel") HotelDTO hotelDTO,
+                            @RequestParam("imageFile") MultipartFile imageFile,
+                            @RequestParam("imageFile2") MultipartFile imageFile2,
+                            @RequestParam("imageFile3") MultipartFile imageFile3,
+                            BindingResult result, 
+                            RedirectAttributes redirectAttributes) {
         if (result.hasErrors()) {
             return "hotelmanager/hotels-edit";
         }
         try {
             Long managerId = getCurrentManagerId();
             hotelDTO.setId(id);
-            hotelService.updateHotelByManagerId(hotelDTO, managerId);
+            hotelService.updateHotelByManagerId(hotelDTO, managerId, imageFile, imageFile2, imageFile3);
             redirectAttributes.addFlashAttribute("message", "Hotel ID: " + id + " updated successfully");
             return "redirect:/manager/hotels";
 
@@ -119,8 +130,13 @@ public class HotelManagerController {
         } catch (EntityNotFoundException e) {
             result.rejectValue("id", "hotel.notfound", e.getMessage());
             return "hotelmanager/hotels-edit";
+        } catch (IOException e) {
+            log.error("Image upload failed due to IOException: {}", e.getMessage());
+            result.rejectValue("imageFile", "upload.error", "Image upload failed. Please try again.");
+            return "hotelmanager/hotels-edit";
         }
     }
+
 
     @PostMapping("/hotels/delete/{id}")
     public String deleteHotel(@PathVariable Long id) {

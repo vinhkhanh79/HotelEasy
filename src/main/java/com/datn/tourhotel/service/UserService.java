@@ -1,6 +1,9 @@
 package com.datn.tourhotel.service;
 
+import java.io.IOException;
 import java.util.List;
+
+import org.springframework.web.multipart.MultipartFile;
 
 import com.datn.tourhotel.model.User;
 import com.datn.tourhotel.model.dto.ResetPasswordDTO;
@@ -26,9 +29,11 @@ public interface UserService {
     
     boolean emailExists(String email);
     
-    void updateUser(UserDTO userDTO);
+    void updateUser(UserDTO userDTO, MultipartFile multipartFile) throws IOException;
+    
+    void updateUserImage(Long userId, String imageUrl);
 
-    void updateLoggedInUser(UserDTO userDTO);
+    void updateLoggedInUser(UserDTO userDTO, MultipartFile multipartFile) throws IOException;
 
     void deleteUserById(Long id);
     

@@ -7,8 +7,8 @@
     <div class="header_wrapper" th:fragment="navbar">
         <nav class="navbar navbar-expand-lg">
             <div class="container">
-                <a class="navbar-brand" th:href="${user != null} ? @{/index#home(language=${#locale.getLanguage()})} : @{/#home(language=${#locale.getLanguage()})}">
-                    <img src="/img/logo.png" alt="logo.png" class="img-fluid" />
+                <a class="navbar-brand" th:href="@{/index#home(language=${#locale.language})}">
+                    <img src="https://res.cloudinary.com/dliwvet1v/image/upload/v1729759384/i7xwpwwwsmwikzk5v8hm.png" alt="logo.png" class="img-fluid" />
                 </a>
                 <!-- Nav Button for Mobile/Tablet -->
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
@@ -19,22 +19,22 @@
                 <div class="collapse navbar-collapse justify-content-center" id="navbarNav">
                     <ul class="navbar-nav menu-navbar-nav">
                         <li class="nav-item">
-                            <a class="nav-link active" aria-current="page" th:href="${user != null} ? @{/index#home(language=${#locale.getLanguage()})} : @{/#home(language=${#locale.getLanguage()})}" th:text="#{home}">Home</a>
+                            <a class="nav-link active" aria-current="page" th:href="@{/index#home(language=${#locale.language})}" th:text="#{home}">Home</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" th:href="${user != null} ? @{/index#about(language=${#locale.getLanguage()})} : @{/#about(language=${#locale.getLanguage()})}" th:text="#{about}">About</a>
+                            <a class="nav-link" th:href="@{/index#about(language=${#locale.language})}" th:text="#{about}">About</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" th:href="${user != null} ? @{/index#rooms(language=${#locale.getLanguage()})} : @{/#rooms(language=${#locale.getLanguage()})}" th:text="#{rooms}">Rooms</a>
+                            <a class="nav-link" th:href="@{/index#rooms(language=${#locale.language})}" th:text="#{rooms}">Rooms</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" th:href="${user != null} ? @{/index#services(language=${#locale.getLanguage()})} : @{/#services(language=${#locale.getLanguage()})}" th:text="#{services}">Services</a>
+                            <a class="nav-link" th:href="@{/index#services(language=${#locale.language})}" th:text="#{services}">Services</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" th:href="${user != null} ? @{/index#blog(language=${#locale.getLanguage()})} : @{/#blog(language=${#locale.getLanguage()})}" th:text="#{blog}">Blog</a>
+                            <a class="nav-link" th:href="@{/index#blog(language=${#locale.language})}" th:text="#{blog}">Blog</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" th:href="${user != null} ? @{/index#faq(language=${#locale.getLanguage()})} : @{/#faq(language=${#locale.getLanguage()})}" th:text="#{FAQ}">FAQ</a>
+                            <a class="nav-link" th:href="@{/index#faq(language=${#locale.language})}" th:text="#{FAQ}">FAQ</a>
                         </li>
                         <!-- Anonymous Users 
                         <li class="nav-item" sec:authorize="isAnonymous()">
@@ -131,7 +131,7 @@
                         </li>
                         <!-- Book Now -->
                         <li class="nav-item mt-3 mt-lg-0">
-                            <a class="main-btn" th:href="${user != null} ? @{/index#hotel(language=${#locale.getLanguage()})} : @{/#hotel(language=${#locale.getLanguage()})}" th:text="#{book}">Book Now</a>
+                            <a class="main-btn" th:href="@{/index#hotel(language=${#locale.language})}" th:text="#{book}">Book Now</a>
                         </li>
                     </ul>
                 </div>

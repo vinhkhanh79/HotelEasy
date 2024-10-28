@@ -6,35 +6,62 @@
 </head>
 <body>
 <th:block layout:fragment="content">
-    <div class="container">
+    <div class="container" style="min-height: 60vh;">
         <div class="row">
             <div class="col-md-12">
-                <div class="alert alert-success d-flex justify-content-center align-items-center">
-                    <i class="bi bi-check-circle-fill fs-5 me-2"></i>
-                    <span class="fs-5">Your booking is confirmed!</span>
-                </div>
-                <div class="card">
+		            <div class="w-50 m-auto">
+		            <!-- Thêm lớp "my-4" để tạo ra khoảng cách trên và dưới tiêu đề trang -->
+		            <h1 class="my-3 text-success text-center">Payment Successfully</h1>
+		            <!-- Sử dụng lớp "alert" và "alert-danger" để tạo ra thông báo lỗi -->
+		            <h2 class="my-2">Booking Information</h2>
+		            <!-- Sử dụng lớp "table" và "table-bordered" để tạo ra bảng hiển thị thông tin chi tiết đơn hàng -->
+		            <table class="table table-bordered">
+		                <tbody>
+		                <tr>
+		                    <td>Booking Information:</td>
+		                    <td><span th:text="${orderId}">[order ID]</span></td>
+		                </tr>
+		                <tr>
+		                    <td>Total Price:</td>
+		                    <td><span th:text="${totalPrice}">[total price]</span></td>
+		                </tr>
+		                <tr>
+		                    <td>Payment Time:</td>
+		                    <td><span th:text="${paymentTime}">[payment time]</span></td>
+		                </tr>
+		                <tr>
+		                    <td>Transaction Code:</td>
+		                    <td><span th:text="${transactionId}">[transaction ID]</span></td>
+		                </tr>
+		                </tbody>
+		            </table>
+		            <a th:href="@{/index#home(language=${#locale.language})}" class="btn btn-outline-primary">Go Home</a>
+		            
+		            <button class="btn btn-primary" onclick="toggleBookingDetails()">Detail Booking</button>
+		        </div>
+
+                <div class="card mt-5" id="booking-details" style="display:none;">
                     <div class="card-header">
                         <h2>Booking Confirmation</h2>
                     </div>
                     <div class="card-body">
                         <h5>Confirmation Number:</h5>
-                        <p class="mb-3" th:text="${bookingDTO.confirmationNumber}"></p>
+                        <span class="mb-3" th:text="${bookingDTO.confirmationNumber}"></span>
                         <hr>
                         <h3 class="mb-2" th:text="${bookingDTO.hotelName}">Hotel</h3>
-                        <p class="small mb-4" th:text="${bookingDTO.hotelAddress.addressLine + ', ' + bookingDTO.hotelAddress.city + ', ' + bookingDTO.hotelAddress.country}"></p>
+                        <span class="mb-4" th:text="${bookingDTO.hotelAddress.addressLine + ', ' + bookingDTO.hotelAddress.city + ', ' + bookingDTO.hotelAddress.country}"></span>
                         <div class="row text-center my-5">
                             <div class="col-md-4">
                                 <h5>Check-in</h5>
-                                <p th:text="${bookingDTO.checkinDate}"></p>
+                                <span th:text="${bookingDTO.checkinDate}"></span>
                             </div>
                             <div class="col-md-4">
                                 <h5>Check-out</h5>
-                                <p th:text="${bookingDTO.checkoutDate}"></p>
+                                <span th:text="${bookingDTO.checkoutDate}"></span>
                             </div>
                             <div class="col-md-4">
                                 <h5>Duration</h5>
-                                <p th:text="${days} + ' night(s)'"></p>
+                                <span th:text="${days} + ' night(s)'"></span>
                             </div>
                         </div>
                         <h5>Rooms:</h5>
@@ -44,21 +71,17 @@
                             </li>
                         </ul>
                         <hr>
-                        <h3>Total Price:</h3>
-                        <p class="mb-3" th:text="'$ ' + ${#numbers.formatDecimal(bookingDTO.totalPrice, 1, 'COMMA', 2, 'POINT')}"></p>
-                        <h5 class="small">Payment Method:</h5>
-                        <p class="small mb-3" th:text="${bookingDTO.paymentMethod}"></p>
+                        <h4>Total Price:</h4>
+                        <h5 class="mb-3 ms-5" th:text="${#numbers.formatDecimal(bookingDTO.totalPrice, 1, 'COMMA', 2, 'POINT')} + ' VND'"></h5>
+                        <h4 class="mt-3">Payment Method:</h4>
+                        <h5 class="mb-3 ms-5" th:text="${bookingDTO.paymentMethod}"></h5>
                         <hr>
                         <h5>Guest Details:</h5>
-                        <p class="mb-2">Name: <span th:text="${bookingDTO.customerName}"></span></p>
-                        <p class="mb-3">Email: <span th:text="${bookingDTO.customerEmail}"></span></p>
+                        <span class="mb-2 ms-5">Name: <span th:text="${bookingDTO.customerName}"></span></span><br>
+                        <span class="mb-3 ms-5">Email: <span th:text="${bookingDTO.customerEmail}"></span></span>
                     </div>
                 </div>
-                <div class="mt-3 text-end">
-                    <a href="/" class="btn btn-outline-primary">Back to Home</a>
-                    <a href="/customer/bookings" class="btn btn-primary">My Bookings</a>
-                </div>
-            </div>
+            </div>     
         </div>
     </div>
 </th:block>

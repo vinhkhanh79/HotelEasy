@@ -32,14 +32,14 @@
                         <h2 class="text-center">User Account Editing</h2>
                     </div>
                     <div class="card-body">
-                        <form method="post" th:action="@{/manager/account/edit}" th:object="${user}">
+                        <form method="post" th:action="@{/manager/account/edit}" th:object="${user}" enctype="multipart/form-data">
                             <div class="row mb-3">
 								<div class="col-md-5">
                                     <div class="form-group mb-3">
                                         <label for="img-input" class="img-upload-container" style="height: 310px; width:295px;">
-                                            <img id="img-preview" th:src="@{/img/user/{img}(img=${user.img})}" alt="User Image" class="img-fluid w-100 rounded-3" style="height: 100%; width: 100%; object-fit: cover;">
+                                            <img id="img-preview" th:src="${user.img}" alt="User Image" class="img-fluid w-100 rounded-3" style="height: 100%; width: 100%; object-fit: cover;">
                                         </label>
-                                        <input class="form-control mt-2" id="img-input" type="file" th:field="*{img}" accept="image/*" onchange="previewImage(event)" style="display: none;">
+                                        <input class="form-control mt-2" name="multipartFile" id="img-input" type="file" accept="image/*" onchange="previewImage(event)" style="display: none;">
                                         <p class="text-danger" th:if="${#fields.hasErrors('img')}" th:errors="*{img}"></p>
                                     </div>
                                 </div>

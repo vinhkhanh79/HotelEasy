@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.datn.tourhotel.model.Booking;
 import com.datn.tourhotel.model.dto.BookingDTO;
 import com.datn.tourhotel.model.dto.HotelDTO;
 import com.datn.tourhotel.service.BookingService;
@@ -23,6 +24,7 @@ import com.datn.tourhotel.service.UserService;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
+import java.util.Comparator;
 import java.util.List;
 
 @Controller
@@ -55,6 +57,7 @@ public class CustomerController {
         try {
             Long customerId = getCurrentCustomerId();
             List<BookingDTO> bookingDTOs = bookingService.findBookingsByCustomerId(customerId);
+            bookingDTOs.sort(Comparator.comparing(BookingDTO::getId).reversed());
             model.addAttribute("bookings", bookingDTOs);
             return "customer/bookings";
         } catch (EntityNotFoundException e) {

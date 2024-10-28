@@ -15,22 +15,22 @@
                     </div>
                     <div class="card-body">
                         <h5>Confirmation Number:</h5>
-                        <p class="mb-3" th:text="${bookingDTO.confirmationNumber}"></p>
+                        <span class="mb-3" th:text="${bookingDTO.confirmationNumber}"></span>
                         <hr>
                         <h3 class="mb-2" th:text="${bookingDTO.hotelName}">Hotel</h3>
-                        <p class="small mb-4" th:text="${bookingDTO.hotelAddress.addressLine + ', ' + bookingDTO.hotelAddress.city + ', ' + bookingDTO.hotelAddress.country}"></p>
+                        <span class="mb-4" th:text="${bookingDTO.hotelAddress.addressLine + ', ' + bookingDTO.hotelAddress.city + ', ' + bookingDTO.hotelAddress.country}"></span>
                         <div class="row text-center my-5">
                             <div class="col-md-4">
                                 <h5>Check-in</h5>
-                                <p th:text="${bookingDTO.checkinDate}"></p>
+                                <span th:text="${bookingDTO.checkinDate}"></span>
                             </div>
                             <div class="col-md-4">
                                 <h5>Check-out</h5>
-                                <p th:text="${bookingDTO.checkoutDate}"></p>
+                                <span th:text="${bookingDTO.checkoutDate}"></span>
                             </div>
                             <div class="col-md-4">
                                 <h5>Duration</h5>
-                                <p th:text="${days} + ' night(s)'"></p>
+                                <span th:text="${days} + ' night(s)'"></span>
                             </div>
                         </div>
                         <h5>Rooms:</h5>
@@ -40,14 +40,14 @@
                             </li>
                         </ul>
                         <hr>
-                        <h3>Total Price:</h3>
-                        <p class="mb-3" th:text="'$ ' + ${#numbers.formatDecimal(bookingDTO.totalPrice, 1, 'COMMA', 2, 'POINT')}"></p>
-                        <h5 class="small">Payment Method:</h5>
-                        <p class="small mb-3" th:text="${bookingDTO.paymentMethod}"></p>
+                        <h4>Total Price:</h4>
+                        <h5 class="mb-3 ms-5" th:text="${#numbers.formatDecimal(bookingDTO.totalPrice, 1, 'COMMA', 2, 'POINT')} + ' VND'"></h5>
+                        <h4 class="mt-3">Payment Method:</h4>
+                        <h5 class="mb-3 ms-5" th:text="${bookingDTO.paymentMethod}"></h5>
                         <hr>
                         <h5>Guest Details:</h5>
-                        <p class="mb-2">Name: <span th:text="${bookingDTO.customerName}"></span></p>
-                        <p class="mb-3">Email: <span th:text="${bookingDTO.customerEmail}"></span></p>
+                        <span class="mb-2 ms-5">Name: <span th:text="${bookingDTO.customerName}"></span></span><br>
+                        <span class="mb-3 ms-5">Email: <span th:text="${bookingDTO.customerEmail}"></span></span>
                     </div>
                 </div>
                 <div class="mt-3">
