@@ -35,13 +35,13 @@
         	</div>
         <div class="row mt-3">
         	<div class="col text-center" style="cursor: pointer; height: 110px; width:170px;">
-        		<img th:src="@{/img/hotel/{img}(img=${hotel.img})}" class="thumbnail-img img-thumbnail" alt="Image 1" onclick="changeImage(this)" style="height: 100%; width:100%; object-fit: cover;">
+        		<img th:src="${hotel.img}" class="thumbnail-img img-thumbnail" alt="Image 1" onclick="changeImage(this)" style="height: 100%; width:100%; object-fit: cover;">
         	</div> 
         	<div class="col text-center" style="cursor: pointer; height: 110px; width:170px;">
-        		<img th:src="@{/img/hotel/{img2}(img2=${hotel.img2})}" class="thumbnail-img img-thumbnail" alt="Image 2" onclick="changeImage(this)" style="height: 100%; width:100%; object-fit: cover;">
+        		<img th:src="${hotel.img2}" class="thumbnail-img img-thumbnail" alt="Image 2" onclick="changeImage(this)" style="height: 100%; width:100%; object-fit: cover;">
         	</div>
         	<div class="col text-center" style="cursor: pointer; height: 110px; width:170px;">
-        		<img th:src="@{/img/hotel/{img3}(img3=${hotel.img3})}" class="thumbnail-img img-thumbnail" alt="Image 3" onclick="changeImage(this)" style="height: 100%; width:100%; object-fit: cover;">
+        		<img th:src="${hotel.img3}" class="thumbnail-img img-thumbnail" alt="Image 3" onclick="changeImage(this)" style="height: 100%; width:100%; object-fit: cover;">
         	</div>
         </div>
         </div>
@@ -77,13 +77,13 @@
 						  </div>
 						  <div class="carousel-inner">
 						    <div class="carousel-item active">
-						      <img th:src="@{/img/room/{img}(img=${room.img})}" class="d-block w-100" alt="..." style="width: 200px; height: 150px;">
+						      <img th:src="${room.img}" class="d-block w-100" alt="..." style="width: 200px; height: 150px;">
 						    </div>
 						    <div class="carousel-item">
-						      <img th:src="@{/img/room/{img2}(img2=${room.img2})}" class="d-block w-100" alt="..." style="width: 200px; height: 150px;">
+						      <img th:src="${room.img2}" class="d-block w-100" alt="..." style="width: 200px; height: 150px;">
 						    </div>
 						    <div class="carousel-item">
-						      <img th:src="@{/img/room/{img3}(img3=${room.img3})}" class="d-block w-100" alt="..." style="width: 200px; height: 150px;">
+						      <img th:src="${room.img3}" class="d-block w-100" alt="..." style="width: 200px; height: 150px;">
 						    </div>
 						  </div>
 						  <button class="carousel-control-prev" type="button" th:data-bs-target="'#carouselExampleIndicators-' + ${iterStat.index}" data-bs-slide="prev">
@@ -155,19 +155,19 @@
 		        <div class="row">
 		            <!-- Dòng đầu tiên -->
 		            <div class="col-3 d-flex justify-content-center align-items-center p-3">
-		            	<img src="/img/partners/smart-tv.png">
+		            	<img src="https://res.cloudinary.com/dliwvet1v/image/upload/v1729758278/partners/efdqqm9ltffm07ctzfpn.png">
 		                <span class="text-center ms-2">Smart TV 75 inch</span>
 		            </div>
 		            <div class="col-3 d-flex justify-content-center align-items-center p-3">
-		           		<img src="/img/partners/bathtub.png">
+		           		<img src="https://res.cloudinary.com/dliwvet1v/image/upload/v1729758277/partners/oq1ohytdkuuban25hlzc.png">
 		                <span class="text-center ms-2">Bathtub</span>
 		            </div>
 		            <div class="col-3 d-flex justify-content-center align-items-center p-3">
-		            	<img src="/img/partners/antique-balcony.png">
+		            	<img src="https://res.cloudinary.com/dliwvet1v/image/upload/v1729758277/partners/fxjajxcl6bb3bbyovals.png">
 		                <span class="text-center ms-2">Balcony</span>
 		            </div>
 		            <div class="col-3 d-flex justify-content-center align-items-center p-3">
-		            	<img src="/img/partners/sofa.png">
+		            	<img src="https://res.cloudinary.com/dliwvet1v/image/upload/v1729758278/partners/a2vbphxgjbkkchmqolhr.png">
 		                <span class="text-center ms-2">Tantra</span>
 		            </div>
 		        </div>
@@ -175,19 +175,19 @@
 		        <div class="row mt-3">
 		            <!-- Dòng thứ hai -->
 		            <div class="col-3 d-flex justify-content-center align-items-center p-3">
-		            	<img src="/img/partners/youtube (3).png">
+		            	<img src="https://res.cloudinary.com/dliwvet1v/image/upload/v1729758279/partners/a7syrouidt5mwstxv2px.png">
 		                <span class="text-center ms-2"> Youtube</span>
 		            </div>
 		            <div class="col-3 d-flex justify-content-center align-items-center p-3">
-		            	<img src="/img/partners/netflix.png">
+		            	<img src="https://res.cloudinary.com/dliwvet1v/image/upload/v1729758277/partners/ex1xyxuiaplqiir7lp7s.png">
 		                <span class="text-center ms-2">NETFLIX</span>
 		            </div>
 		            <div class="col-3 d-flex justify-content-center align-items-center p-3">
-		            	<img src="/img/partners/buildings.png">
+		            	<img src="https://res.cloudinary.com/dliwvet1v/image/upload/v1729758277/partners/b8nnm8abox36t1qtj88k.png">
 		                <span class="text-center ms-2">City View</span>
 		            </div>
 		            <div class="col-3 d-flex justify-content-center align-items-center p-3">
-		            	<img src="/img/partners/restaurant.png">
+		            	<img src="https://res.cloudinary.com/dliwvet1v/image/upload/v1729758278/partners/autushns764hn1l1ewep.png">
 		                <span class="text-center ms-2">Food & Drink</span>
 		            </div>
 		        </div>

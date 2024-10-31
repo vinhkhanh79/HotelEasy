@@ -120,12 +120,15 @@ public class AdminController {
     		@RequestParam("imageFile") MultipartFile imageFile,
             @RequestParam("imageFile2") MultipartFile imageFile2,
             @RequestParam("imageFile3") MultipartFile imageFile3,
+            @RequestParam(value = "roomImages", required = false) List<MultipartFile> roomImages,
+            @RequestParam(value = "roomImages2", required = false) List<MultipartFile> roomImages2,
+            @RequestParam(value = "roomImages3", required = false) List<MultipartFile> roomImages3,
     		BindingResult result, RedirectAttributes redirectAttributes) {
         if (result.hasErrors()) {
             return "admin/hotels-edit";
         }
         try {
-            hotelService.updateHotel(hotelDTO, imageFile, imageFile2, imageFile3);
+            hotelService.updateHotel(hotelDTO, imageFile, imageFile2, imageFile3, roomImages, roomImages2, roomImages3);
         } catch (HotelAlreadyExistsException e) {
             result.rejectValue("name", "hotel.exists", e.getMessage());
             return "admin/hotels-edit";

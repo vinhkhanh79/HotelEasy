@@ -29,9 +29,10 @@
                     <div class="card-body">
                         <form method="post" th:action="@{/admin/hotels/edit/{id}(id=${hotel.id})}" th:object="${hotel}" enctype="multipart/form-data">
                         	<div class="row me-3">
+                        	    <label class="form-label">Image Hotel:</label>
                                 <div class="col-md-4">
                                     <div class="form-group mb-3">
-                                        <label for="img-input1" class="img-upload-container" style="cursor: pointer; height: 170px; width:270px;">
+                                        <label for="img-input1" class="img-upload-container" style="cursor: pointer; height: 170px; width:110%;">
                                             <img id="img-preview1" th:src="${hotel.img}" alt="Choose Your Image" class="img-fluid rounded-3" style="height: 100%; width:100%; object-fit: cover;">
                                         </label>
                                         <input class="form-control mt-2" name="imageFile" id="img-input1" type="file" accept="image/*" onchange="previewImage(event, 'img-preview1')" style="display: none;">
@@ -41,7 +42,7 @@
                                 <!-- Second Image Upload -->
                                 <div class="col-md-4">
                                     <div class="form-group mb-3">
-                                        <label for="img-input2" class="img-upload-container" style="cursor: pointer; height: 170px; width:270px;">
+                                        <label for="img-input2" class="img-upload-container" style="cursor: pointer; height: 170px; width:110%;">
                                             <img id="img-preview2" th:src="${hotel.img2}" alt="Choose Your Image" class="img-fluid rounded-3" style="height: 100%; width:100%; object-fit: cover;">
                                         </label>
                                         <input class="form-control mt-2" name="imageFile2" id="img-input2" type="file" accept="image/*" onchange="previewImage(event, 'img-preview2')" style="display: none;">
@@ -51,7 +52,7 @@
                                 <!-- Third Image Upload -->
                                 <div class="col-md-4">
                                     <div class="form-group mb-3">
-                                        <label for="img-input3" class="img-upload-container" style="cursor: pointer; height: 170px; width:270px;">
+                                        <label for="img-input3" class="img-upload-container" style="cursor: pointer; height: 170px; width:110%;">
                                             <img id="img-preview3" th:src="${hotel.img3}" alt="Choose Your Image" class="img-fluid rounded-3" style="height: 100%; width:100%; object-fit: cover;">
                                         </label>
                                         <input class="form-control mt-2" name="imageFile3" id="img-input3" type="file" accept="image/*" onchange="previewImage(event, 'img-preview3')" style="display: none;">
@@ -97,6 +98,38 @@
                             </div>
                             <!-- Single Room Details -->
                             <div class="form-group mb-3">
+                            <div class="row me-3">
+                            <label class="form-label">Image Single Room:</label>
+                                <div class="col-md-4">
+                                    <div class="form-group mb-3">
+                                        <label for="img-input4" class="img-upload-container" style="cursor: pointer; height: 170px; width:110%;">
+                                            <img id="img-preview4" th:src="${hotel.roomDTOs[0].img}" alt="Choose Your Image" class="img-fluid rounded-3" style="height: 100%; width:100%; object-fit: cover;">
+                                        </label>
+                                        <input class="form-control mt-2" name="roomImages" id="img-input4" type="file" accept="image/*" onchange="previewImage(event, 'img-preview4')" style="display: none;">
+                                        <p class="text-danger" th:if="${#fields.hasErrors('img')}" th:errors="*{img}"></p>
+                                    </div>
+                                </div>
+                                <!-- Second Image Upload -->
+                                <div class="col-md-4">
+                                    <div class="form-group mb-3">
+                                        <label for="img-input5" class="img-upload-container" style="cursor: pointer; height: 170px; width:110%;">
+                                            <img id="img-preview5" th:src="${hotel.roomDTOs[0].img2}" alt="Choose Your Image" class="img-fluid rounded-3" style="height: 100%; width:100%; object-fit: cover;">
+                                        </label>
+                                        <input class="form-control mt-2" name="roomImages2" id="img-input5" type="file" accept="image/*" onchange="previewImage(event, 'img-preview5')" style="display: none;">
+                                        <p class="text-danger" th:if="${#fields.hasErrors('img2')}" th:errors="*{img2}"></p>
+                                    </div>
+                                </div>
+                                <!-- Third Image Upload -->
+                                <div class="col-md-4">
+                                    <div class="form-group mb-3">
+                                        <label for="img-input6" class="img-upload-container" style="cursor: pointer; height: 170px; width:110%;">
+                                            <img id="img-preview6" th:src="${hotel.roomDTOs[0].img3}" alt="Choose Your Image" class="img-fluid rounded-3" style="height: 100%; width:100%; object-fit: cover;">
+                                        </label>
+                                        <input class="form-control mt-2" name="roomImages3" id="img-input6" type="file" accept="image/*" onchange="previewImage(event, 'img-preview6')" style="display: none;">
+                                        <p class="text-danger" th:if="${#fields.hasErrors('img3')}" th:errors="*{img3}"></p>
+                                    </div>
+                                </div>
+                            </div>
                                 <input type="hidden" th:field="*{roomDTOs[0].id}">
                                 <label class="form-label" for="singleRoomCount">Single Room Count:</label>
                                 <input class="form-control" id="singleRoomCount" type="number"
@@ -115,6 +148,38 @@
                             </div>
                             <!-- Double Room Details -->
                             <div class="form-group mb-3">
+                            <div class="row me-3">
+                            <label class="form-label">Image Double Room:</label>
+                                <div class="col-md-4">
+                                    <div class="form-group mb-3">
+                                        <label for="img-input7" class="img-upload-container" style="cursor: pointer; height: 170px; width:110%;">
+                                            <img id="img-preview7" th:src="${hotel.roomDTOs[1].img}" alt="Choose Your Image" class="img-fluid rounded-3" style="height: 100%; width:100%; object-fit: cover;">
+                                        </label>
+                                        <input class="form-control mt-2" name="roomImages" id="img-input7" type="file" accept="image/*" onchange="previewImage(event, 'img-preview7')" style="display: none;">
+                                        <p class="text-danger" th:if="${#fields.hasErrors('img')}" th:errors="*{img}"></p>
+                                    </div>
+                                </div>
+                                <!-- Second Image Upload -->
+                                <div class="col-md-4">
+                                    <div class="form-group mb-3">
+                                        <label for="img-input8" class="img-upload-container" style="cursor: pointer; height: 170px; width:110%;">
+                                            <img id="img-preview8" th:src="${hotel.roomDTOs[1].img2}" alt="Choose Your Image" class="img-fluid rounded-3" style="height: 100%; width:100%; object-fit: cover;">
+                                        </label>
+                                        <input class="form-control mt-2" name="roomImages2" id="img-input8" type="file" accept="image/*" onchange="previewImage(event, 'img-preview8')" style="display: none;">
+                                        <p class="text-danger" th:if="${#fields.hasErrors('img2')}" th:errors="*{img2}"></p>
+                                    </div>
+                                </div>
+                                <!-- Third Image Upload -->
+                                <div class="col-md-4">
+                                    <div class="form-group mb-3">
+                                        <label for="img-input9" class="img-upload-container" style="cursor: pointer; height: 170px; width:110%;">
+                                            <img id="img-preview9" th:src="${hotel.roomDTOs[1].img3}" alt="Choose Your Image" class="img-fluid rounded-3" style="height: 100%; width:100%; object-fit: cover;">
+                                        </label>
+                                        <input class="form-control mt-2" name="roomImages3" id="img-input9" type="file" accept="image/*" onchange="previewImage(event, 'img-preview9')" style="display: none;">
+                                        <p class="text-danger" th:if="${#fields.hasErrors('img3')}" th:errors="*{img3}"></p>
+                                    </div>
+                                </div>
+                            </div>
                                 <input type="hidden" th:field="*{roomDTOs[1].id}">
                                 <label class="form-label" for="doubleRoomCount">Double Room Count:</label>
                                 <input class="form-control" id="doubleRoomCount" type="number"
