@@ -131,23 +131,68 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public void updateUser(UserDTO userDTO, MultipartFile multipartFile) throws IOException {
-    	Map uploadResult = cloudinary.uploader()
-                .upload(multipartFile.getBytes(),
-                        Map.of("public_id", UUID.randomUUID().toString()));
-
-        String url = uploadResult.get("url").toString();
         log.info("Attempting to update user with ID: {}", userDTO.getId());
 
         User user = userRepository.findById(userDTO.getId())
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
+        if (user.getRole().getRoleType() == RoleType.ADMIN) {
+            throw new IllegalStateException("Cannot modify ADMIN role");
+        }
+
+        if (userDTO.getRoleType() == RoleType.ADMIN) {
+            throw new IllegalStateException("Cannot assign ADMIN role");
+        }
+
         if (usernameExistsAndNotSameUser(userDTO.getUsername(), user.getId())) {
             throw new UsernameAlreadyExistsException("This username is already registered!");
         }
 
+        String url = user.getImg();
+        if (multipartFile != null && !multipartFile.isEmpty()) {
+            Map uploadResult = cloudinary.uploader()
+                    .upload(multipartFile.getBytes(),
+                            Map.of("public_id", UUID.randomUUID().toString()));
+            url = uploadResult.get("url").toString();
+        }
+
         setFormattedDataToUser(user, userDTO, url);
-        userRepository.save(user);
-        log.info("Successfully updated existing user with ID: {}", userDTO.getId());
+
+        if (userDTO.getRoleType() != user.getRole().getRoleType()) {
+            Role newRole = roleRepository.findByRoleType(userDTO.getRoleType());
+            if (newRole == null) {
+                throw new IllegalStateException("Role not found");
+            }
+
+            if (user.getCustomer() != null) {
+                Long customerId = user.getCustomer().getId();
+                user.setCustomer(null);
+                customerRepository.deleteById(customerId);
+            }
+
+            if (user.getHotelManager() != null) {
+                Long managerId = user.getHotelManager().getId();
+                user.setHotelManager(null);
+                hotelManagerRepository.deleteById(managerId);
+            }
+
+            user.setRole(newRole);
+            user = userRepository.save(user);
+
+            if (userDTO.getRoleType() == RoleType.CUSTOMER) {
+                Customer newCustomer = new Customer();
+                newCustomer.setUser(user);
+                customerRepository.save(newCustomer);
+            } else if (userDTO.getRoleType() == RoleType.HOTEL_MANAGER) {
+                HotelManager newManager = new HotelManager();
+                newManager.setUser(user);
+                hotelManagerRepository.save(newManager);
+            }
+        } else {
+            userRepository.save(user);
+        }
+
+        log.info("Successfully updated user with ID: {}", userDTO.getId());
     }
 
     @Override
@@ -217,8 +262,8 @@ public class UserServiceImpl implements UserService {
                 .password(passwordEncoder.encode(registrationDTO.getPassword()))
                 .name(formatText(registrationDTO.getName()))
                 .lastName(formatText(registrationDTO.getLastName()))
-               // .phone(registrationDTO.getPhone())
-               // .birthday(registrationDTO.getBirthday())
+                .phone(registrationDTO.getPhone())
+                .birthday(registrationDTO.getBirthday())
                 .img("http://res.cloudinary.com/dliwvet1v/image/upload/v1730037767/b2f64154-56a7-49cb-8da1-638ca334c90e.jpg")
                 .role(userRole)
                 .build();
@@ -244,7 +289,7 @@ public class UserServiceImpl implements UserService {
     }
 
     private String formatText(String text) {
-        return StringUtils.capitalize(text.trim());
+        return text != null ? text.trim() : null;
     }
 
     private void setFormattedDataToUser(User user, UserDTO userDTO, String url) {

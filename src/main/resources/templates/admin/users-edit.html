@@ -73,15 +73,31 @@
                                     </div>
 									<div class="form-group mb-3">
                                         <label class="form-label" for="birthday">Birthday:</label>
-                                        <input class="form-control" id="birthday" type="text" th:field="*{birthday}"
-                                               placeholder="Enter your birthday">
+                                        <input class="form-control" id="birthday" type="date" th:field="*{birthday}"
+                                               placeholder="Select your birthday">
                                         <p class="text-danger" th:if="${#fields.hasErrors('birthday')}" th:errors="*{birthday}"></p>
+                                    </div>
+                                    <!-- Thay thế phần role selection hiện tại bằng đoạn code sau -->
+                                    <div class="form-group mb-3">
+                                        <label class="form-label" for="roleType">Role:</label>
+                                        <select class="form-control" id="roleType" th:field="*{roleType}" 
+                                                th:if="${user.role.roleType.name() != 'ADMIN'}">
+                                            <option th:each="roleType : ${T(com.datn.tourhotel.model.enums.RoleType).values()}"
+                                                    th:if="${roleType.name() != 'ADMIN'}"
+                                                    th:value="${roleType}"
+                                                    th:text="${roleType.name()}">
+                                            </option>
+                                        </select>
+                                        <!-- Hiển thị text readonly nếu user là admin -->
+                                        <input th:if="${user.role.roleType.name() == 'ADMIN'}" 
+                                               type="text" class="form-control" 
+                                               value="ADMIN" readonly>
                                     </div>
                                 </div>
                             </div>
                             <div class="form-group mb-3 text-end">
                                 <button type="submit" class="btn btn-primary">Update</button>
-                                <a th:href="@{/admin/account}" class="btn btn-secondary">Cancel</a>
+                                <a th:href="@{/admin/users}" class="btn btn-secondary">Cancel</a>
                             </div>
                         </form>
                     </div>

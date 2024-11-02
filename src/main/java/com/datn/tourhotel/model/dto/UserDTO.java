@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import com.datn.tourhotel.model.Role;
+import com.datn.tourhotel.model.enums.RoleType;
 
 import jakarta.persistence.Column;
 import jakarta.validation.constraints.Email;
@@ -49,9 +50,23 @@ public class UserDTO {
     
     @NotNull(message = "Birthday is required")
     @Past(message = "Birthday must be in the past")
-    @DateTimeFormat(pattern = "dd-MM-yyyy")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate birthday; 
 
     private Role role;
+
+    private RoleType roleType;
+
+    public RoleType getRoleType() {
+        return role != null ? role.getRoleType() : null;
+    }
+
+    public void setRoleType(RoleType roleType) {
+        if (this.role == null) {
+            this.role = Role.builder().roleType(roleType).build();
+        } else {
+            this.role.setRoleType(roleType);
+        }
+    }
 
 }

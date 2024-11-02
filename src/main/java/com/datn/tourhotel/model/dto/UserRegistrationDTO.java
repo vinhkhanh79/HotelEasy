@@ -12,9 +12,14 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class UserRegistrationDTO {
 	@NotBlank(message = "Email address cannot be empty")
     @Email(message = "Invalid email address")
@@ -42,12 +47,13 @@ public class UserRegistrationDTO {
     
     private String img;
     
-//    @Pattern(regexp = "^(\\+\\d{1,3}( )?)?(\\d{10})$", message = "Invalid phone number")
-//    private String phone; 
+    @Pattern(regexp = "^(\\+\\d{1,3}( )?)?(\\d{10})$", message = "Invalid phone number")
+    private String phone;
     
-//    @NotNull(message = "Birthday is required")
-//    @Past(message = "Birthday must be in the past")
-//    private LocalDate birthday; 
+    @NotNull(message = "Birthday is required")
+    @Past(message = "Birthday must be in the past")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private LocalDate birthday;
 
     private RoleType roleType;
 
