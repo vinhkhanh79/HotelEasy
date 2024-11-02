@@ -13,6 +13,7 @@ import java.util.List;
 
 import com.datn.tourhotel.model.enums.PaymentMethod;
 import com.datn.tourhotel.model.enums.PaymentStatus;
+import com.datn.tourhotel.model.enums.BookingStatus;
 
 @Data
 @Builder
@@ -33,6 +34,7 @@ public class BookingDTO {
     private AddressDTO hotelAddress;
     private String customerName;
     private String customerEmail;
+    private String customerPhone;
     private PaymentStatus paymentStatus;
     private PaymentMethod paymentMethod;
     
@@ -41,4 +43,5 @@ public class BookingDTO {
     private String transactionId;
     private Long userId;
     
+    private BookingStatus status;
 }

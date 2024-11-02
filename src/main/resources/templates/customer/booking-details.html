@@ -1,0 +1,31 @@
+<!-- Thêm button Refund request và modal -->
+<div class="text-center mt-4">
+    <a href="/customer/bookings" class="btn btn-primary">Back to Bookings</a>
+    <button th:if="${booking.status == 'COMPLETED'}" 
+            class="btn btn-warning" 
+            data-bs-toggle="modal" 
+            data-bs-target="#refundModal">
+        Refund Request
+    </button>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="refundModal" tabindex="-1" aria-labelledby="refundModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="refundModalLabel">Refund Request Confirmation</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Your refund request will be processed by our staff and we will contact you within 3-5 business days.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form th:action="@{/customer/bookings/{id}/refund-request(id=${booking.id})}" method="post">
+                    <button type="submit" class="btn btn-primary">Confirm Request</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div> 

@@ -21,6 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.cloudinary.Cloudinary;
 import com.datn.tourhotel.exception.UsernameAlreadyExistsException;
+import com.datn.tourhotel.exception.EmailAlreadyExistsException;
 import com.datn.tourhotel.model.*;
 import com.datn.tourhotel.model.dto.ResetPasswordDTO;
 import com.datn.tourhotel.model.dto.UserDTO;
@@ -55,31 +56,44 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public User saveUser(UserRegistrationDTO registrationDTO) {
-        log.info("Attempting to save a new user: {}", registrationDTO.getUsername());
+        log.info("Starting user registration process for username: {}", registrationDTO.getUsername());
 
-        Optional<User> existingUser = Optional.ofNullable(userRepository.findByUsername(registrationDTO.getUsername()));
-        if (existingUser.isPresent()) {
+        // Kiểm tra username đã tồn tại
+        if (usernameExists(registrationDTO.getUsername())) {
+            log.warn("Username already exists: {}", registrationDTO.getUsername());
             throw new UsernameAlreadyExistsException("This username is already registered!");
         }
-        
-        Optional<User> existingUserByEmail = Optional.ofNullable(userRepository.findByEmail(registrationDTO.getEmail()));
-        if (existingUserByEmail.isPresent()) {
-            throw new UsernameAlreadyExistsException("This email is already registered!");
+
+        // Kiểm tra email đã tồn tại
+        if (emailExists(registrationDTO.getEmail())) {
+            log.warn("Email already exists: {}", registrationDTO.getEmail());
+            throw new EmailAlreadyExistsException("This email is already registered!");
         }
 
-        User user = mapRegistrationDtoToUser(registrationDTO);
+        try {
+            User user = mapRegistrationDtoToUser(registrationDTO);
+            
+            // Set role mặc định nếu không có
+            if (registrationDTO.getRoleType() == null) {
+                registrationDTO.setRoleType(RoleType.CUSTOMER);
+            }
 
-        if (RoleType.CUSTOMER.equals(registrationDTO.getRoleType())) {
-            Customer customer = Customer.builder().user(user).build();
-            customerRepository.save(customer);
-        } else if (RoleType.HOTEL_MANAGER.equals(registrationDTO.getRoleType())) {
-            HotelManager hotelManager = HotelManager.builder().user(user).build();
-            hotelManagerRepository.save(hotelManager);
+            // Tạo relationship tương ứng
+            User savedUser = userRepository.save(user);
+            if (RoleType.CUSTOMER.equals(registrationDTO.getRoleType())) {
+                Customer customer = Customer.builder().user(savedUser).build();
+                customerRepository.save(customer);
+            } else if (RoleType.HOTEL_MANAGER.equals(registrationDTO.getRoleType())) {
+                HotelManager hotelManager = HotelManager.builder().user(savedUser).build();
+                hotelManagerRepository.save(hotelManager);
+            }
+
+            log.info("Successfully registered new user: {}", registrationDTO.getUsername());
+            return savedUser;
+        } catch (Exception e) {
+            log.error("Error during user registration: ", e);
+            throw e;
         }
-
-        User savedUser = userRepository.save(user);
-        log.info("Successfully saved new user: {}", registrationDTO.getUsername());
-        return savedUser;
     }
 
     @Override
@@ -198,18 +212,21 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public void updateLoggedInUser(UserDTO userDTO, MultipartFile multipartFile) throws IOException {
-    	Map uploadResult = cloudinary.uploader()
-                .upload(multipartFile.getBytes(),
-                        Map.of("public_id", UUID.randomUUID().toString()));
-
-        String url = uploadResult.get("url").toString();
-        
         String loggedInUsername = SecurityContextHolder.getContext().getAuthentication().getName();
         User loggedInUser = userRepository.findByUsername(loggedInUsername);
         log.info("Attempting to update logged in user with ID: {}", loggedInUser.getId());
 
         if (usernameExistsAndNotSameUser(userDTO.getUsername(), loggedInUser.getId())) {
             throw new UsernameAlreadyExistsException("This username is already registered!");
+        }
+
+        // Chỉ upload ảnh mới nếu người dùng chọn file
+        String url = loggedInUser.getImg(); // Giữ nguyên ảnh cũ
+        if (multipartFile != null && !multipartFile.isEmpty()) {
+            Map uploadResult = cloudinary.uploader()
+                    .upload(multipartFile.getBytes(),
+                            Map.of("public_id", UUID.randomUUID().toString()));
+            url = uploadResult.get("url").toString();
         }
 
         setFormattedDataToUser(loggedInUser, userDTO, url);
@@ -255,9 +272,25 @@ public class UserServiceImpl implements UserService {
     }
 
     private User mapRegistrationDtoToUser(UserRegistrationDTO registrationDTO) {
+        // Kiểm tra role
         Role userRole = roleRepository.findByRoleType(registrationDTO.getRoleType());
+        if (userRole == null) {
+            // Nếu không tìm thấy role, mặc định là CUSTOMER
+            userRole = roleRepository.findByRoleType(RoleType.CUSTOMER);
+        }
+
+        // Kiểm tra mật khẩu xác nhận
+        if (!registrationDTO.getPassword().equals(registrationDTO.getConfirmPassword())) {
+            throw new IllegalArgumentException("Password and confirm password do not match");
+        }
+
+        // Log để debug
+        log.info("Creating new user with username: {}", registrationDTO.getUsername());
+        log.info("Role type: {}", registrationDTO.getRoleType());
+        log.info("User role found: {}", userRole);
+
         return User.builder()
-        		.email(registrationDTO.getEmail())
+                .email(registrationDTO.getEmail())
                 .username(registrationDTO.getUsername().trim())
                 .password(passwordEncoder.encode(registrationDTO.getPassword()))
                 .name(formatText(registrationDTO.getName()))

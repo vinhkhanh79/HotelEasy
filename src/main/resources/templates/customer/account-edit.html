@@ -39,6 +39,7 @@
                                         <label for="img-input" class="img-upload-container" style="height: 310px; width:295px;">
                                             <img id="img-preview" th:src="${user.img}" alt="User Image" class="img-fluid w-100 rounded-3" style="height: 100%; width: 100%; object-fit: cover;">
                                         </label>
+                                        <p class="text-muted small mt-2">Click vào ảnh để thay đổi (không bắt buộc)</p>
                                         <input class="form-control mt-2" name="multipartFile" id="img-input" type="file" accept="image/*" onchange="previewImage(event)" style="display: none;">
                                         <p class="text-danger" th:if="${#fields.hasErrors('img')}" th:errors="*{img}"></p>
                                     </div>
@@ -78,8 +79,11 @@
                                     </div>
 									<div class="form-group mb-3">
                                         <label class="form-label" for="birthday">Birthday:</label>
-                                        <input class="form-control" id="birthday" type="text" th:field="*{birthday}"
-                                               placeholder="Enter your birthday">
+                                        <input class="form-control" id="birthday" 
+                                               type="date" 
+                                               th:field="*{birthday}"
+                                               th:max="${#dates.format(#dates.createNow(), 'yyyy-MM-dd')}"
+                                               placeholder="Select your birthday">
                                         <p class="text-danger" th:if="${#fields.hasErrors('birthday')}" th:errors="*{birthday}"></p>
                                     </div>
                                 </div>

@@ -3,6 +3,7 @@ package com.datn.tourhotel.model;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
+import com.datn.tourhotel.model.enums.BookingStatus;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -50,6 +51,10 @@ public class Booking {
     @OneToOne(mappedBy = "booking")
     private Payment payment;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private BookingStatus status = BookingStatus.PENDING;
+
     @PrePersist
     protected void onCreate() {
         this.confirmationNumber = UUID.randomUUID().toString().substring(0, 8);
@@ -67,6 +72,7 @@ public class Booking {
                 ", checkoutDate=" + checkoutDate +
                 ", bookedRooms=" + bookedRooms +
                 ", payment=" + payment +
+                ", status=" + status +
                 '}';
     }
 

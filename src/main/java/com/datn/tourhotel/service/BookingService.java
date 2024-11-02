@@ -28,4 +28,8 @@ public interface BookingService {
     
     BookingDTO confirmBookingFromPayment(String confirmationNumber);
 
+    void requestRefund(Long bookingId);
+
+    void confirmRefund(Long bookingId);
+
 }

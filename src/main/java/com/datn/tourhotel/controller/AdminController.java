@@ -17,6 +17,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.datn.tourhotel.exception.HotelAlreadyExistsException;
 import com.datn.tourhotel.exception.UsernameAlreadyExistsException;
+import com.datn.tourhotel.model.Booking;
 import com.datn.tourhotel.model.dto.BookingDTO;
 import com.datn.tourhotel.model.dto.HotelDTO;
 import com.datn.tourhotel.model.dto.UserDTO;
@@ -28,6 +29,7 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Optional;
 
 @Controller
 @RequestMapping("/admin")
@@ -56,40 +58,32 @@ public class AdminController {
     }
 
     @GetMapping("/users/edit/{id}")
-    public String showEditUserForm(@PathVariable Long id, Model model, HttpServletRequest request) {
-    	String message = messageSource.getMessage("hello", null, "default message", request.getLocale());
+    public String showEditUserForm(@PathVariable Long id, Model model) {
         UserDTO userDTO = userService.findUserById(id);
         model.addAttribute("user", userDTO);
         return "admin/users-edit";
     }
 
     @PostMapping("/users/edit/{id}")
-    public String editUser(@PathVariable Long id, @Valid @ModelAttribute("user") UserDTO userDTO, BindingResult result, RedirectAttributes redirectAttributes,
-    		@RequestParam("multipartFile") MultipartFile multipartFile) throws IOException {
-        if (result.hasErrors()) {
-            return "admin/users-edit";
-        }
-     // Lấy thông tin người dùng hiện tại từ service
-        UserDTO currentUserDTO = userService.findUserById(userDTO.getId());
-
-     // If the user did not select a new image, keep the old image
-        if (multipartFile.isEmpty()) {
-            userDTO.setImg(currentUserDTO.getImg()); // Keep the old image
-        }
-        // Kiểm tra xem form có lỗi không
-        if (result.hasErrors()) {
-            log.warn("Validation errors occurred while editing customer account");
-            return "customer/account-edit";
-        }
+    public String editUser(@PathVariable Long id, 
+                          @Valid @ModelAttribute("user") UserDTO userDTO,
+                          BindingResult result,
+                          RedirectAttributes redirectAttributes,
+                          @RequestParam(value = "multipartFile", required = false) MultipartFile multipartFile) {
         try {
+            if (result.hasErrors()) {
+                return "admin/users-edit";
+            }
             userService.updateUser(userDTO, multipartFile);
-        } catch (UsernameAlreadyExistsException e) {
-            result.rejectValue("username", "user.exists", "Username is already registered!");
+            redirectAttributes.addFlashAttribute("success", "User updated successfully");
+            return "redirect:/admin/users";
+        } catch (IllegalStateException e) {
+            result.rejectValue("roleType", "role.invalid", e.getMessage());
+            return "admin/users-edit";
+        } catch (Exception e) {
+            result.rejectValue("", "error.general", "An error occurred while updating the user");
             return "admin/users-edit";
         }
-
-        redirectAttributes.addFlashAttribute("updatedUserId", userDTO.getId());
-        return "redirect:/admin/users?success";
     }
 
     // Workaround for @DeleteMapping via post method
@@ -145,16 +139,15 @@ public class AdminController {
     }
 
     @GetMapping("/bookings")
-    public String listBookings(Model model, HttpServletRequest request) {
-    	String message = messageSource.getMessage("hello", null, "default message", request.getLocale());
-        List<BookingDTO> bookingDTOList = bookingService.findAllBookings();
-        model.addAttribute("bookings", bookingDTOList);
+    public String listBookings(Model model) {
+        List<BookingDTO> bookings = bookingService.findAllBookings();
+        model.addAttribute("bookings", bookings);
         return "admin/bookings";
     }
 
     @GetMapping("/bookings/{id}")
     public String viewBookingDetails(@PathVariable Long id, Model model, RedirectAttributes redirectAttributes, HttpServletRequest request) {
-    	String message = messageSource.getMessage("hello", null, "default message", request.getLocale());
+        String message = messageSource.getMessage("hello", null, "default message", request.getLocale());
         try {
             BookingDTO bookingDTO = bookingService.findBookingById(id);
             model.addAttribute("bookingDTO", bookingDTO);
@@ -164,7 +157,7 @@ public class AdminController {
             long durationDays = ChronoUnit.DAYS.between(checkinDate, checkoutDate);
             model.addAttribute("days", durationDays);
 
-            return "admin/bookings-details";
+            return "admin/booking-details";
         } catch (EntityNotFoundException e) {
             log.error("No booking found with the provided ID", e);
             redirectAttributes.addFlashAttribute("errorMessage", "Booking not found. Please try again later.");
@@ -174,6 +167,17 @@ public class AdminController {
             redirectAttributes.addFlashAttribute("errorMessage", "An unexpected error occurred. Please try again later.");
             return "redirect:/admin/dashboard";
         }
+    }
+
+    @PostMapping("/bookings/{id}/confirm-refund")
+    public String confirmRefund(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        try {
+            bookingService.confirmRefund(id);
+            redirectAttributes.addFlashAttribute("success", "Refund has been confirmed successfully");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Failed to confirm refund: " + e.getMessage());
+        }
+        return "redirect:/admin/bookings/" + id;
     }
 
 }

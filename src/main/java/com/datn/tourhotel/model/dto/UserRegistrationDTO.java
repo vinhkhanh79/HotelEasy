@@ -10,14 +10,12 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Past;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 
 @Data
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserRegistrationDTO {
@@ -57,4 +55,18 @@ public class UserRegistrationDTO {
 
     private RoleType roleType;
 
+    // Constructor cho việc tạo mới
+    public UserRegistrationDTO(String email, String username, String password, String confirmPassword,
+                             String name, String lastName, String phone, LocalDate birthday, RoleType roleType) {
+        this.email = email;
+        this.username = username;
+        this.password = password;
+        this.confirmPassword = confirmPassword;
+        this.name = name;
+        this.lastName = lastName;
+        this.phone = phone;
+        this.birthday = birthday;
+        this.roleType = roleType;
+        this.img = "http://res.cloudinary.com/dliwvet1v/image/upload/v1730037767/b2f64154-56a7-49cb-8da1-638ca334c90e.jpg"; // Default image
+    }
 }

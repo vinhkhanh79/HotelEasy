@@ -74,6 +74,25 @@
                                         <p class="text-danger mt-1" th:if="${#fields.hasErrors('confirmPassword')}" th:errors="*{confirmPassword}"></p>
                                     </div>
                                     <div class="col-12">
+                                        <div class="form-floating">
+                                            <input class="form-control border-0 border-bottom rounded-0" id="phone" 
+                                                   type="tel" th:field="*{phone}" placeholder="">
+                                            <label for="phone">Phone Number</label>
+                                        </div>
+                                        <p class="text-danger mt-1" th:if="${#fields.hasErrors('phone')}" th:errors="*{phone}"></p>
+                                    </div>
+                                    <div class="col-12">
+                                        <div class="form-floating">
+                                            <input class="form-control border-0 border-bottom rounded-0" id="birthday" 
+                                                   type="date" 
+                                                   th:field="*{birthday}" 
+                                                   placeholder=""
+                                                   th:max="${#dates.format(#dates.createNow(), 'yyyy-MM-dd')}">
+                                            <label for="birthday">Birthday</label>
+                                        </div>
+                                        <p class="text-danger mt-1" th:if="${#fields.hasErrors('birthday')}" th:errors="*{birthday}"></p>
+                                    </div>
+                                    <div class="col-12">
                                         <div class="d-grid">
                                             <button type="submit" class="btn btn-primary btn-lg">Register</button>
                                         </div>

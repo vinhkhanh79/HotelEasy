@@ -199,6 +199,17 @@ public class HotelManagerController {
         }
     }
 
+    @PostMapping("/bookings/{id}/confirm-refund")
+    public String confirmRefund(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        try {
+            bookingService.confirmRefund(id);
+            redirectAttributes.addFlashAttribute("success", "Refund has been confirmed successfully");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Failed to confirm refund: " + e.getMessage());
+        }
+        return "redirect:/manager/bookings/" + id;
+    }
+
     private Long getCurrentManagerId() {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         return userService.findUserByUsername(username).getHotelManager().getId();

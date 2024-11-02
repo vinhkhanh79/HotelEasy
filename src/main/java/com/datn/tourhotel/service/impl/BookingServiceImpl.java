@@ -11,6 +11,7 @@ import com.datn.tourhotel.model.dto.AddressDTO;
 import com.datn.tourhotel.model.dto.BookingDTO;
 import com.datn.tourhotel.model.dto.BookingInitiationDTO;
 import com.datn.tourhotel.model.dto.RoomSelectionDTO;
+import com.datn.tourhotel.model.enums.BookingStatus;
 import com.datn.tourhotel.repository.BookingRepository;
 import com.datn.tourhotel.service.*;
 
@@ -43,6 +44,7 @@ public class BookingServiceImpl implements BookingService {
                 .orElseThrow(() -> new EntityNotFoundException("Hotel not found with ID: " + bookingInitiationDTO.getHotelId()));
 
         Booking booking = mapBookingInitDtoToBookingModel(bookingInitiationDTO, customer, hotel);
+        booking.setStatus(BookingStatus.PENDING);
 
         return bookingRepository.save(booking);
     }
@@ -53,6 +55,7 @@ public class BookingServiceImpl implements BookingService {
         Booking savedBooking = this.saveBooking(bookingInitiationDTO, customerId);
         Payment savedPayment = paymentService.savePayment(bookingInitiationDTO, savedBooking);
         savedBooking.setPayment(savedPayment);
+        savedBooking.setStatus(BookingStatus.COMPLETED);
         bookingRepository.save(savedBooking);
         availabilityService.updateAvailabilities(bookingInitiationDTO.getHotelId(), bookingInitiationDTO.getCheckinDate(),
                 bookingInitiationDTO.getCheckoutDate(), bookingInitiationDTO.getRoomSelections());
@@ -159,8 +162,10 @@ public class BookingServiceImpl implements BookingService {
                 .hotelAddress(addressDto)
                 .customerName(customerUser.getName() + " " + customerUser.getLastName())
                 .customerEmail(customerUser.getEmail())
+                .customerPhone(customerUser.getPhone())
                 .paymentStatus(booking.getPayment().getPaymentStatus())
                 .paymentMethod(booking.getPayment().getPaymentMethod())
+                .status(booking.getStatus())
                 .build();
     }
 
@@ -170,6 +175,7 @@ public class BookingServiceImpl implements BookingService {
                 .hotel(hotel)
                 .checkinDate(bookingInitiationDTO.getCheckinDate())
                 .checkoutDate(bookingInitiationDTO.getCheckoutDate())
+                .status(BookingStatus.PENDING)
                 .build();
 
         for (RoomSelectionDTO roomSelection : bookingInitiationDTO.getRoomSelections()) {
@@ -184,6 +190,38 @@ public class BookingServiceImpl implements BookingService {
         }
 
         return booking;
+    }
+
+    @Override
+    @Transactional
+    public void requestRefund(Long bookingId) {
+        Booking booking = bookingRepository.findById(bookingId)
+                .orElseThrow(() -> new EntityNotFoundException("Booking not found"));
+        
+        if (booking.getStatus() != BookingStatus.COMPLETED) {
+            throw new IllegalStateException("Only completed bookings can request refund");
+        }
+        
+        booking.setStatus(BookingStatus.REQUESTING_REFUND);
+        bookingRepository.save(booking);
+        
+        // Có thể thêm logic gửi email thông báo cho admin/staff
+    }
+
+    @Override
+    @Transactional
+    public void confirmRefund(Long bookingId) {
+        Booking booking = bookingRepository.findById(bookingId)
+                .orElseThrow(() -> new EntityNotFoundException("Booking not found"));
+        
+        if (booking.getStatus() != BookingStatus.REQUESTING_REFUND) {
+            throw new IllegalStateException("Only bookings with REQUESTING_REFUND status can be confirmed for refund");
+        }
+        
+        booking.setStatus(BookingStatus.REFUNDED);
+        bookingRepository.save(booking);
+        
+        // Có thể thêm logic gửi email thông báo cho khách hàng
     }
 
 }
