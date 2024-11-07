@@ -10,8 +10,8 @@
         <div class="row" style="min-height: 50vh;">
             <div class="col-md-12">
                 <h2>User List</h2>
-                <div th:if="${param.success}">
-                    <div class="alert alert-success">
+                <div th:if="${success}">
+                    <div class="alert alert-success text-center">
                         User ID: <span th:text="${updatedUserId}"></span> info has been successfully updated
                     </div>
                 </div>

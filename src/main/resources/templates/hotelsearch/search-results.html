@@ -38,15 +38,15 @@
             <div class="col-lg-3 col-md-6 mb-4" th:each="hotel : ${hotels}">
                 <div class="card p-4 text-center rounded-3 shadow-sm">
                     <h5 class="mb-3" th:text="${hotel.name}">Hotel Name</h5>
-                    <img th:src="@{/img/hotel/{img}(img=${hotel.img})}" class="img-fluid w-100 mb-3 rounded-3" style="height: 200px; object-fit: cover;">
+                    <img th:src="${hotel.img}" class="img-fluid w-100 mb-3 rounded-3" style="height: 200px; object-fit: cover;">
                     <hr>
                     <div class="">
                         <th:block th:each="room : ${hotel.roomDTOs}">
                             <p th:if="${room.roomType.name() == 'SINGLE'}">
-                                Single: $<strong th:text="${room.pricePerNight}">0</strong>/Night
+                                Single: <strong th:text="${room.pricePerNight}">0</strong> VND/Night
                             </p>
                             <p th:if="${room.roomType.name() == 'DOUBLE'}">
-                                Double: $<strong th:text="${room.pricePerNight}">0</strong>/Night
+                                Double: <strong th:text="${room.pricePerNight}">0</strong> VND/Night
                             </p>
                         </th:block>
                     </div>

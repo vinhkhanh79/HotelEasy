@@ -73,16 +73,19 @@ public class HotelManagerController {
 
     @PostMapping("/hotels/add")
     public String addHotel(@Valid @ModelAttribute("hotel") HotelRegistrationDTO hotelRegistrationDTO,
-    		@RequestParam("imageFile") MultipartFile imageFile,
+            @RequestParam("imageFile") MultipartFile imageFile,
             @RequestParam("imageFile2") MultipartFile imageFile2,
             @RequestParam("imageFile3") MultipartFile imageFile3,
-    		BindingResult result, RedirectAttributes redirectAttributes) {
+            @RequestParam("roomImages1") List<MultipartFile> roomImages1,
+            @RequestParam("roomImages2") List<MultipartFile> roomImages2,
+            @RequestParam("roomImages3") List<MultipartFile> roomImages3,
+            BindingResult result, RedirectAttributes redirectAttributes) {
         if (result.hasErrors()) {
             log.warn("Hotel creation failed due to validation errors: {}", result.getAllErrors());
             return "hotelmanager/hotels-add";
         }
         try {
-            hotelService.saveHotel(hotelRegistrationDTO, imageFile, imageFile2, imageFile3);
+            hotelService.saveHotel(hotelRegistrationDTO, imageFile, imageFile2, imageFile3, roomImages1, roomImages2, roomImages3);
             redirectAttributes.addFlashAttribute("message", "Hotel " + hotelRegistrationDTO.getName() + " added successfully");
             return "redirect:/manager/hotels";
         } catch (HotelAlreadyExistsException e) {
@@ -108,35 +111,40 @@ public class HotelManagerController {
     }
 
     @PostMapping("/hotels/edit/{id}")
-    public String editHotel(@PathVariable Long id, @Valid @ModelAttribute("hotel") HotelDTO hotelDTO,
+    public String editHotel(@PathVariable Long id, 
+                            @Valid @ModelAttribute("hotel") HotelDTO hotelDTO,
                             @RequestParam("imageFile") MultipartFile imageFile,
                             @RequestParam("imageFile2") MultipartFile imageFile2,
                             @RequestParam("imageFile3") MultipartFile imageFile3,
+                            @RequestParam(value = "roomImages", required = false) List<MultipartFile> roomImages,
+                            @RequestParam(value = "roomImages2", required = false) List<MultipartFile> roomImages2,
+                            @RequestParam(value = "roomImages3", required = false) List<MultipartFile> roomImages3,
                             BindingResult result, 
                             RedirectAttributes redirectAttributes) {
         if (result.hasErrors()) {
             return "hotelmanager/hotels-edit";
         }
         try {
-            Long managerId = getCurrentManagerId();
-            hotelDTO.setId(id);
-            hotelService.updateHotelByManagerId(hotelDTO, managerId, imageFile, imageFile2, imageFile3);
+            Long managerId = getCurrentManagerId();  // Lấy ID của quản lý hiện tại
+            hotelDTO.setId(id);  // Set ID cho HotelDTO
+
+            // Cập nhật hotel cùng với ảnh phòng
+            hotelService.updateHotelByManagerId(hotelDTO, managerId, imageFile, imageFile2, imageFile3, roomImages, roomImages2, roomImages3);
+
             redirectAttributes.addFlashAttribute("message", "Hotel ID: " + id + " updated successfully");
             return "redirect:/manager/hotels";
-
         } catch (HotelAlreadyExistsException e) {
             result.rejectValue("name", "hotel.exists", e.getMessage());
             return "hotelmanager/hotels-edit";
         } catch (EntityNotFoundException e) {
             result.rejectValue("id", "hotel.notfound", e.getMessage());
             return "hotelmanager/hotels-edit";
-        } catch (IOException e) {
-            log.error("Image upload failed due to IOException: {}", e.getMessage());
-            result.rejectValue("imageFile", "upload.error", "Image upload failed. Please try again.");
+        } catch (Exception e) {
+            // Thêm xử lý ngoại lệ tổng quát nếu cần
+            result.reject("error", "An error occurred while updating the hotel: " + e.getMessage());
             return "hotelmanager/hotels-edit";
         }
     }
-
 
     @PostMapping("/hotels/delete/{id}")
     public String deleteHotel(@PathVariable Long id) {
@@ -186,6 +194,16 @@ public class HotelManagerController {
             redirectAttributes.addFlashAttribute("errorMessage", "An unexpected error occurred. Please try again later.");
             return "redirect:/manager/dashboard";
         }
+    }
+    @PostMapping("/bookings/{id}/confirm-refund")
+    public String confirmRefund(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        try {
+            bookingService.confirmRefund(id);
+            redirectAttributes.addFlashAttribute("success", "Refund has been confirmed successfully");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Failed to confirm refund: " + e.getMessage());
+        }
+        return "redirect:/manager/bookings/" + id;
     }
 
     private Long getCurrentManagerId() {

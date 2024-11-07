@@ -13,6 +13,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Past;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+import com.datn.tourhotel.model.enums.RoleType;
 import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
@@ -49,9 +50,21 @@ public class UserDTO {
     
     @NotNull(message = "Birthday is required")
     @Past(message = "Birthday must be in the past")
-    @DateTimeFormat(pattern = "dd-MM-yyyy")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate birthday; 
 
     private Role role;
+    private RoleType roleType;
 
+    public RoleType getRoleType() {
+        return role != null ? role.getRoleType() : null;
+    }
+
+    public void setRoleType(RoleType roleType) {
+        if (this.role == null) {
+            this.role = Role.builder().roleType(roleType).build();
+        } else {
+            this.role.setRoleType(roleType);
+        }
+    }
 }

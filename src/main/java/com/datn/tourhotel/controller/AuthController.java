@@ -53,6 +53,15 @@ public class AuthController {
         System.out.println(hotels); 
         return "index";
     }
+    @GetMapping("/post/post1")
+    public String post1() {
+    	return "post/post1";
+    }
+    
+    @GetMapping("/post/post2")
+    public String post2() {
+    	return "post/post2";
+    }
 
     @GetMapping("/login")
     public String loginPage(Authentication authentication, HttpServletRequest request) {

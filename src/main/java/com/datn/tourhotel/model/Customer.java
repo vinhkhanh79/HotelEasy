@@ -19,12 +19,12 @@ public class Customer {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinColumn(nullable = false)
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     @OneToMany(mappedBy = "customer")
-    private List<Booking> bookingList = new ArrayList<>();
+    private List<Booking> bookings = new ArrayList<>();
 
     @Override
     public String toString() {

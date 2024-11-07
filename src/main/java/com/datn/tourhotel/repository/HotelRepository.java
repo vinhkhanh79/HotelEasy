@@ -30,7 +30,7 @@ public interface HotelRepository extends JpaRepository<Hotel, Long> {
             "AND a.date >= :checkinDate AND a.date < :checkoutDate " +
             "WHERE h.address.city = :city " +
             "AND (a IS NULL OR a.availableRooms > 0) " +
-            "GROUP BY h.id, h.name, h.address, h.hotelManager, h.img " +
+            "GROUP BY h.id, h.name, h.address, h.hotelManager, h.img, h.img2, h.img3, h.describe " +
             "HAVING COUNT(DISTINCT a.date) + SUM(CASE WHEN a IS NULL THEN 1 ELSE 0 END) = :numberOfDays")
     List<Hotel> findHotelsWithAvailableRooms(@Param("city") String city,
                                              @Param("checkinDate") LocalDate checkinDate,
@@ -58,7 +58,7 @@ public interface HotelRepository extends JpaRepository<Hotel, Long> {
             "AND a.date >= :checkinDate AND a.date < :checkoutDate " +
             "WHERE h.address.city = :city " +
             "AND (a IS NULL OR a.availableRooms > 0) " +
-            "GROUP BY h.id, h.name, h.address, h.hotelManager, h.img " +
+            "GROUP BY h.id, h.name, h.address, h.hotelManager, h.img, h.img2, h.img3, h.describe " +
             "HAVING COUNT(DISTINCT a.date) < :numberOfDays " +
             "AND COUNT(DISTINCT CASE WHEN a.availableRooms > 0 THEN a.date END) > 0")
     List<Hotel> findHotelsWithPartialAvailabilityRecords(@Param("city") String city,

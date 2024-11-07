@@ -61,6 +61,10 @@
 		            <button type="submit" class="main-btn rounded-3 px-lg-4">Search</button>
 		        </div>
 		    </form>
+		    <div class="mt-4 text-center" th:if="${errorMessage}">
+                <div class="alert alert-danger" th:text="${errorMessage}">
+                </div>
+            </div>
 		</div>
 
     </section>
@@ -99,19 +103,17 @@
                     <div class="row m-0">
                         <div class="col-md-4 mb-4 mb-lg-0" th:each="hotel : ${hotels}">
                             <div class="room-items mb-5" style="height: 610px; width: 100%">
-		                        <img th:src="@{/img/hotel/{img}(img=${hotel.img})}" class="img-fluid" style="height: 100%; width: 100%">
+		                        <img th:src="${hotel.img}" class="img-fluid" style="height: 100%; width: 100%">
                                 <div class="room-item-wrap">
                                     <div class="room-content">
                                     	<a class="book-now-link" th:href="@{/hotel-details/{id}(id=${hotel.id})}">
-                                    		<h3 class="text-white mb-lg-5 text-decoration-none">Royal Suit</h3>
+                                    		<h3 class="text-white mb-lg-5 text-decoration-none" th:text="${hotel.roomDTOs[0].roomType.name()}">Royal Suit</h3>
                                     	</a>
                                     		<a class="book-now-link" th:href="@{/hotel-details/{id}(id=${hotel.id})}">
 				                        		<h5 class="text-white mb-lg-5 text-decoration-none" th:text="${hotel.name}">Hotel Name</h5>
 				                        	</a>
-                                        <p class="text-white">Discover five of our favourite dresses from our new
-                                            collection that are
-                                            destined to be worn and loved immediately</p>
-                                        <p class="text-white fw-bold mt-lg-4">$220/ Per Night</p>
+                                        <p class="text-white"th:text="${hotel.describe}">Describe</p>
+                                        <p class="text-white fw-bold mt-lg-4" th:text="${#numbers.formatDecimal(hotel.roomDTOs[0].pricePerNight, 0, 'COMMA', 0, 'POINT')} + ' VND/ Per Night'">$220/ Per Night</p>
                                         <a class="main-btn border-white text-white mt-lg-5 book-now-link" th:href="@{/hotel-details/{id}(id=${hotel.id}, checkinDate=${checkinDate}, checkoutDate=${checkoutDate}, language=${#locale.language})}">Book Now</a>
                                     </div>
                                 </div>
@@ -341,7 +343,7 @@
 		                        	<h5 class="text-decoration-none mb-4" th:text="${hotel.name}">Hotel Name</h5>
 		                        </a>
 		                        <a th:href="@{/hotel-details/{id}(id=${hotel.id})}" class="book-now-link">
-		                        <img th:src="@{/img/hotel/{img}(img=${hotel.img})}" class="img-fluid w-100 mb-3 rounded-3" style="height: 250px; width:100%; object-fit: cover;">
+		                        <img th:src="${hotel.img}" class="img-fluid w-100 mb-3 rounded-3" style="height: 250px; width:100%; object-fit: cover;">
 		                        </a>
 		                        <hr>
 		                        <ul class="list-unstyled" style="min-height: 75px;">
@@ -382,11 +384,10 @@
                             <div class="card p-0 border-0 rounded-0">
                                 <img src="https://res.cloudinary.com/dliwvet1v/image/upload/v1729860266/blog/v3awtsv30cnajttwep0f.jpg" alt="">
                                 <div class="blog-content bg-white p-4">
-                                    <h5 class="text-decoration-underline mb-4">Relax Zone</h5>
-                                    <h6>By Admin - February 18, 2022</h6>
-                                    <p class="mt-2">Lorem ipsum dolor sit, amet consectetur adipisicing elit. Eaque,
-                                        cumque nostrum! A magni tenetur perferendis.</p>
-                                    <a href="#" class="main-btn mt-2">Read More</a>
+                                    <h5 class="text-decoration-underline mb-4">Hotels in Ho Chi Minh City</h5>
+                                    <h6>By Admin - March 18, 2024</h6>
+                                    <p class="mt-2">Ho Chi Minh City is a bustling metropolis with a wide range of hotels, from budget to luxury. Below are some standout hotels in Ho Chi Minh City.</p>
+                                    <a href="/post/post1" class="main-btn mt-2">Read More</a>
                                 </div>
                             </div>
                         </div>
@@ -394,11 +395,10 @@
                             <div class="card p-0 border-0 rounded-0">
                                 <img src="https://res.cloudinary.com/dliwvet1v/image/upload/v1729760813/blog/tdicicjrcq9udztgtmrd.jpg" alt="">
                                 <div class="blog-content bg-white p-4">
-                                    <h5 class="text-decoration-underline mb-4">Relax Zone</h5>
-                                    <h6>By Admin - February 18, 2022</h6>
-                                    <p class="mt-2">Lorem ipsum dolor sit, amet consectetur adipisicing elit. Eaque,
-                                        cumque nostrum! A magni tenetur perferendis.</p>
-                                    <a href="#" class="main-btn mt-2">Read More</a>
+                                    <h5 class="text-decoration-underline mb-4">Discover Ho Chi Minh City - The Vibrant Heart of Vietnam</h5>
+                                    <h6>By Admin - February 20, 2024</h6>
+                                    <p class="mt-2">Experience famous tourist destinations and a variety of accommodation spaces.</p>
+                                    <a href="/post/post2" class="main-btn mt-2">Read More</a>
                                 </div>
                             </div>
                         </div>

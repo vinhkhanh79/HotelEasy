@@ -89,5 +89,6 @@ public class AddressServiceImpl implements AddressService {
         address.setAddressLine(formatText(addressDTO.getAddressLine()));
         address.setCity(formatText(addressDTO.getCity()));
         address.setCountry(formatText(addressDTO.getCountry()));
+        address.setLocation(formatText(addressDTO.getLocation()));
     }
 }

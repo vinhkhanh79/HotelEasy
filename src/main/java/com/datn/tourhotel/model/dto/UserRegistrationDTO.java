@@ -2,6 +2,8 @@ package com.datn.tourhotel.model.dto;
 
 import java.time.LocalDate;
 
+import org.springframework.format.annotation.DateTimeFormat;
+
 import com.datn.tourhotel.model.enums.RoleType;
 
 import jakarta.validation.constraints.Email;
@@ -10,11 +12,15 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Past;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class UserRegistrationDTO {
 	@NotBlank(message = "Email address cannot be empty")
     @Email(message = "Invalid email address")
@@ -42,13 +48,27 @@ public class UserRegistrationDTO {
     
     private String img;
     
-//    @Pattern(regexp = "^(\\+\\d{1,3}( )?)?(\\d{10})$", message = "Invalid phone number")
-//    private String phone; 
+    @Pattern(regexp = "^(\\+\\d{1,3}( )?)?(\\d{10})$", message = "Invalid phone number")
+    private String phone;
     
-//    @NotNull(message = "Birthday is required")
-//    @Past(message = "Birthday must be in the past")
-//    private LocalDate birthday; 
+    @NotNull(message = "Birthday is required")
+    @Past(message = "Birthday must be in the past")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private LocalDate birthday;
 
     private RoleType roleType;
-
+ // Constructor cho việc tạo mới
+    public UserRegistrationDTO(String email, String username, String password, String confirmPassword,
+                             String name, String lastName, String phone, LocalDate birthday, RoleType roleType) {
+        this.email = email;
+        this.username = username;
+        this.password = password;
+        this.confirmPassword = confirmPassword;
+        this.name = name;
+        this.lastName = lastName;
+        this.phone = phone;
+        this.birthday = birthday;
+        this.roleType = roleType;
+        this.img = "http://res.cloudinary.com/dliwvet1v/image/upload/v1730037767/b2f64154-56a7-49cb-8da1-638ca334c90e.jpg"; // Default image
+    }
 }

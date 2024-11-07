@@ -64,33 +64,41 @@ public class AdminController {
     }
 
     @PostMapping("/users/edit/{id}")
-    public String editUser(@PathVariable Long id, @Valid @ModelAttribute("user") UserDTO userDTO, BindingResult result, RedirectAttributes redirectAttributes,
-    		@RequestParam("multipartFile") MultipartFile multipartFile) throws IOException {
-        if (result.hasErrors()) {
-            return "admin/users-edit";
-        }
-     // Lấy thông tin người dùng hiện tại từ service
-        UserDTO currentUserDTO = userService.findUserById(userDTO.getId());
-
-     // If the user did not select a new image, keep the old image
-        if (multipartFile.isEmpty()) {
-            userDTO.setImg(currentUserDTO.getImg()); // Keep the old image
-        }
-        // Kiểm tra xem form có lỗi không
-        if (result.hasErrors()) {
-            log.warn("Validation errors occurred while editing customer account");
-            return "customer/account-edit";
-        }
+    public String editUser(@PathVariable Long id,
+                           @Valid @ModelAttribute("user") UserDTO userDTO,
+                           BindingResult result,
+                           RedirectAttributes redirectAttributes,
+                           @RequestParam(value = "multipartFile", required = false) MultipartFile multipartFile) throws IOException {
         try {
+            if (result.hasErrors()) {
+                return "admin/users-edit";
+            }
+
+            // Lấy thông tin người dùng hiện tại từ service
+            UserDTO currentUserDTO = userService.findUserById(id);
+
+            // Kiểm tra nếu người dùng không chọn ảnh mới, giữ nguyên ảnh cũ
+            if (multipartFile == null || multipartFile.isEmpty()) {
+                userDTO.setImg(currentUserDTO.getImg()); // Giữ nguyên ảnh cũ
+            }
+
             userService.updateUser(userDTO, multipartFile);
+            redirectAttributes.addFlashAttribute("success", "User updated successfully");
+            redirectAttributes.addFlashAttribute("updatedUserId", userDTO.getId());
+
+            return "redirect:/admin/users";
         } catch (UsernameAlreadyExistsException e) {
             result.rejectValue("username", "user.exists", "Username is already registered!");
             return "admin/users-edit";
+        } catch (IllegalStateException e) {
+            result.rejectValue("roleType", "role.invalid", e.getMessage());
+            return "admin/users-edit";
+        } catch (Exception e) {
+            result.rejectValue("", "error.general", "An error occurred while updating the user");
+            return "admin/users-edit";
         }
-
-        redirectAttributes.addFlashAttribute("updatedUserId", userDTO.getId());
-        return "redirect:/admin/users?success";
     }
+
 
     // Workaround for @DeleteMapping via post method
     @PostMapping("/users/delete/{id}")
@@ -117,15 +125,19 @@ public class AdminController {
 
     @PostMapping("/hotels/edit/{id}")
     public String editHotel(@PathVariable Long id, @Valid @ModelAttribute("hotel") HotelDTO hotelDTO,
+            BindingResult result,
     		@RequestParam("imageFile") MultipartFile imageFile,
             @RequestParam("imageFile2") MultipartFile imageFile2,
             @RequestParam("imageFile3") MultipartFile imageFile3,
-    		BindingResult result, RedirectAttributes redirectAttributes) {
+            @RequestParam(value = "roomImages", required = false) List<MultipartFile> roomImages,
+            @RequestParam(value = "roomImages2", required = false) List<MultipartFile> roomImages2,
+            @RequestParam(value = "roomImages3", required = false) List<MultipartFile> roomImages3,
+            RedirectAttributes redirectAttributes) {
         if (result.hasErrors()) {
             return "admin/hotels-edit";
         }
         try {
-            hotelService.updateHotel(hotelDTO, imageFile, imageFile2, imageFile3);
+            hotelService.updateHotel(hotelDTO, imageFile, imageFile2, imageFile3, roomImages, roomImages2, roomImages3);
         } catch (HotelAlreadyExistsException e) {
             result.rejectValue("name", "hotel.exists", e.getMessage());
             return "admin/hotels-edit";
@@ -161,7 +173,7 @@ public class AdminController {
             long durationDays = ChronoUnit.DAYS.between(checkinDate, checkoutDate);
             model.addAttribute("days", durationDays);
 
-            return "admin/bookings-details";
+            return "admin/booking-details";
         } catch (EntityNotFoundException e) {
             log.error("No booking found with the provided ID", e);
             redirectAttributes.addFlashAttribute("errorMessage", "Booking not found. Please try again later.");
@@ -172,5 +184,14 @@ public class AdminController {
             return "redirect:/admin/dashboard";
         }
     }
-
+    @PostMapping("/bookings/{id}/confirm-refund")
+    public String confirmRefund(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        try {
+            bookingService.confirmRefund(id);
+            redirectAttributes.addFlashAttribute("success", "Refund has been confirmed successfully");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Failed to confirm refund: " + e.getMessage());
+        }
+        return "redirect:/admin/bookings/" + id;
+    }
 }

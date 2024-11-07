@@ -68,7 +68,14 @@ public class UserServiceImpl implements UserService {
         }
 
         User user = mapRegistrationDtoToUser(registrationDTO);
+        // Set role mặc định nếu không có
+        if (registrationDTO.getRoleType() == null) {
+            registrationDTO.setRoleType(RoleType.CUSTOMER);
+        }
 
+        // Tạo relationship tương ứng
+        try {
+        User savedUser = userRepository.save(user);
         if (RoleType.CUSTOMER.equals(registrationDTO.getRoleType())) {
             Customer customer = Customer.builder().user(user).build();
             customerRepository.save(customer);
@@ -77,9 +84,12 @@ public class UserServiceImpl implements UserService {
             hotelManagerRepository.save(hotelManager);
         }
 
-        User savedUser = userRepository.save(user);
         log.info("Successfully saved new user: {}", registrationDTO.getUsername());
         return savedUser;
+	    } catch (Exception e) {
+	        log.error("Error during user registration: ", e);
+	        throw e;
+	    }
     }
 
     @Override
@@ -118,7 +128,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<UserDTO> findAllUsers() {
-        List<User> userList = userRepository.findAll();
+        List<User> userList = userRepository.findAllActiveUsers();
 
         List<UserDTO> userDTOList = new ArrayList<>();
         for (User user : userList) {
@@ -131,34 +141,73 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public void updateUser(UserDTO userDTO, MultipartFile multipartFile) throws IOException {
-    	Map uploadResult = cloudinary.uploader()
-                .upload(multipartFile.getBytes(),
-                        Map.of("public_id", UUID.randomUUID().toString()));
-
-        String url = uploadResult.get("url").toString();
         log.info("Attempting to update user with ID: {}", userDTO.getId());
 
         User user = userRepository.findById(userDTO.getId())
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
+        if (user.getRole().getRoleType() == RoleType.ADMIN) {
+            throw new IllegalStateException("Cannot modify ADMIN role");
+        }
+
+        if (userDTO.getRoleType() == RoleType.ADMIN) {
+            throw new IllegalStateException("Cannot assign ADMIN role");
+        }
+
         if (usernameExistsAndNotSameUser(userDTO.getUsername(), user.getId())) {
             throw new UsernameAlreadyExistsException("This username is already registered!");
         }
 
+        String url = user.getImg();
+        if (multipartFile != null && !multipartFile.isEmpty()) {
+            Map<String, Object> uploadResult = cloudinary.uploader()
+                    .upload(multipartFile.getBytes(), Map.of("public_id", UUID.randomUUID().toString()));
+            url = uploadResult.get("url").toString();
+        }
+
         setFormattedDataToUser(user, userDTO, url);
-        userRepository.save(user);
+
+        if (userDTO.getRoleType() != user.getRole().getRoleType()) {
+            Role newRole = roleRepository.findByRoleType(userDTO.getRoleType());
+            if (newRole == null) {
+                throw new IllegalStateException("Role not found");
+            }
+
+            if (user.getCustomer() != null) {
+                Long customerId = user.getCustomer().getId();
+                user.setCustomer(null);
+                customerRepository.deleteById(customerId);
+            }
+
+            if (user.getHotelManager() != null) {
+                Long managerId = user.getHotelManager().getId();
+                user.setHotelManager(null);
+                hotelManagerRepository.deleteById(managerId);
+            }
+
+            user.setRole(newRole);
+            user = userRepository.save(user);
+
+            if (userDTO.getRoleType() == RoleType.CUSTOMER) {
+                Customer newCustomer = new Customer();
+                newCustomer.setUser(user);
+                customerRepository.save(newCustomer);
+            } else if (userDTO.getRoleType() == RoleType.HOTEL_MANAGER) {
+                HotelManager newManager = new HotelManager();
+                newManager.setUser(user);
+                hotelManagerRepository.save(newManager);
+            }
+        } else {
+            userRepository.save(user);
+        }
+
         log.info("Successfully updated existing user with ID: {}", userDTO.getId());
     }
+
 
     @Override
     @Transactional
     public void updateLoggedInUser(UserDTO userDTO, MultipartFile multipartFile) throws IOException {
-    	Map uploadResult = cloudinary.uploader()
-                .upload(multipartFile.getBytes(),
-                        Map.of("public_id", UUID.randomUUID().toString()));
-
-        String url = uploadResult.get("url").toString();
-        
         String loggedInUsername = SecurityContextHolder.getContext().getAuthentication().getName();
         User loggedInUser = userRepository.findByUsername(loggedInUsername);
         log.info("Attempting to update logged in user with ID: {}", loggedInUser.getId());
@@ -167,13 +216,23 @@ public class UserServiceImpl implements UserService {
             throw new UsernameAlreadyExistsException("This username is already registered!");
         }
 
+        // Chỉ upload ảnh mới nếu người dùng chọn file
+        String url = loggedInUser.getImg(); // Giữ nguyên ảnh cũ
+        if (multipartFile != null && !multipartFile.isEmpty()) {
+            Map<String, Object> uploadResult = cloudinary.uploader()
+                    .upload(multipartFile.getBytes(), Map.of("public_id", UUID.randomUUID().toString()));
+            url = uploadResult.get("url").toString();
+        }
+
         setFormattedDataToUser(loggedInUser, userDTO, url);
         userRepository.save(loggedInUser);
         log.info("Successfully updated logged in user with ID: {}", loggedInUser.getId());
 
-        // Create new authentication token
+        // Cập nhật token xác thực
         updateAuthentication(userDTO);
     }
+
+    
     @Override
     @Transactional
     public void updateUserImage(Long userId, String imageUrl) {
@@ -188,8 +247,11 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void deleteUserById(Long id) {
+    	User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
         log.info("Attempting to delete user with ID: {}", id);
-        userRepository.deleteById(id);
+        user.setDeleted(true);
+        userRepository.save(user);
+        
         log.info("Successfully deleted user with ID: {}", id);
     }
 
@@ -211,15 +273,29 @@ public class UserServiceImpl implements UserService {
 
     private User mapRegistrationDtoToUser(UserRegistrationDTO registrationDTO) {
         Role userRole = roleRepository.findByRoleType(registrationDTO.getRoleType());
+        if (userRole == null) {
+            // Nếu không tìm thấy role, mặc định là CUSTOMER
+            userRole = roleRepository.findByRoleType(RoleType.CUSTOMER);
+        }
+
+        // Kiểm tra mật khẩu xác nhận
+        if (!registrationDTO.getPassword().equals(registrationDTO.getConfirmPassword())) {
+            throw new IllegalArgumentException("Password and confirm password do not match");
+        }
+
+        // Log để debug
+        log.info("Creating new user with username: {}", registrationDTO.getUsername());
+        log.info("Role type: {}", registrationDTO.getRoleType());
+        log.info("User role found: {}", userRole);
         return User.builder()
         		.email(registrationDTO.getEmail())
                 .username(registrationDTO.getUsername().trim())
                 .password(passwordEncoder.encode(registrationDTO.getPassword()))
                 .name(formatText(registrationDTO.getName()))
                 .lastName(formatText(registrationDTO.getLastName()))
-               // .phone(registrationDTO.getPhone())
-               // .birthday(registrationDTO.getBirthday())
-                .img("http://res.cloudinary.com/dliwvet1v/image/upload/v1730037767/b2f64154-56a7-49cb-8da1-638ca334c90e.jpg")
+                .phone(registrationDTO.getPhone())
+                .birthday(registrationDTO.getBirthday())
+                .img("https://res.cloudinary.com/dliwvet1v/image/upload/v1729755833/user/jvs7bxrioi3iro4fk1c1.png")
                 .role(userRole)
                 .build();
     }
@@ -272,27 +348,30 @@ public class UserServiceImpl implements UserService {
     
     @Override
     public void forgotPassword(String email) {
-        // Find user by email
+        // Tìm user bằng email
         User user = userRepository.findByEmail(email);
-        if (email == null) {
-        	throw new UsernameNotFoundException("User with email " + email + " not found");
+        if (user == null) {
+            throw new UsernameNotFoundException("User with email " + email + " not found");
         }
 
-        // Generate a random reset token
-        String resetToken = UUID.randomUUID().toString();
+        // Tạo mật khẩu mới ngẫu nhiên
+        String newPassword = UUID.randomUUID().toString().substring(0, 8); // Mật khẩu có độ dài 8 ký tự
 
-        // Save the token to the user entity (assuming you have a field for it)
-        user.setPassword(resetToken);;
+        // Mã hóa mật khẩu mới trước khi lưu
+        String encodedPassword = passwordEncoder.encode(newPassword);
+
+        // Lưu mật khẩu mới đã mã hóa vào user
+        user.setPassword(encodedPassword);
         userRepository.save(user);
 
-        // Send email with the reset token
-        sendResetTokenEmail(user.getEmail(), resetToken);
+        // Gửi email với mật khẩu mới
+        sendNewPasswordEmail(user.getEmail(), newPassword);
     }
 
-    private void sendResetTokenEmail(String email, String resetPassword) {
-        String subject = "Password Reset Request";
-        String text = "To reset your password, click the link below:\n" + 
-                      "http://localhost:8080/reset-password?token=" + resetPassword;
+    private void sendNewPasswordEmail(String email, String newPassword) {
+        String subject = "Your New Password";
+        String text = "Your new password is: " + newPassword + "\n" +
+                      "Please change your password after logging in.";
 
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(email);
@@ -301,6 +380,7 @@ public class UserServiceImpl implements UserService {
 
         mailSender.send(message);
     }
+
     private void updateAuthentication(UserDTO userDTO) {
         User user = userRepository.findByUsername(userDTO.getUsername());
 

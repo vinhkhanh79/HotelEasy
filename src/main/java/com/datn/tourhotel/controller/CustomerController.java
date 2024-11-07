@@ -12,6 +12,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -94,6 +95,17 @@ public class CustomerController {
             redirectAttributes.addFlashAttribute("errorMessage", "An unexpected error occurred. Please try again later.");
             return "redirect:/";
         }
+    }
+    
+    @PostMapping("/bookings/{id}/refund-request")
+    public String requestRefund(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        try {
+            bookingService.requestRefund(id);
+            redirectAttributes.addFlashAttribute("success", "Your refund request has been submitted successfully");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Failed to submit refund request: " + e.getMessage());
+        }
+        return "redirect:/customer/bookings/" + id;
     }
 
     private Long getCurrentCustomerId() {

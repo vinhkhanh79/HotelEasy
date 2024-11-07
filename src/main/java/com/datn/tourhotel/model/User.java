@@ -48,21 +48,24 @@ public class User {
     private String phone; 
 
     @Column(nullable = true) 
-    @DateTimeFormat(pattern = "dd-MM-yyyy")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate birthday; 
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(nullable = false)
     private Role role;
 
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    @OneToOne(mappedBy = "user", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private Admin admin;
 
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    @OneToOne(mappedBy = "user", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private Customer customer;
 
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    @OneToOne(mappedBy = "user", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private HotelManager hotelManager;
+    
+    @Column(nullable = false)
+    private boolean isDeleted = false;
 
     @Override
     public String toString() {

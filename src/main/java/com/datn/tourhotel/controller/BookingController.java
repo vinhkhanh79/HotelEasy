@@ -16,8 +16,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.datn.tourhotel.model.Customer;
 import com.datn.tourhotel.model.dto.*;
+import com.datn.tourhotel.model.enums.BookingStatus;
+import com.datn.tourhotel.model.enums.PaymentStatus;
 import com.datn.tourhotel.service.BookingService;
+import com.datn.tourhotel.service.CustomerService;
 import com.datn.tourhotel.service.EmailService;
 import com.datn.tourhotel.service.HotelService;
 import com.datn.tourhotel.service.UserService;
@@ -26,6 +30,7 @@ import com.datn.tourhotel.service.VNPayService;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
+import java.util.Optional;
 
 
 @org.springframework.stereotype.Controller
@@ -38,6 +43,7 @@ public class BookingController {
     private MessageSource messageSource;
     private final HotelService hotelService;
     private final UserService userService;
+    private final CustomerService customerService;
     private final BookingService bookingService;
     private final VNPayService vnPayService;
     @Autowired
@@ -57,8 +63,9 @@ public class BookingController {
 
         if (bookingInitiationDTO == null) {
             redirectAttributes.addFlashAttribute("errorMessage", "Your session has expired. Please start a new search.");
-            return "redirect:/search";
+            return "redirect:/index";
         }
+       
         BigDecimal totalPrice = bookingInitiationDTO.getTotalPrice();
         String formattedTotalPrice = totalPrice.stripTrailingZeros().toPlainString();
         model.addAttribute("totalPrice", formattedTotalPrice);
@@ -81,7 +88,13 @@ public class BookingController {
         BookingInitiationDTO bookingInitiationDTO = (BookingInitiationDTO) session.getAttribute("bookingInitiationDTO");
         UserDTO userDTO = userService.findUserById(getLoggedInUserId());
         HotelDTO hotelDTO = hotelService.findHotelDtoById(bookingInitiationDTO.getHotelId());
-        
+        Long userId = (Long) session.getAttribute("userId");
+        Optional<Customer> customer = customerService.findByUserId(getLoggedInUserId());
+
+        if (customer.isEmpty()) {
+        	redirectAttributes.addFlashAttribute("errorMessage", "Manager and admin don't have permission to add booking.");
+            return "redirect:/booking/payment";
+        }
         BookingDTO bookingDTO = bookingService.confirmBooking(bookingInitiationDTO, getLoggedInUserId());
         redirectAttributes.addFlashAttribute("bookingDTO", bookingDTO);
 
@@ -111,18 +124,12 @@ public class BookingController {
 
         // If payment is successful
         if (paymentStatus == 1) {
-        	redirectAttributes.addFlashAttribute("errorMessage", "Payment failed. Please try again.");
-            model.addAttribute("orderId", orderInfo);
-            model.addAttribute("totalPrice", totalPrice);
-            model.addAttribute("paymentTime", paymentTime);
-            model.addAttribute("transactionId", transactionId);
-            return "/booking/orderfail";
-        } else {
+        	bookingService.updateBookingStatus(bookingDTO.getId(), BookingStatus.COMPLETED);
+        	bookingService.updatePaymentStatus(bookingDTO.getId(), PaymentStatus.COMPLETED);
         	redirectAttributes.addFlashAttribute("orderId", orderInfo);
             redirectAttributes.addFlashAttribute("totalPrice", totalPrice);
             redirectAttributes.addFlashAttribute("paymentTime", paymentTime);
             redirectAttributes.addFlashAttribute("transactionId", transactionId);
-
             // Handle booking confirmation
             bookingService.confirmBookingFromPayment(orderInfo);
             redirectAttributes.addFlashAttribute("bookingDTO", bookingDTO);
@@ -235,6 +242,15 @@ public class BookingController {
             
             emailService.sendBookingConfirmation(bookingDTO.getCustomerEmail(), subject, emailContent);
             return "redirect:/booking/confirmation"; // Redirect to confirmation page
+        } else {
+        	bookingService.updateBookingStatus(bookingDTO.getId(), BookingStatus.PENDING);
+        	bookingService.updatePaymentStatus(bookingDTO.getId(), PaymentStatus.FAILED);
+        	redirectAttributes.addFlashAttribute("errorMessage", "Payment failed. Please try again.");
+            model.addAttribute("orderId", orderInfo);
+            model.addAttribute("totalPrice", totalPrice);
+            model.addAttribute("paymentTime", paymentTime);
+            model.addAttribute("transactionId", transactionId);
+            return "/booking/orderfail";
         }
     }
 
@@ -244,7 +260,7 @@ public class BookingController {
 
         if (bookingDTO == null) {
             redirectAttributes.addFlashAttribute("errorMessage", "Your session has expired or the booking process was not completed properly. Please start a new search.");
-            return "redirect:/search";
+            return "redirect:/index";
         }
         String orderId = (String) model.asMap().get("orderId");
         String totalPrice = (String) model.asMap().get("totalPrice");

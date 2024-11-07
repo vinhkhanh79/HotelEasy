@@ -20,12 +20,13 @@ public class AddressDTO {
     private String addressLine;
 
     @NotBlank(message = "City cannot be empty")
-    @Pattern(regexp = "^(?!\\s*$)[A-Za-z ]+$", message = "City must only contain letters")
+    @Pattern(regexp = "^(?!\\s*$)[A-Za-z ]+$", message = "City must only contain letters, numbers, and some special characters (. , : - )")
     private String city;
 
     @NotBlank(message = "Country cannot be empty")
-    @Pattern(regexp = "^(?!\\s*$)[A-Za-z ]+$", message = "Country must only contain letters")
+    @Pattern(regexp = "^(?!\\s*$)[A-Za-z ]+$", message = "Country must only contain letters, numbers, and some special characters (. , : - )")
     private String country;
     
+    @NotBlank(message = "Location cannot be empty")
     private String location;
 }

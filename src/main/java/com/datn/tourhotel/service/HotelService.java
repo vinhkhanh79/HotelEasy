@@ -12,7 +12,7 @@ import com.datn.tourhotel.model.dto.HotelRegistrationDTO;
 
 public interface HotelService {
 
-    Hotel saveHotel(HotelRegistrationDTO hotelRegistrationDTO, MultipartFile multipartFile, MultipartFile multipartFile2, MultipartFile multipartFile3);
+    Hotel saveHotel(HotelRegistrationDTO hotelRegistrationDTO, MultipartFile multipartFile, MultipartFile multipartFile2, MultipartFile multipartFile3, List<MultipartFile> roomImages1, List<MultipartFile> roomImages2, List<MultipartFile> roomImages3);
 
     HotelDTO findHotelDtoByName(String name);
 
@@ -22,7 +22,7 @@ public interface HotelService {
 
     List<HotelDTO> findAllHotels();
 
-    HotelDTO updateHotel(HotelDTO hotelDTO, MultipartFile multipartFile, MultipartFile multipartFile2, MultipartFile multipartFile3);
+    HotelDTO updateHotel(HotelDTO hotelDTO, MultipartFile multipartFile, MultipartFile multipartFile2, MultipartFile multipartFile3, List<MultipartFile> roomImages1, List<MultipartFile> roomImages2, List<MultipartFile> roomImages3);
 
     void deleteHotelById(Long id);
 
@@ -32,7 +32,7 @@ public interface HotelService {
 
     HotelDTO findHotelByIdAndManagerId(Long hotelId, Long managerId);
 
-    HotelDTO updateHotelByManagerId(HotelDTO hotelDTO, Long managerId, MultipartFile multipartFile, MultipartFile multipartFile2, MultipartFile multipartFile3) throws IOException;
+    HotelDTO updateHotelByManagerId(HotelDTO hotelDTO, Long managerId, MultipartFile hotelImage, MultipartFile hotelImage2, MultipartFile hotelImage3, List<MultipartFile> roomImages1, List<MultipartFile> roomImages2, List<MultipartFile> roomImages3) throws IOException;
 
     void deleteHotelByIdAndManagerId(Long hotelId, Long managerId);
 

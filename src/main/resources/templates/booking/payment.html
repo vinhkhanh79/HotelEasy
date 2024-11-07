@@ -16,6 +16,9 @@
             </div>
         </div>
         <hr>
+        <div th:if="${errorMessage != null}">
+	        <p class="alert alert-danger text-center" th:text="${errorMessage}">Lỗi khi thanh toán. Vui lòng thử lại.</p>
+	    </div>
         <!-- Booking Details -->
         <div class="row">
             <div class="col-md-4">
@@ -58,12 +61,12 @@
                 <div class="card mb-2">
                     <div class="card-body">
                         <h4><strong>Total Price:</strong></h4>
-                        <h4 th:utext="'$ ' + ${#numbers.formatDecimal(bookingInitiationDTO.totalPrice, 0, 'COMMA', 2, 'POINT')}">$0.00</h4>
+                        <h4 th:utext="${#numbers.formatDecimal(bookingInitiationDTO.totalPrice, 0, 'COMMA', 2, 'POINT')} + ' VND'">$0.00</h4>
                     </div>
                 </div>
                 <div class="card">
                 <div class="card-body">
-                    <img th:src="@{/img/vnpay-logo.png}" style="width: 200px">
+                    <img src="https://res.cloudinary.com/dliwvet1v/image/upload/v1729759386/e27t7zn4z8rxrucgyczm.png" style="width: 200px">
                     <h2 class="card-title">Thanh Toán Đơn Hàng</h2>
                     <form th:action="@{/submitOrder}" method="post">
                         <div class="form-group mt-3">

@@ -19,19 +19,19 @@ public class HotelManager {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinColumn(nullable = false)
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @OneToMany(mappedBy = "hotelManager", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Hotel> hotelList = new ArrayList<>();
+    @OneToMany(mappedBy = "hotelManager")
+    private List<Hotel> hotels = new ArrayList<>();
 
     @Override
     public String toString() {
         return "HotelManager{" +
                 "id=" + id +
                 ", user=" + user +
-                ", hotelList=" + hotelList +
+                ", hotels=" + hotels +
                 '}';
     }
 

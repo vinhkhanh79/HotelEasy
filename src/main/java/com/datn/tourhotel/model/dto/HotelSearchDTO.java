@@ -20,8 +20,6 @@ public class HotelSearchDTO {
     @NotNull(message = "Check-in date cannot be empty")
     @FutureOrPresent(message = "Check-in date cannot be in the past")
     private LocalDate checkinDate;
-    
-    private String describe;
 
     @NotNull(message = "Check-out date cannot be empty")
     private LocalDate checkoutDate;

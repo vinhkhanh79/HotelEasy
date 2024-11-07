@@ -2,38 +2,50 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{/layout/layout-main}">
 <head>
-    <title>Your Bookings</title>
+    <title>My Bookings</title>
 </head>
 <body>
 <th:block layout:fragment="content">
-    <div class="container mt-5 mb-5">
+    <div class="container mt-5">
+        <h2>My Bookings</h2>
         <div class="row">
             <div class="col-md-12">
-                <h2>Your Bookings</h2>
-                <table class="table table-striped align-middle">
-                    <thead>
-                    <tr>
-                        <th>City</th>
-                        <th>Check-In</th>
-                        <th>Check-Out</th>
-                        <th>Hotel</th>
-                        <th>Total Price</th>
-                        <th></th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr class="align-middle" th:each="booking : ${bookings}">
-                        <td th:text="${booking.hotelAddress.city}"></td>
-                        <td th:text="${booking.checkinDate}"></td>
-                        <td th:text="${booking.checkoutDate}"></td>
-                        <td th:text="${booking.hotelName}"></td>
-                        <td th:text="'$ ' + ${#numbers.formatDecimal(booking.totalPrice, 0, 'COMMA', 2, 'POINT')}"></td>
-                        <td>
-                            <a th:href="@{/customer/bookings/{id}(id=${booking.id})}" class="btn btn-primary btn-sm">Details</a>
-                        </td>
-                    </tr>
-                    </tbody>
-                </table>
+                <div th:if="${bookings.empty}" class="alert alert-info">
+                    You don't have any bookings yet.
+                </div>
+                <div th:each="booking : ${bookings}" class="card mb-3">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <h5 class="card-title" th:text="${booking.hotelName}">Hotel Name</h5>
+                                <p class="card-text">
+                                    <small class="text-muted">
+                                        Confirmation Number: <span th:text="${booking.confirmationNumber}"></span>
+                                    </small>
+                                </p>
+                                <p class="card-text">
+                                    Check-in: <span th:text="${booking.checkinDate}"></span><br>
+                                    Check-out: <span th:text="${booking.checkoutDate}"></span>
+                                </p>
+                                <p class="card-text">
+								    Status: <span th:text="${booking.status}"
+								                 th:class="${booking.status == 'COMPLETED' ? 'text-success' :
+								                            booking.status == 'PENDING' ? 'text-primary' :
+								                            booking.status == 'REQUESTING_REFUND' ? 'text-warning' :
+								                            booking.status == 'REFUNDED' ? 'text-danger' : 'text-info'}">
+								    </span>
+								</p>
+                            </div>
+                            <div class="col-md-4 text-end">
+                                <p class="card-text">
+                                    <strong>Total Price:</strong><br>
+                                    <span th:text="${#numbers.formatDecimal(booking.totalPrice, 1, 'COMMA', 2, 'POINT')} + ' VND'"></span>
+                                </p>
+                                <a th:href="@{/customer/bookings/{id}(id=${booking.id})}" class="btn btn-primary">View Details</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

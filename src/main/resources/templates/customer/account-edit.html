@@ -78,8 +78,8 @@
                                     </div>
 									<div class="form-group mb-3">
                                         <label class="form-label" for="birthday">Birthday:</label>
-                                        <input class="form-control" id="birthday" type="text" th:field="*{birthday}"
-                                               placeholder="Enter your birthday">
+                                        <input class="form-control" id="birthday" type="date" th:field="*{birthday}" th:max="${#dates.format(#dates.createNow(), 'yyyy-MM-dd')}"
+                                               placeholder="Select your birthday">
                                         <p class="text-danger" th:if="${#fields.hasErrors('birthday')}" th:errors="*{birthday}"></p>
                                     </div>
                                 </div>

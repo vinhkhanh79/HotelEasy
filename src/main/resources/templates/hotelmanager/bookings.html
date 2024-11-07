@@ -6,10 +6,10 @@
 </head>
 <body>
 <th:block layout:fragment="content">
-    <div class="container">
+    <div class="container mt-5 mb-5">
         <div class="row">
             <div class="col-md-12">
-                <h2>Manager's Bookings</h2>
+                <h2 class="mt-3 mb-5">Manager's Bookings</h2>
                 <table class="table table-striped align-middle">
                     <thead>
                     <tr>
@@ -18,6 +18,7 @@
                         <th>Customer</th>
                         <th>Total Price</th>
                         <th>Payment Status</th>
+                        <th>Booking Status</th>
                         <th></th>
                     </tr>
                     </thead>
@@ -28,6 +29,7 @@
                         <td th:text="${booking.customerName}"></td>
                         <td th:text="'$ ' + ${#numbers.formatDecimal(booking.totalPrice, 0, 'COMMA', 2, 'POINT')}"></td>
                         <td th:text="${booking.paymentStatus}"></td>
+                        <td th:text="${booking.status}"></td>
                         <td>
                             <a th:href="@{/manager/bookings/{id}(id=${booking.id})}" class="btn btn-primary btn-sm">Details</a>
                         </td>

@@ -87,15 +87,15 @@ public class HotelSearchController {
         } catch (DateTimeParseException e) {
             log.error("Invalid date format provided for URL search", e);
             redirectAttributes.addFlashAttribute("errorMessage", "Invalid date format. Please use the search form.");
-            return "redirect:/search";
+            return "redirect:/index";
         } catch (IllegalArgumentException e) {
             log.error("Invalid arguments provided for URL search", e);
             redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
-            return "redirect:/search";
+            return "redirect:/index";
         } catch (Exception e) {
             log.error("An error occurred while searching for hotels", e);
             redirectAttributes.addFlashAttribute("errorMessage", "An unexpected error occurred. Please try again later.");
-            return "redirect:/search";
+            return "redirect:/index";
         }
 
         return "hotelsearch/search-results";
@@ -130,15 +130,15 @@ public class HotelSearchController {
         } catch (DateTimeParseException e) {
             log.error("Invalid date format provided", e);
             redirectAttributes.addFlashAttribute("errorMessage", "Invalid date format. Please use the search form.");
-            return "redirect:/search";
+            return "redirect:/index";
         } catch (IllegalArgumentException e) {
             log.error("Invalid arguments provided for URL search", e);
             redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
-            return "redirect:/search";
+            return "redirect:/index";
         } catch (EntityNotFoundException e) {
             log.error("No hotel found with ID {}", id);
             redirectAttributes.addFlashAttribute("errorMessage", "The selected hotel is no longer available. Please start a new search.");
-            return "redirect:/search";
+            return "redirect:/index";
         } catch (Exception e) {
             log.error("An error occurred while searching for hotels", e);
             redirectAttributes.addFlashAttribute("errorMessage", "An unexpected error occurred. Please try again later.");
@@ -161,11 +161,11 @@ public class HotelSearchController {
         } catch (DateTimeParseException e) {
             log.error("Invalid date format provided", e);
             redirectAttributes.addFlashAttribute("errorMessage", "Invalid date format. Please use the search form.");
-            return "redirect:/search";
+            return "redirect:/index";
         } catch (IllegalArgumentException e) {
             log.error("Invalid arguments provided", e);
             redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
-            return "redirect:/search";
+            return "redirect:/index";
         } catch (Exception e) {
             log.error("An error occurred while updating dates", e);
             redirectAttributes.addFlashAttribute("errorMessage", "An unexpected error occurred. Please try again later.");
