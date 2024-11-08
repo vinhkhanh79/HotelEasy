@@ -1,42 +1,190 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{/layout/layout-main}">
+      layout:decorate="~{/admin/layout/layout-main}">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chartist@0.11.4/dist/chartist.min.css">
 </head>
 <body>
+<!-- Nội dung trang -->
 <th:block layout:fragment="content">
-    <div class="container mt-5 mb-5">
-        <div class="row">
-            <div class="col-md-4">
-                <div class="card">
-                    <div class="card-body text-center mt-4 mb-4">
-                        <i class="bi bi-people-fill fs-1"></i>
-                        <h5 class="card-title">List Users</h5>
-                        <a th:href="@{/admin/users(language=${#locale.getLanguage()})}" class="btn btn-primary">Go</a>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card">
-                    <div class="card-body text-center mt-4 mb-4">
-                        <i class="bi bi-building fs-1"></i>
-                        <h5 class="card-title">List Hotels</h5>
-                        <a th:href="@{/admin/hotels(language=${#locale.getLanguage()})}" class="btn btn-primary">Go</a>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card">
-                    <div class="card-body text-center mt-4 mb-4">
-                        <i class="bi bi-bookmark-check fs-1"></i>
-                        <h5 class="card-title">List Bookings</h5>
-                        <a th:href="@{/admin/bookings(language=${#locale.getLanguage()})}" class="btn btn-primary">Go</a>
-                    </div>
-                </div>
-            </div>
+    <div class="row">
+    <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+        <div class="position-sticky justify-content-center">
+            <ul class="nav flex-column">
+                <li class="nav-item">
+                    <a class="nav-link" aria-current="page" th:href="@{/admin/dashboard}">
+                        <i class="bi bi-house-door-fill"></i>
+                        <span class="ml-2">Dashboard</span>
+                    </a>
+                </li>
+                <hr>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/admin/users}">
+                        <i class="bi bi-people-fill"></i>
+                        <span class="ml-2">Users</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/admin/hotels}">
+                        <i class="bi bi-building"></i>
+                        <span class="ml-2">Hotels</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/admin/bookings}">
+                        <i class="bi bi-calendar-check"></i>
+                        <span class="ml-2">Bookings</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/admin/report}">
+                        <i class="bi bi-bar-chart-line"></i>
+                        <span class="ml-2">Reports</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">
+                        <i class="bi bi-layers-fill"></i>
+                        <span class="ml-2">Integrations</span>
+                    </a>
+                </li>
+            </ul>
         </div>
+    </nav>
+    <main class="col-md-9 ml-sm-auto col-lg-10 px-md-4 py-4">
+        <h1 class="h2">Dashboard</h1>
+        <div class="row my-4">
+            <!-- Customer Card -->
+            <div class="col-12 col-md-4 mb-4">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <h6 class="card-subtitle mb-2 text-muted">
+                            <i class="bi bi-person-fill me-2"></i>Customers
+                        </h6>
+                        <h3 class="card-title py-1" th:text="${customerCount}"></h3>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Manager Card -->
+            <div class="col-12 col-md-4 mb-4">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <h6 class="card-subtitle mb-2 text-muted">
+                            <i class="bi bi-people-fill me-2"></i>Managers
+                        </h6>
+                        <h3 class="card-title py-1" th:text="${countHotelManagers}"></h3>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- Earning Card -->
+            <div class="col-12 col-md-4 mb-4">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h6 class="card-subtitle mb-2 text-muted">
+                                <i class="bi bi-cash-stack me-2"></i> Earnings
+                            </h6>
+                            <select id="earningsPeriod" class="form-select form-select-sm w-auto" onchange="updateEarnings()">
+                                <option value="week" selected>This Week</option>
+                                <option value="month">This Month</option>
+                                <option value="year">This Year</option>
+                                <option value="total">Total</option>
+                            </select>
+                        </div>
+                        <h3 id="earningsAmount" class="card-title">$820</h3>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+        <div id="traffic-chart" style="height: 300px;"></div>
+        <div>
+            <canvas id="myChart"></canvas>
+        </div>
+    </main>
     </div>
+</th:block>
+
+<!-- Đặt đoạn mã JavaScript vào additional-scripts -->
+<th:block layout:fragment="additional-scripts">
+    <script src="https://cdn.jsdelivr.net/npm/chartist@0.11.4/dist/chartist.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script th:inline="javascript">
+        /* Đoạn mã Chartist */
+        console.log("Initializing Chartist chart");
+        new Chartist.Line('#traffic-chart', {
+            labels: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
+            series: [
+                [12000, 15000, 10000, 20000, 25000, 30000, 18000]  // Số liệu mẫu cho 7 ngày
+            ]
+        }, {
+            low: 0,
+            showArea: true,
+            fullWidth: true,
+            chartPadding: {
+                right: 40
+            }
+        });
+
+
+        /* Đoạn mã Chart.js */
+        console.log("Initializing Chart.js chart");
+        const ctx = document.getElementById('myChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
+                datasets: [{
+                    label: '# of Votes',
+                    data: [12, 19, 3, 5, 2, 3],
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.2)',
+                        'rgba(54, 162, 235, 0.2)',
+                        'rgba(255, 206, 86, 0.2)',
+                        'rgba(75, 192, 192, 0.2)',
+                        'rgba(153, 102, 255, 0.2)',
+                        'rgba(255, 159, 64, 0.2)'
+                    ],
+                    borderColor: [
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 206, 86, 1)',
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(153, 102, 255, 1)',
+                        'rgba(255, 159, 64, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        const earningsData = {
+            week: 820,
+            month: 3264,
+            year: 24560,
+            total: 97500
+        };
+
+        function updateEarnings() {
+            const period = document.getElementById("earningsPeriod").value;
+            const earningsAmount = earningsData[period] || 0;
+            document.getElementById("earningsAmount").innerText = `$${earningsAmount.toLocaleString()}`;
+        }
+    </script>
 </th:block>
 </body>
 </html>

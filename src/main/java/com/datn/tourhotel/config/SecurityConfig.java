@@ -61,6 +61,13 @@ public class SecurityConfig {
                                 .successHandler(customAuthenticationSuccessHandler)
                                 .failureHandler(customAuthenticationFailureHandler()) // Use the bean here
                                 .permitAll())
+                .oauth2Login(
+                        oauth->oauth
+                                .loginPage("/login")// Redirect to custom login page
+                                .defaultSuccessUrl("/", true)
+//                                .successHandler(customAuthenticationSuccessHandler)
+                                .failureHandler(customAuthenticationFailureHandler())
+                )
                 .logout(
                         logout -> logout
                                 .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))

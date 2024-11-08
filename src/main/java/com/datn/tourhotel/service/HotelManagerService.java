@@ -7,4 +7,5 @@ public interface HotelManagerService {
 
     HotelManager findByUser(User user);
 
+    long countHotelManagers();
 }

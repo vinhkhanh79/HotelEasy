@@ -6,11 +6,14 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
+import java.util.Objects;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -43,10 +46,12 @@ public class AuthController {
     private final HotelService hotelService;
 
     @GetMapping("/")
-    public String homePage(Authentication authentication, Model model, HttpServletRequest request, @ModelAttribute("hotelSearchDTO") HotelSearchDTO hotelSearchDTO) {
+    public String homePage(Authentication authentication, Model model, HttpServletRequest request, @ModelAttribute("hotelSearchDTO") HotelSearchDTO hotelSearchDTO, @AuthenticationPrincipal OAuth2User principal) {
     	String message = messageSource.getMessage("hello", null, "default message", request.getLocale());
         String redirect = getAuthenticatedUserRedirectUrl(authentication);
         List<HotelDTO> hotels = hotelService.findAllHotels();
+        System.out.println(authentication);
+
         model.addAttribute("hotels", hotels);
         if (redirect != null) return redirect;
         log.debug("Accessing home page");

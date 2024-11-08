@@ -23,4 +23,10 @@ public class HotelManagerServiceImpl implements HotelManagerService {
         return hotelManagerRepository.findByUser(user)
                 .orElseThrow(() -> new EntityNotFoundException("HotelManager not found for user " + user.getUsername()));
     }
+
+    @Override
+    public long countHotelManagers() {
+        log.info("Counting total HotelManagers");
+        return hotelManagerRepository.count();
+    }
 }

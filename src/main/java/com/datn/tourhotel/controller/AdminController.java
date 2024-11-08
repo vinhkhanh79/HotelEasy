@@ -1,5 +1,6 @@
 package com.datn.tourhotel.controller;
 
+import com.datn.tourhotel.service.*;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -20,9 +21,7 @@ import com.datn.tourhotel.exception.UsernameAlreadyExistsException;
 import com.datn.tourhotel.model.dto.BookingDTO;
 import com.datn.tourhotel.model.dto.HotelDTO;
 import com.datn.tourhotel.model.dto.UserDTO;
-import com.datn.tourhotel.service.BookingService;
-import com.datn.tourhotel.service.HotelService;
-import com.datn.tourhotel.service.UserService;
+
 
 import java.io.IOException;
 import java.time.LocalDate;
@@ -34,16 +33,26 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 public class AdminController {
-	
-	@Autowired
-	private MessageSource messageSource;
+
+    @Autowired
+    private MessageSource messageSource;
     private final UserService userService;
     private final HotelService hotelService;
     private final BookingService bookingService;
+    private final CustomerService customerService;
+    private final HotelManagerService hotelManagerService;
 
     @GetMapping("/dashboard")
-    public String dashboard(HttpServletRequest request) {
-    	String message = messageSource.getMessage("hello", null, "default message", request.getLocale());
+    public String dashboard(Model model, HttpServletRequest request) {
+        String message = messageSource.getMessage("hello", null, "default message", request.getLocale());
+
+        Long customerCount = customerService.getCustomerCount();
+        model.addAttribute("customerCount", customerCount);
+
+        Long countHotelManagers = hotelManagerService.countHotelManagers();
+        model.addAttribute("countHotelManagers", countHotelManagers);
+
+        model.addAttribute("greetingMessage", message);
         return "admin/dashboard";
     }
 

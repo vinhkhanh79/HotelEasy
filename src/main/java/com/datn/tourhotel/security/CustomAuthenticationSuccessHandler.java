@@ -22,7 +22,7 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
         log.warn("Redirecting an authenticated user to the role-designated landing page");
 
         String redirectUrl = RedirectUtil.getRedirectUrl(authentication);
-
+        System.out.println(authentication);
         log.info("Redirect path: " + redirectUrl);
 
         if (redirectUrl == null) {
