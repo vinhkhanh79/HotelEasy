@@ -12,7 +12,7 @@ public class CredentialResetController {
     }
 
     @PostMapping("/reset-password/save")
-    public String resetUserPassword(@Valid @ModelAttribute("resetPassword") ResetPasswordDTO resetPasswordDTO, BindingResult result) {
+    public String resetUserPgitassword(@Valid @ModelAttribute("resetPassword") ResetPasswordDTO resetPasswordDTO, BindingResult result) {
         if (!resetPasswordDTO.getNewPassword().equals(resetPasswordDTO.getConfirmNewPassword())) {
             result.rejectValue("confirmNewPassword", "password.mismatch", "New passwords do not match!");
             return "reset-password";
