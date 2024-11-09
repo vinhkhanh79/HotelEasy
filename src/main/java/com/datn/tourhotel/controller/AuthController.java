@@ -1,5 +1,6 @@
 package com.datn.tourhotel.controller;
 
+import com.datn.tourhotel.security.CustomUserDetails;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -12,7 +13,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -45,17 +48,15 @@ public class AuthController {
     private final UserService userService;
     private final HotelService hotelService;
 
+    UserDetails userDetails;
     @GetMapping("/")
     public String homePage(Authentication authentication, Model model, HttpServletRequest request, @ModelAttribute("hotelSearchDTO") HotelSearchDTO hotelSearchDTO, @AuthenticationPrincipal OAuth2User principal) {
     	String message = messageSource.getMessage("hello", null, "default message", request.getLocale());
         String redirect = getAuthenticatedUserRedirectUrl(authentication);
         List<HotelDTO> hotels = hotelService.findAllHotels();
-        System.out.println(authentication);
-
         model.addAttribute("hotels", hotels);
         if (redirect != null) return redirect;
         log.debug("Accessing home page");
-        System.out.println(hotels); 
         return "index";
     }
 
@@ -144,31 +145,41 @@ public class AuthController {
             BindingResult result,
             Authentication authentication,
             RedirectAttributes redirectAttributes) {
-        
+
+        // Kiểm tra lỗi xác thực từ PasswordChangeDTO
         if (result.hasErrors()) {
             log.warn("Password change failed due to validation error: {}", result.getAllErrors());
             return "account/changePass";
         }
-        
+
         if (!passwordChangeDTO.isPasswordsMatching()) {
             result.rejectValue("confirmNewPassword", "error.passwordChangeDTO", "New password and confirmation do not match.");
             return "account/changePass";
         }
 
         try {
-            String username = authentication.getName();
+
+            if (authentication.getPrincipal() instanceof DefaultOAuth2User) {
+                DefaultOAuth2User oauth2User = (DefaultOAuth2User) authentication.getPrincipal();
+                userDetails = new CustomUserDetails(oauth2User);
+            } else if (authentication.getPrincipal() instanceof UserDetails) {
+                userDetails = (UserDetails) authentication.getPrincipal();
+            } else {
+                throw new IllegalStateException("Unknown principal type");
+            }
+
+            String username = userDetails.getUsername();
             userService.changePassword(username, passwordChangeDTO.getCurrentPassword(), passwordChangeDTO.getNewPassword());
             redirectAttributes.addFlashAttribute("success", "Password change successful for user: " + username);
-            return "redirect:/customer/changePass?success";  // Chuyển hướng khi thành công
+            return "redirect:/customer/changePass?success";
+
         } catch (Exception e) {
             log.error("Password change failed: {}", e.getMessage());
             result.rejectValue("currentPassword", "error.passwordChangeDTO", "Current password is incorrect.");
-            return "account/changePass";  // Giữ lại trang và hiển thị lỗi
+            return "account/changePass";
         }
     }
 
-
-    
     @GetMapping("/forgotPass/customer")
     public String showForgotPasswordForm(Model model) {
         model.addAttribute("passwordForgotDTO", new PasswordForgotDTO());

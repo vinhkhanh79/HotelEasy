@@ -1,5 +1,6 @@
 package com.datn.tourhotel.config;
 
+import com.datn.tourhotel.security.CustomOAuth2UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -25,7 +26,7 @@ public class SecurityConfig {
 
     private final UserDetailsService userDetailsService;
     private final CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
-
+    private final CustomOAuth2UserService customOAuth2UserService;
     @Bean
     public static PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -67,6 +68,7 @@ public class SecurityConfig {
                                 .defaultSuccessUrl("/", true)
 //                                .successHandler(customAuthenticationSuccessHandler)
                                 .failureHandler(customAuthenticationFailureHandler())
+                                .userInfoEndpoint(userinfo -> userinfo.userService(customOAuth2UserService))
                 )
                 .logout(
                         logout -> logout
