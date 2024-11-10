@@ -49,7 +49,7 @@ public class SecurityConfig {
 
         http.authorizeHttpRequests((authorize) ->
                         authorize.requestMatchers("/css/**", "/js/**", "/webjars/**" , "/search/**" , "/search-results/**" , "/hotel-details/**" , "/img/**", "/language/**").permitAll()
-                                .requestMatchers("/home/**", "/index/**", "/register/**", "/changePass/**", "/forgotPass/**", "/login/**").permitAll()
+                                .requestMatchers("/home/**", "/index/**", "/register/**", "/changePass/**", "/forgotPass/**", "/login/**", "/").permitAll()
                                 .requestMatchers("/admin/**").hasRole("ADMIN")
                                 .requestMatchers("/customer/**").hasRole("CUSTOMER")
                                 .requestMatchers("/manager/**").hasRole("HOTEL_MANAGER")

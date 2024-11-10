@@ -43,9 +43,9 @@
         <div class="container booking-area">
 		    <form class="row align-items-end" method="post" th:action="@{/index}" th:object="${hotelSearchDTO}">
 		        <div class="col-lg-3 mb-3 mb-lg-0">
-		            <label class="form-label" for="city">City:</label>
-		            <input class="form-control" id="city" type="text" th:field="*{city}" placeholder="Enter city">
-		            <p class="text-danger" th:if="${#fields.hasErrors('city')}" th:errors="*{city}"></p>
+		            <label class="form-label" for="addressLine">Address line:</label>
+		            <input class="form-control" id="addressLine" type="text" th:field="*{addressLine}" placeholder="Enter address line">
+		            <p class="text-danger" th:if="${#fields.hasErrors('addressLine')}" th:errors="*{addressLine}"></p>
 		        </div>
 		        <div class="col-lg-3 mb-3 mb-lg-0">
 		            <label class="form-label" for="checkinDate">Check-in Date:</label>

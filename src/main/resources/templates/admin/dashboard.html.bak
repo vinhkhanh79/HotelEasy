@@ -2,50 +2,53 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{/admin/layout/layout-main}">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chartist@0.11.4/dist/chartist.min.css">
 </head>
 <body>
+<!-- N?i dung trang -->
 <th:block layout:fragment="content">
-<div class="container-fluid">
     <div class="row">
     <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
         <div class="position-sticky justify-content-center">
             <ul class="nav flex-column">
                 <li class="nav-item">
-                    <a class="nav-link ms-5" aria-current="page" th:href="@{/admin/dashboard}">
+                    <a class="nav-link" aria-current="page" th:href="@{/admin/dashboard}">
                         <i class="bi bi-house-door-fill"></i>
-                        <span class="ml-2 h5">Dashboard</span>
+                        <span class="ml-2">Dashboard</span>
                     </a>
                 </li>
                 <hr>
-                <li class="nav-item ms-5">
+                <li class="nav-item">
                     <a class="nav-link" th:href="@{/admin/users}">
                         <i class="bi bi-people-fill"></i>
-                        <span class="ml-2 h5">Users</span>
+                        <span class="ml-2">Users</span>
                     </a>
                 </li>
-                <li class="nav-item ms-5">
+                <li class="nav-item">
                     <a class="nav-link" th:href="@{/admin/hotels}">
                         <i class="bi bi-building"></i>
-                        <span class="ml-2 h5">Hotels</span>
+                        <span class="ml-2">Hotels</span>
                     </a>
                 </li>
-                <li class="nav-item ms-5">
+                <li class="nav-item">
                     <a class="nav-link" th:href="@{/admin/bookings}">
                         <i class="bi bi-calendar-check"></i>
-                        <span class="ml-2 h5">Bookings</span>
+                        <span class="ml-2">Bookings</span>
                     </a>
                 </li>
-                <li class="nav-item ms-5">
+                <li class="nav-item">
                     <a class="nav-link" th:href="@{/admin/report}">
                         <i class="bi bi-bar-chart-line"></i>
-                        <span class="ml-2 h5">Reports</span>
+                        <span class="ml-2">Reports</span>
                     </a>
                 </li>
-                <li class="nav-item ms-5">
+                <li class="nav-item">
                     <a class="nav-link" href="#">
                         <i class="bi bi-layers-fill"></i>
-                        <span class="ml-2 h5">Integrations</span>
+                        <span class="ml-2">Integrations</span>
                     </a>
                 </li>
             </ul>
@@ -66,7 +69,7 @@
                 </div>
             </div>
 
-            <!-- Admin Card -->
+            <!-- Manager Card -->
             <div class="col-12 col-md-4 mb-4">
                 <div class="card shadow-sm">
                     <div class="card-body">
@@ -81,26 +84,23 @@
 
             <!-- Earning Card -->
             <div class="col-12 col-md-4 mb-4">
-			    <div class="card shadow-sm">
-			        <div class="card-body">
-			            <div class="d-flex justify-content-between align-items-center">
-			                <h6 class="card-subtitle mb-2 text-muted">
-			                    <i class="bi bi-cash-stack me-2"></i> Earnings
-			                </h6>
-							<select id="earningsPeriod" class="form-select form-select-sm w-auto" onchange="updateEarnings()">
-							    <option value="day" selected>Day</option>
-							    <option value="week">Week</option>
-							    <option value="month">Month</option>
-							    <option value="year">Year</option>
-							    <option value="total">Total</option>
-							</select>
-			            </div>
-			            <h3 id="earningsPeriod" class="card-title">
-						    <span th:text="${formattedEarnings}">1,500,000</span> VND
-						</h3>
-			        </div>
-			    </div>
-			</div>
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h6 class="card-subtitle mb-2 text-muted">
+                                <i class="bi bi-cash-stack me-2"></i> Earnings
+                            </h6>
+                            <select id="earningsPeriod" class="form-select form-select-sm w-auto" onchange="updateEarnings()">
+                                <option value="week" selected>This Week</option>
+                                <option value="month">This Month</option>
+                                <option value="year">This Year</option>
+                                <option value="total">Total</option>
+                            </select>
+                        </div>
+                        <h3 id="earningsAmount" class="card-title">$820</h3>
+                    </div>
+                </div>
+            </div>
 
 
         </div>
@@ -110,75 +110,55 @@
         </div>
     </main>
     </div>
-    </div>
 </th:block>
 
-<!-- Đặt đoạn mã JavaScript vào additional-scripts -->
+<!-- �?t do?n m� JavaScript v�o additional-scripts -->
 <th:block layout:fragment="additional-scripts">
     <script src="https://cdn.jsdelivr.net/npm/chartist@0.11.4/dist/chartist.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script th:inline="javascript">
-    /* Đoạn mã Chartist */
-    console.log("Initializing Chartist chart for Earnings per Day in Year");
-    
-    // Lấy dữ liệu từ model
-    const earningsPerDayInYear = [[${earningsPerDayInYear}]]; // Dữ liệu từ model
-    
-    // Chuyển đổi dữ liệu thành định dạng phù hợp cho Chartist
-    const seriesData = [];
-    const dayLabels = Array.from({ length: 30 }, (_, i) => i + 1); // Tạo nhãn từ 1 đến 365
-    
-    // Chuyển đổi earningsPerDayInYear thành mảng số cho Chartist và thay thế null bằng 0
-    const earningsData = earningsPerDayInYear.map(e => e ? e : 0);
-    seriesData.push(earningsData);
+        /* �o?n m� Chartist */
+        console.log("Initializing Chartist chart");
+        new Chartist.Line('#traffic-chart', {
+            labels: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
+            series: [
+                [12000, 15000, 10000, 20000, 25000, 30000, 18000]  // S? li?u m?u cho 7 ng�y
+            ]
+        }, {
+            low: 0,
+            showArea: true,
+            fullWidth: true,
+            chartPadding: {
+                right: 40
+            }
+        });
 
-    // Tìm giá trị lớn nhất trong dữ liệu để thiết lập giá trị high
-    const maxEarnings = Math.max(...earningsData);
 
-    new Chartist.Line('#traffic-chart', {
-        labels: dayLabels,
-        series: seriesData
-    }, {
-        low: 0,
-        high: maxEarnings, // Sử dụng giá trị cao nhất trong dữ liệu
-        showArea: true,
-        fullWidth: true,
-        chartPadding: {
-            right: 40,
-            left: 40
-        }
-    });
-        /* Đoạn mã Chart.js */
-        /* Chart.js: Earnings Chart */
+        /* �o?n m� Chart.js */
         console.log("Initializing Chart.js chart");
         const ctx = document.getElementById('myChart').getContext('2d');
         new Chart(ctx, {
             type: 'bar',
             data: {
-                labels: ['Day', 'Week', 'Month', 'Year', 'Total'],
+                labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
                 datasets: [{
-                    label: 'Earnings (VND)',
-                    data: [
-                        /* Use Thymeleaf to inject data for each period */
-                        [[${earningsToday}]], 
-                        [[${earningsThisWeek}]], 
-                        [[${earningsThisMonth}]], 
-                        [[${earningsThisYear}]], 
-                        [[${earningsTotal}]]
-                    ],
+                    label: '# of Votes',
+                    data: [12, 19, 3, 5, 2, 3],
                     backgroundColor: [
                         'rgba(255, 99, 132, 0.2)',
                         'rgba(54, 162, 235, 0.2)',
                         'rgba(255, 206, 86, 0.2)',
                         'rgba(75, 192, 192, 0.2)',
-                        'rgba(153, 102, 255, 0.2)'
+                        'rgba(153, 102, 255, 0.2)',
+                        'rgba(255, 159, 64, 0.2)'
                     ],
                     borderColor: [
                         'rgba(255, 99, 132, 1)',
                         'rgba(54, 162, 235, 1)',
                         'rgba(255, 206, 86, 1)',
                         'rgba(75, 192, 192, 1)',
-                        'rgba(153, 102, 255, 1)'
+                        'rgba(153, 102, 255, 1)',
+                        'rgba(255, 159, 64, 1)'
                     ],
                     borderWidth: 1
                 }]
@@ -192,19 +172,17 @@
             }
         });
 
-
-        document.addEventListener("DOMContentLoaded", function() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const earningsPeriod = urlParams.get('earningsPeriod') || 'day'; // Mặc định là 'day' nếu không có tham số
-
-            // Chọn giá trị đúng trong dropdown
-            const selectElement = document.getElementById("earningsPeriod");
-            selectElement.value = earningsPeriod;
-        });
+        const earningsData = {
+            week: 820,
+            month: 3264,
+            year: 24560,
+            total: 97500
+        };
 
         function updateEarnings() {
             const period = document.getElementById("earningsPeriod").value;
-            window.location.href = `/admin/dashboard?earningsPeriod=${period}`;
+            const earningsAmount = earningsData[period] || 0;
+            document.getElementById("earningsAmount").innerText = `$${earningsAmount.toLocaleString()}`;
         }
     </script>
 </th:block>

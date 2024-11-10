@@ -45,7 +45,7 @@ public class HotelSearchController {
     }
 
     @PostMapping("/index")
-    public String findAvailableHotelsByCityAndDate(@Valid @ModelAttribute("hotelSearchDTO") HotelSearchDTO hotelSearchDTO, BindingResult result) {
+    public String findAvailableHotelsByaddressLineAndDate(@Valid @ModelAttribute("hotelSearchDTO") HotelSearchDTO hotelSearchDTO, BindingResult result) {
         if (result.hasErrors()) {
             return "index";
         }
@@ -57,11 +57,11 @@ public class HotelSearchController {
         }
 
         // Redirect to a new GET endpoint with parameters for data fetching. Allows page refreshing
-        return String.format("redirect:/search-results?city=%s&checkinDate=%s&checkoutDate=%s", hotelSearchDTO.getCity(), hotelSearchDTO.getCheckinDate(), hotelSearchDTO.getCheckoutDate());
+        return String.format("redirect:/search-results?addressLine=%s&checkinDate=%s&checkoutDate=%s", hotelSearchDTO.getAddressLine(), hotelSearchDTO.getCheckinDate(), hotelSearchDTO.getCheckoutDate());
     }
 
     @GetMapping("/search-results")
-    public String showSearchResults(@RequestParam String city, @RequestParam String checkinDate, @RequestParam String checkoutDate, Model model, RedirectAttributes redirectAttributes, HttpServletRequest request) {
+    public String showSearchResults(@RequestParam String addressLine, @RequestParam String checkinDate, @RequestParam String checkoutDate, Model model, RedirectAttributes redirectAttributes, HttpServletRequest request) {
     	String message = messageSource.getMessage("hello", null, "default message", request.getLocale());
         try {
             LocalDate parsedCheckinDate = LocalDate.parse(checkinDate);
@@ -69,8 +69,8 @@ public class HotelSearchController {
 
             validateCheckinAndCheckoutDates(parsedCheckinDate, parsedCheckoutDate);
 
-            log.info("Searching hotels for city {} between dates {} and {}", city, checkinDate, checkoutDate);
-            List<HotelAvailabilityDTO> hotels = hotelSearchService.findAvailableHotelsByCityAndDate(city, parsedCheckinDate, parsedCheckoutDate);
+            log.info("Searching hotels for address line {} between dates {} and {}", addressLine, checkinDate, checkoutDate);
+            List<HotelAvailabilityDTO> hotels = hotelSearchService.findAvailableHotelsByaddressLineAndDate(addressLine, parsedCheckinDate, parsedCheckoutDate);
 
             if (hotels.isEmpty()) {
                 model.addAttribute("noHotelsFound", true);
@@ -79,7 +79,7 @@ public class HotelSearchController {
             long durationDays = ChronoUnit.DAYS.between(parsedCheckinDate, parsedCheckoutDate);
 
             model.addAttribute("hotels", hotels);
-            model.addAttribute("city", city);
+            model.addAttribute("addressLine", addressLine);
             model.addAttribute("days", durationDays);
             model.addAttribute("checkinDate", checkinDate);
             model.addAttribute("checkoutDate", checkoutDate);

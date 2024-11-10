@@ -14,8 +14,7 @@ import java.time.LocalDate;
 public class HotelSearchDTO {
 
     @NotBlank(message = "City cannot be empty")
-    @Pattern(regexp = "^(?!\\s*$)[A-Za-z '-]+$", message = "City must only contain letters, apostrophes('), or hyphens(-)")
-    private String city;
+    private String addressLine;
 
     @NotNull(message = "Check-in date cannot be empty")
     @FutureOrPresent(message = "Check-in date cannot be in the past")

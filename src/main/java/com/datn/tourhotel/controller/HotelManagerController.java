@@ -23,10 +23,15 @@ import com.datn.tourhotel.model.dto.HotelRegistrationDTO;
 import com.datn.tourhotel.model.dto.RoomDTO;
 import com.datn.tourhotel.model.enums.RoomType;
 import com.datn.tourhotel.service.BookingService;
+import com.datn.tourhotel.service.CustomerService;
+import com.datn.tourhotel.service.HotelManagerService;
 import com.datn.tourhotel.service.HotelService;
+import com.datn.tourhotel.service.PaymentService;
 import com.datn.tourhotel.service.UserService;
 
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -42,12 +47,52 @@ public class HotelManagerController {
     private final HotelService hotelService;
     private final UserService userService;
     private final BookingService bookingService;
+    private final CustomerService customerService;
+    private final PaymentService paymentService;
+    private final HotelManagerService hotelManagerService;
 
     @GetMapping("/dashboard")
-    public String dashboard(HttpServletRequest request) {
+    public String dashboard(HttpServletRequest request, Model model, @RequestParam(name = "earningsPeriod", required = false, defaultValue = "total") String period) {
     	String message = messageSource.getMessage("hello", null, "default message", request.getLocale());
+    	Long managerId = getCurrentManagerId();
+    	Long customerCount = customerService.getCustomerCount();
+        model.addAttribute("customerCount", customerCount);
+
+        Long countHotelsByManager = hotelManagerService.countHotelsByManager(managerId);
+        model.addAttribute("countHotelsByManager", countHotelsByManager);
+        
+     // Fetch earnings for different periods
+        BigDecimal earningsToday = paymentService.getEarningsByPeriod(managerId, "day");
+        BigDecimal earningsThisWeek = paymentService.getEarningsByPeriod(managerId, "week");
+        BigDecimal earningsThisMonth = paymentService.getEarningsByPeriod(managerId, "month");
+        BigDecimal earningsThisYear = paymentService.getEarningsByPeriod(managerId, "year");
+        BigDecimal earningsTotal = paymentService.getEarningsByPeriod(managerId, "total");
+
+        // Add earnings data to the model for use in the frontend
+        model.addAttribute("earningsToday", earningsToday);
+        model.addAttribute("earningsThisWeek", earningsThisWeek);
+        model.addAttribute("earningsThisMonth", earningsThisMonth);
+        model.addAttribute("earningsThisYear", earningsThisYear);
+        model.addAttribute("earningsTotal", earningsTotal);
+        
+        List<BigDecimal> earningsPerDayInYear = paymentService.getEarningsPerDayInYear(managerId);
+        model.addAttribute("earningsPerDayInYear", earningsPerDayInYear);
+        
+     // Tổng thu nhập theo period
+        BigDecimal getEarningsByPeriod = paymentService.getEarningsByPeriod(managerId, period);
+        if (getEarningsByPeriod == null) {
+            getEarningsByPeriod = BigDecimal.ZERO;
+        }
+     // Format thu nhập theo định dạng "1,500,000"
+        DecimalFormat decimalFormat = new DecimalFormat("#,###");
+        String formattedEarnings = decimalFormat.format(getEarningsByPeriod);
+        model.addAttribute("formattedEarnings", formattedEarnings);
+        
+        String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
+        model.addAttribute("currentUsername", currentUsername);
         return "hotelmanager/dashboard";
     }
+    
     @GetMapping("/index")
     public String index(Model model, HttpServletRequest request) {
     	String message = messageSource.getMessage("hello", null, "default message", request.getLocale());

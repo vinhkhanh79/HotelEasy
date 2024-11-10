@@ -8,7 +8,7 @@ import com.datn.tourhotel.model.dto.HotelAvailabilityDTO;
 
 public interface HotelSearchService {
 
-    List<HotelAvailabilityDTO> findAvailableHotelsByCityAndDate(String city, LocalDate checkinDate, LocalDate checkoutDate);
+    List<HotelAvailabilityDTO> findAvailableHotelsByaddressLineAndDate(String addressLine, LocalDate checkinDate, LocalDate checkoutDate);
 
     HotelAvailabilityDTO findAvailableHotelById(Long hotelId, LocalDate checkinDate, LocalDate checkoutDate);
 

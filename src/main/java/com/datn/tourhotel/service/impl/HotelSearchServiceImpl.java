@@ -32,22 +32,22 @@ public class HotelSearchServiceImpl implements HotelSearchService {
     private final AvailabilityService availabilityService;
 
     @Override
-    public List<HotelAvailabilityDTO> findAvailableHotelsByCityAndDate(String city, LocalDate checkinDate, LocalDate checkoutDate) {
+    public List<HotelAvailabilityDTO> findAvailableHotelsByaddressLineAndDate(String addressLine, LocalDate checkinDate, LocalDate checkoutDate) {
         validateCheckinAndCheckoutDates(checkinDate, checkoutDate);
 
-        log.info("Attempting to find hotels in {} with available rooms from {} to {}", city, checkinDate, checkoutDate);
+        log.info("Attempting to find hotels in {} with available rooms from {} to {}", addressLine, checkinDate, checkoutDate);
 
         // Number of days between check-in and check-out
         Long numberOfDays = ChronoUnit.DAYS.between(checkinDate, checkoutDate);
 
         // 1. Fetch hotels that satisfy the criteria (min 1 available room throughout the booking range)
-        List<Hotel> hotelsWithAvailableRooms = hotelRepository.findHotelsWithAvailableRooms(city, checkinDate, checkoutDate, numberOfDays);
+        List<Hotel> hotelsWithAvailableRooms = hotelRepository.findHotelsWithAvailableRooms(addressLine, checkinDate, checkoutDate, numberOfDays);
 
         // 2. Fetch hotels that don't have any availability records for the entire booking range
-        List<Hotel> hotelsWithoutAvailabilityRecords = hotelRepository.findHotelsWithoutAvailabilityRecords(city, checkinDate, checkoutDate);
+        List<Hotel> hotelsWithoutAvailabilityRecords = hotelRepository.findHotelsWithoutAvailabilityRecords(addressLine, checkinDate, checkoutDate);
 
         // 3. Fetch hotels with partial availability; some days with records meeting the criteria and some days without any records
-        List<Hotel> hotelsWithPartialAvailabilityRecords = hotelRepository.findHotelsWithPartialAvailabilityRecords(city, checkinDate, checkoutDate, numberOfDays);
+        List<Hotel> hotelsWithPartialAvailabilityRecords = hotelRepository.findHotelsWithPartialAvailabilityRecords(addressLine, checkinDate, checkoutDate, numberOfDays);
 
         // Combine and deduplicate the hotels using a Set
         Set<Hotel> combinedHotels = new HashSet<>(hotelsWithAvailableRooms);

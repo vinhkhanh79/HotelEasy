@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -21,10 +22,15 @@ import com.datn.tourhotel.model.dto.BookingDTO;
 import com.datn.tourhotel.model.dto.HotelDTO;
 import com.datn.tourhotel.model.dto.UserDTO;
 import com.datn.tourhotel.service.BookingService;
+import com.datn.tourhotel.service.CustomerService;
+import com.datn.tourhotel.service.HotelManagerService;
 import com.datn.tourhotel.service.HotelService;
+import com.datn.tourhotel.service.PaymentService;
 import com.datn.tourhotel.service.UserService;
 
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -40,10 +46,49 @@ public class AdminController {
     private final UserService userService;
     private final HotelService hotelService;
     private final BookingService bookingService;
+    private final CustomerService customerService;
+    private final HotelManagerService hotelManagerService;
+    private final PaymentService paymentService;
 
     @GetMapping("/dashboard")
-    public String dashboard(HttpServletRequest request) {
+    public String dashboard(Model model, HttpServletRequest request, @RequestParam(name = "earningsPeriod", required = false, defaultValue = "total") String period) {
     	String message = messageSource.getMessage("hello", null, "default message", request.getLocale());
+    	Long customerCount = customerService.getCustomerCount();
+        model.addAttribute("customerCount", customerCount);
+
+        Long countHotelManagers = hotelManagerService.countHotelManagers();
+        model.addAttribute("countHotelManagers", countHotelManagers);
+        
+        BigDecimal earningsTodayAdmin = paymentService.getEarningsByPeriodAdmin("day");
+        BigDecimal earningsThisWeekAdmin = paymentService.getEarningsByPeriodAdmin("week");
+        BigDecimal earningsThisMonthAdmin = paymentService.getEarningsByPeriodAdmin("month");
+        BigDecimal earningsThisYearAdmin = paymentService.getEarningsByPeriodAdmin("year");
+        BigDecimal earningsTotalAdmin = paymentService.getEarningsByPeriodAdmin("total");
+
+        // Add earnings data to the model for use in the frontend
+        model.addAttribute("earningsToday", earningsTodayAdmin);
+        model.addAttribute("earningsThisWeek", earningsThisWeekAdmin);
+        model.addAttribute("earningsThisMonth", earningsThisMonthAdmin);
+        model.addAttribute("earningsThisYear", earningsThisYearAdmin);
+        model.addAttribute("earningsTotal", earningsTotalAdmin);
+        
+        List<BigDecimal> earningsPerDayInYear = paymentService.getEarningsPerDayInYearAdmin();
+        model.addAttribute("earningsPerDayInYear", earningsPerDayInYear);
+        
+     // Tổng thu nhập theo period
+        BigDecimal getEarningsByPeriod = paymentService.getEarningsByPeriodAdmin(period);
+        if (getEarningsByPeriod == null) {
+            getEarningsByPeriod = BigDecimal.ZERO;
+        }
+     // Format thu nhập theo định dạng "1,500,000"
+        DecimalFormat decimalFormat = new DecimalFormat("#,###");
+        String formattedEarnings = decimalFormat.format(getEarningsByPeriod);
+        model.addAttribute("formattedEarnings", formattedEarnings);
+        
+        String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
+        model.addAttribute("currentUsername", currentUsername);
+        
+        model.addAttribute("greetingMessage", message);
         return "admin/dashboard";
     }
 

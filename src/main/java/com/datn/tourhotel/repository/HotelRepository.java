@@ -19,20 +19,23 @@ public interface HotelRepository extends JpaRepository<Hotel, Long> {
     List<Hotel> findAllByHotelManager_Id(Long id);
 
     Optional<Hotel> findByIdAndHotelManager_Id(Long id, Long managerId);
+    
+    @Query("SELECT COUNT(h) FROM Hotel h WHERE h.hotelManager.id = :managerId")
+    Long countHotelsByManagerId(@Param("managerId") Long managerId);
 
-    @Query("SELECT h FROM Hotel h WHERE h.address.city = :city")
-    List<Hotel> findHotelsByCity(@Param("city") String city);
+    @Query("SELECT h FROM Hotel h WHERE h.address.addressLine = :addressLine")
+    List<Hotel> findHotelsByaddressLine(@Param("addressLine") String addressLine);
 
     @Query("SELECT h " +
             "FROM Hotel h " +
             "JOIN h.rooms r " +
             "LEFT JOIN Availability a ON a.room.id = r.id " +
             "AND a.date >= :checkinDate AND a.date < :checkoutDate " +
-            "WHERE h.address.city = :city " +
+            "WHERE h.address.addressLine = :addressLine " +
             "AND (a IS NULL OR a.availableRooms > 0) " +
             "GROUP BY h.id, h.name, h.address, h.hotelManager, h.img, h.img2, h.img3, h.describe " +
             "HAVING COUNT(DISTINCT a.date) + SUM(CASE WHEN a IS NULL THEN 1 ELSE 0 END) = :numberOfDays")
-    List<Hotel> findHotelsWithAvailableRooms(@Param("city") String city,
+    List<Hotel> findHotelsWithAvailableRooms(@Param("addressLine") String addressLine,
                                              @Param("checkinDate") LocalDate checkinDate,
                                              @Param("checkoutDate") LocalDate checkoutDate,
                                              @Param("numberOfDays") Long numberOfDays);
@@ -40,14 +43,14 @@ public interface HotelRepository extends JpaRepository<Hotel, Long> {
 
     @Query("SELECT h " +
             "FROM Hotel h " +
-            "WHERE h.address.city = :city " +
+            "WHERE h.address.addressLine = :addressLine " +
             "AND NOT EXISTS (" +
             "   SELECT 1 " +
             "   FROM Availability a " +
             "   WHERE a.room.hotel.id = h.id " +
             "   AND a.date >= :checkinDate AND a.date < :checkoutDate" +
             ")")
-    List<Hotel> findHotelsWithoutAvailabilityRecords(@Param("city") String city,
+    List<Hotel> findHotelsWithoutAvailabilityRecords(@Param("addressLine") String addressLine,
                                                      @Param("checkinDate") LocalDate checkinDate,
                                                      @Param("checkoutDate") LocalDate checkoutDate);
 
@@ -56,12 +59,12 @@ public interface HotelRepository extends JpaRepository<Hotel, Long> {
             "JOIN h.rooms r " +
             "LEFT JOIN Availability a ON r.id = a.room.id " +
             "AND a.date >= :checkinDate AND a.date < :checkoutDate " +
-            "WHERE h.address.city = :city " +
+            "WHERE h.address.addressLine = :addressLine " +
             "AND (a IS NULL OR a.availableRooms > 0) " +
             "GROUP BY h.id, h.name, h.address, h.hotelManager, h.img, h.img2, h.img3, h.describe " +
             "HAVING COUNT(DISTINCT a.date) < :numberOfDays " +
             "AND COUNT(DISTINCT CASE WHEN a.availableRooms > 0 THEN a.date END) > 0")
-    List<Hotel> findHotelsWithPartialAvailabilityRecords(@Param("city") String city,
+    List<Hotel> findHotelsWithPartialAvailabilityRecords(@Param("addressLine") String addressLine,
                                                          @Param("checkinDate") LocalDate checkinDate,
                                                          @Param("checkoutDate") LocalDate checkoutDate,
                                                          @Param("numberOfDays") Long numberOfDays);

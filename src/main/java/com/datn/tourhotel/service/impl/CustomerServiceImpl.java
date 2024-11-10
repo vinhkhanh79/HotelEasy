@@ -26,5 +26,9 @@ public class CustomerServiceImpl implements CustomerService {
     public Optional<Customer> findByUsername(String username) {
         return customerRepository.findByUsername(username);
     }
-
+    
+    @Override
+    public Long getCustomerCount() {
+        return customerRepository.countCustomers();
+    }
 }

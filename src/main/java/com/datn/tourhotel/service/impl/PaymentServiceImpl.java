@@ -2,6 +2,12 @@ package com.datn.tourhotel.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 
 import com.datn.tourhotel.model.Booking;
@@ -34,5 +40,58 @@ public class PaymentServiceImpl implements PaymentService {
         log.info("Payment saved with transaction ID: {}", savedPayment.getTransactionId());
 
         return savedPayment;
+    }
+    public BigDecimal getEarningsByPeriodAdmin(String period) {
+        switch (period) {
+            case "day":
+                return paymentRepository.getTotalEarningsTodayAdmin();
+            case "week":
+                return paymentRepository.getTotalEarningsThisWeekAdmin();
+            case "month":
+                return paymentRepository.getTotalEarningsThisMonthAdmin();
+            case "year":
+                return paymentRepository.getTotalEarningsThisYearAdmin();
+            default:
+                return paymentRepository.getTotalEarningsAdmin();
+        }
+    }
+    
+    public BigDecimal getEarningsByPeriod(Long managerId, String period) {
+        switch (period) {
+            case "day":
+                return paymentRepository.getTotalEarningsToday(managerId);
+            case "week":
+                return paymentRepository.getTotalEarningsThisWeek(managerId);
+            case "month":
+                return paymentRepository.getTotalEarningsThisMonth(managerId);
+            case "year":
+                return paymentRepository.getTotalEarningsThisYear(managerId);
+            default:
+                return paymentRepository.getTotalEarnings(managerId);
+        }
+    }
+    
+    public List<BigDecimal> getEarningsPerDayInYearAdmin() {
+        List<Object[]> results = paymentRepository.getTotalEarningsPerDayInYearAdmin();
+        List<BigDecimal> earningsPerDay = new ArrayList<>(Collections.nCopies(30, BigDecimal.ZERO)); // Giả định năm có 365 ngày
+
+        for (Object[] result : results) {
+            int day = (Integer) result[0];
+            BigDecimal total = (BigDecimal) result[1];
+            earningsPerDay.set(day - 1, total); // Lưu tổng vào vị trí tương ứng với ngày
+        }
+        return earningsPerDay;
+    }
+    
+    public List<BigDecimal> getEarningsPerDayInYear(Long managerId) {
+        List<Object[]> results = paymentRepository.getTotalEarningsPerDayInYear(managerId);
+        List<BigDecimal> earningsPerDay = new ArrayList<>(Collections.nCopies(30, BigDecimal.ZERO)); // Giả định năm có 365 ngày
+
+        for (Object[] result : results) {
+            int day = (Integer) result[0];
+            BigDecimal total = (BigDecimal) result[1];
+            earningsPerDay.set(day - 1, total); // Lưu tổng vào vị trí tương ứng với ngày
+        }
+        return earningsPerDay;
     }
 }
