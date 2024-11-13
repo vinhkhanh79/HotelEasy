@@ -45,10 +45,10 @@
 					         Account
 					       </a>
 					       <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-					       	 <li class="nav-item" sec:authorize="hasRole('ROLE_CUSTOMER')">
+					       	 <li class="nav-item" sec:authorize="hasRole('ROLE_CUSTOMER') or hasAuthority('OAUTH2_USER')">
 					         	<a class="nav-link" th:href="@{/customer/account(language=${#locale.getLanguage()})}">
 					         		<i class="bi bi-box-arrow-in-right" th:text="#{myAccount}"></i>
-					         	</a> 
+					         	</a>
 					         </li>
 					         <li class="nav-item" sec:authorize="hasRole('ROLE_HOTEL_MANAGER')">
 					         	<a class="nav-link" th:href="@{/manager/account(language=${#locale.getLanguage()})}">

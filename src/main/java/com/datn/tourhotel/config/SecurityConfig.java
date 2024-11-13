@@ -53,6 +53,8 @@ public class SecurityConfig {
                                 .requestMatchers("/**","/home/**", "/index/**", "/register/**", "/changePass/**", "/forgotPass/**", "/login/**").permitAll()
                                 .requestMatchers("/admin/**").hasRole("ADMIN")
                                 .requestMatchers("/customer/**").hasRole("CUSTOMER")
+                                .requestMatchers("/customer/**").hasAuthority("OAUTH2_USER")
+                                .requestMatchers("/submitOrder").permitAll()
                                 .requestMatchers("/manager/**").hasRole("HOTEL_MANAGER")
                                 .anyRequest().authenticated())
                 .formLogin(
@@ -65,8 +67,7 @@ public class SecurityConfig {
                 .oauth2Login(
                         oauth->oauth
                                 .loginPage("/login")// Redirect to custom login page
-                                .defaultSuccessUrl("/", true)
-//                                .successHandler(customAuthenticationSuccessHandler)
+                                .successHandler(customAuthenticationSuccessHandler)
                                 .failureHandler(customAuthenticationFailureHandler())
                                 .userInfoEndpoint(userinfo -> userinfo.userService(customOAuth2UserService))
                 )

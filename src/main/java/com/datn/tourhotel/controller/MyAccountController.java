@@ -11,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -38,7 +40,7 @@ public class MyAccountController {
     
     // Customer actions
     @GetMapping("/customer/account")
-    public String showCustomerAccount(Model model, HttpServletRequest request){
+    public String showCustomerAccount(Model model, HttpServletRequest request) {
     	String message = messageSource.getMessage("hello", null, "default message", request.getLocale());
         log.debug("Displaying customer account");
         addLoggedInUserDataToModel(model);
@@ -137,11 +139,18 @@ public class MyAccountController {
     }
 
     private void addLoggedInUserDataToModel(Model model) {
+        String username = "";
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String username = auth.getName();
+        if (auth instanceof OAuth2AuthenticationToken) {
+            OAuth2AuthenticationToken oauth2Token = (OAuth2AuthenticationToken) auth;
+            username = (String) oauth2Token.getPrincipal().getAttributes().get("email");
+        }else{
+            username = auth.getName();
+        }
+
+        System.out.println(username);
         UserDTO userDTO = userService.findUserDTOByUsername(username);
         log.info("Adding logged in user data to model for user ID: {}", userDTO.getId());
         model.addAttribute("user", userDTO);
     }
-
 }

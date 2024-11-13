@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -36,9 +37,13 @@ public class BookingController {
 
     @Autowired
     private MessageSource messageSource;
+    @Autowired
     private final HotelService hotelService;
+    @Autowired
     private final UserService userService;
+    @Autowired
     private final BookingService bookingService;
+    @Autowired
     private final VNPayService vnPayService;
     @Autowired
     private EmailService emailService;
@@ -128,111 +133,150 @@ public class BookingController {
             redirectAttributes.addFlashAttribute("bookingDTO", bookingDTO);
             String subject = "Booking Confirmation - Thank you for booking with us!";
             String emailContent = String.format(
-            		"<!DOCTYPE html>\n"
-            			    + "<html lang=\"en\">\n"
-            			    + "<head>\n"
-            			    + "    <meta charset=\"UTF-8\">\n"
-            			    + "    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n"
-            			    + "    <title>Confirm Your Booking</title>\n"
-            			    + "    <style>\n"
-            			    + "        body {\n"
-            			    + "            font-family: Arial, sans-serif;\n"
-            			    + "            background-color: #f4f4f4;\n"
-            			    + "            margin: 0;\n"
-            			    + "            padding: 0;\n"
-            			    + "        }\n"
-            			    + "        .container {\n"
-            			    + "            max-width: 600px;\n"
-            			    + "            margin: 0 auto;\n"
-            			    + "            background-color: #ffffff;\n"
-            			    + "            padding: 20px;\n"
-            			    + "            border-radius: 8px;\n"
-            			    + "            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);\n"
-            			    + "        }\n"
-            			    + "        .header {\n"
-            			    + "            text-align: center;\n"
-            			    + "            padding: 10px;\n"
-            			    + "        }\n"
-            			    + "        .header img {\n"
-            			    + "            width: 120px;\n"
-            			    + "        }\n"
-            			    + "        .content {\n"
-            			    + "            text-align: center;\n"
-            			    + "            padding: 20px;\n"
-            			    + "        }\n"
-            			    + "        .content h1 {\n"
-            			    + "            color: #333;\n"
-            			    + "            font-size: 24px;\n"
-            			    + "            margin-bottom: 10px;\n"
-            			    + "        }\n"
-            			    + "        .content p {\n"
-            			    + "            color: #666;\n"
-            			    + "            font-size: 16px;\n"
-            			    + "            margin-bottom: 20px;\n"
-            			    + "        }\n"
-            			    + "        .button {\n"
-            			    + "            text-align: center;\n"
-            			    + "        }\n"
-            			    + "        .button a {\n"
-            			    + "            background-color: #4a90e2;\n"
-            			    + "            color: white;\n"
-            			    + "            text-decoration: none;\n"
-            			    + "            padding: 12px 24px;\n"
-            			    + "            border-radius: 4px;\n"
-            			    + "            font-size: 16px;\n"
-            			    + "            display: inline-block;\n"
-            			    + "        }\n"
-            			    + "        .footer {\n"
-            			    + "            text-align: center;\n"
-            			    + "            padding: 20px;\n"
-            			    + "            color: #999;\n"
-            			    + "            font-size: 14px;\n"
-            			    + "        }\n"
-            			    + "        .footer a {\n"
-            			    + "            color: #4a90e2;\n"
-            			    + "            text-decoration: none;\n"
-            			    + "        }\n"
-            			    + "    </style>\n"
-            			    + "</head>\n"
-            			    + "<body>\n"
-            			    + "    <div class=\"container\">\n"
-            			    + "        <div class=\"header\">\n"
-            			    + "            <img src=\"https://res.cloudinary.com/dliwvet1v/image/upload/v1729759384/i7xwpwwwsmwikzk5v8hm.png\" alt=\"Company Logo\">\n"
-            			    + "        </div>\n"
-            			    + "        <div class=\"content\">\n"
-            			    + "            <h1>Confirm Your Booking</h1>\n"
-            			    + "            <p>We are thrilled to inform you that your booking has been confirmed!</p>\n"
-            			    + "            <p>Order ID: %s<br>\n"
-            			    + "               Total Price: %s VND<br>\n"
-            			    + "               Payment Time: %s<br>\n"
-            			    + "               Transaction ID: %s<br>\n"
-            			    + "               Booking Information:<br>\n"
-            			    + "               Customer Name: %s<br>\n"
-            			    + "               Check-in Date: %s<br>\n"
-            			    + "               Check-out Date: %s<br>\n"
-            			    + "            </p>\n"
-            			    + "            <p>If you have any questions or need further assistance, feel free to contact us.</p>\n"
-            			    + "            <p>Thank you for choosing our services! We look forward to welcoming you.</p>\n"
-            			    + "            <p>Best regards,<br>The Hotel Booking Team</p>\n"
-            			    + "        </div>\n"
-            			    + "        <div class=\"footer\">\n"
-            			    + "            <p>Style Casual © 2021 Style Casual, Inc. All Rights Reserved.</p>\n"
-            			    + "            <p>4562 Hazy Panda Limits, Chair Crossing, Kentucky, US, 607898</p>\n"
-            			    + "            <p><a href=\"#\">Visit Us</a> | <a href=\"#\">Privacy Policy</a> | <a href=\"#\">Terms of Use</a></p>\n"
-            			    + "        </div>\n"
-            			    + "    </div>\n"
-            			    + "</body>\n"
-            			    + "</html>",
-                bookingDTO.getCustomerName(),
-                orderInfo,
-                totalPrice,
-                paymentTime,
-                transactionId,
-                bookingDTO.getCustomerName(),
-                bookingDTO.getCheckinDate(),
-                bookingDTO.getCheckoutDate()
+                    "<!DOCTYPE html>\n"
+                            + "<html lang=\"en\">\n"
+                            + "<head>\n"
+                            + "    <meta charset=\"UTF-8\">\n"
+                            + "    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n"
+                            + "    <title>Booking Confirmation</title>\n"
+                            + "    <link href=\"https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css\" rel=\"stylesheet\">\n"
+                            + "    <link href=\"https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css\" rel=\"stylesheet\">\n"
+                            + "    <style>\n"
+                            + "        body {\n"
+                            + "            background-color: #f3f4f6;\n"
+                            + "            font-family: 'Helvetica Neue', Arial, sans-serif;\n"
+                            + "            color: #333;\n"
+                            + "        }\n"
+                            + "        .card {\n"
+                            + "            border: none;\n"
+                            + "            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);\n"
+                            + "            margin-top: 20px;\n"
+                            + "        }\n"
+                            + "        .card-header {\n"
+                            + "            background: linear-gradient(135deg, #3b82f6, #60a5fa);\n"
+                            + "            color: white;\n"
+                            + "            text-align: center;\n"
+                            + "            padding: 30px;\n"
+                            + "        }\n"
+                            + "        .card-header img {\n"
+                            + "            width: 80px;\n"
+                            + "            margin-bottom: 15px;\n"
+                            + "        }\n"
+                            + "        .card-title {\n"
+                            + "            font-size: 28px;\n"
+                            + "            font-weight: 600;\n"
+                            + "            color: #444;\n"
+                            + "            margin-bottom: 15px;\n"
+                            + "        }\n"
+                            + "        .table {\n"
+                            + "            font-size: 16px;\n"
+                            + "        }\n"
+                            + "        .table th {\n"
+                            + "            background-color: #10b981;\n"
+                            + "            color: white;\n"
+                            + "            padding: 14px;\n"
+                            + "        }\n"
+                            + "        .table td {\n"
+                            + "            padding: 14px;\n"
+                            + "            color: #555;\n"
+                            + "        }\n"
+                            + "        .table-icon {\n"
+                            + "            color: #10b981;\n"
+                            + "            margin-right: 8px;\n"
+                            + "        }\n"
+                            + "        .btn-primary {\n"
+                            + "            background: linear-gradient(135deg, #3b82f6, #60a5fa);\n"
+                            + "            border: none;\n"
+                            + "            font-size: 18px;\n"
+                            + "            padding: 12px 30px;\n"
+                            + "            border-radius: 30px;\n"
+                            + "        }\n"
+                            + "        .btn-primary:hover {\n"
+                            + "            background: linear-gradient(135deg, #60a5fa, #3b82f6);\n"
+                            + "        }\n"
+                            + "        .footer {\n"
+                            + "            text-align: center;\n"
+                            + "            font-size: 14px;\n"
+                            + "            color: #6b7280;\n"
+                            + "            padding: 20px;\n"
+                            + "        }\n"
+                            + "        .footer a {\n"
+                            + "            color: #3b82f6;\n"
+                            + "            text-decoration: none;\n"
+                            + "            margin: 0 10px;\n"
+                            + "        }\n"
+                            + "    </style>\n"
+                            + "</head>\n"
+                            + "<body>\n"
+                            + "    <div class=\"container py-5\">\n"
+                            + "        <div class=\"card\">\n"
+                            + "            <div class=\"card-header\">\n"
+                            + "                <img src=\"https://res.cloudinary.com/dliwvet1v/image/upload/v1729759384/i7xwpwwwsmwikzk5v8hm.png\" alt=\"Company Logo\">\n"
+                            + "                <h1>Booking Confirmation</h1>\n"
+                            + "            </div>\n"
+                            + "            <div class=\"card-body\">\n"
+                            + "                <h2 class=\"card-title text-center\">Your Booking Details</h2>\n"
+                            + "                <p class=\"text-center text-muted\">Thank you for choosing us! Your booking is now confirmed.</p>\n"
+                            + "                <table class=\"table table-bordered\">\n"
+                            + "                    <thead>\n"
+                            + "                        <tr>\n"
+                            + "                            <th>Detail</th>\n"
+                            + "                            <th>Information</th>\n"
+                            + "                        </tr>\n"
+                            + "                    </thead>\n"
+                            + "                    <tbody>\n"
+                            + "                        <tr>\n"
+                            + "                            <td><i class=\"fas fa-receipt table-icon\"></i>Order ID</td>\n"
+                            + "                            <td>%s</td>\n"
+                            + "                        </tr>\n"
+                            + "                        <tr>\n"
+                            + "                            <td><i class=\"fas fa-money-bill-wave table-icon\"></i>Total Price</td>\n"
+                            + "                            <td>%s VND</td>\n"
+                            + "                        </tr>\n"
+                            + "                        <tr>\n"
+                            + "                            <td><i class=\"fas fa-clock table-icon\"></i>Payment Time</td>\n"
+                            + "                            <td>%s</td>\n"
+                            + "                        </tr>\n"
+                            + "                        <tr>\n"
+                            + "                            <td><i class=\"fas fa-hashtag table-icon\"></i>Transaction ID</td>\n"
+                            + "                            <td>%s</td>\n"
+                            + "                        </tr>\n"
+                            + "                        <tr>\n"
+                            + "                            <td><i class=\"fas fa-user table-icon\"></i>Customer Name</td>\n"
+                            + "                            <td>%s</td>\n"
+                            + "                        </tr>\n"
+                            + "                        <tr>\n"
+                            + "                            <td><i class=\"fas fa-calendar-check table-icon\"></i>Check-in Date</td>\n"
+                            + "                            <td>%s</td>\n"
+                            + "                        </tr>\n"
+                            + "                        <tr>\n"
+                            + "                            <td><i class=\"fas fa-calendar-times table-icon\"></i>Check-out Date</td>\n"
+                            + "                            <td>%s</td>\n"
+                            + "                        </tr>\n"
+                            + "                    </tbody>\n"
+                            + "                </table>\n"
+                            + "                <div class=\"text-center mt-4\">\n"
+                            + "                    <a href=\"#\" class=\"btn btn-primary\">Visit Our Site</a>\n"
+                            + "                </div>\n"
+                            + "            </div>\n"
+                            + "            <div class=\"footer\">\n"
+                            + "                <p>&copy; 2024 HotelEasy. All Rights Reserved.</p>\n"
+                            + "                <p>No. 99, Thao Dien, Thu Duc, Ho Chi Minh City</p>\n"
+                            + "                <p><a href=\"#\">Privacy Policy</a> | <a href=\"#\">Terms of Service</a></p>\n"
+                            + "            </div>\n"
+                            + "        </div>\n"
+                            + "    </div>\n"
+                            + "</body>\n"
+                            + "</html>",
+                    orderInfo,
+                    totalPrice,
+                    paymentTime,
+                    transactionId,
+                    bookingDTO.getCustomerName(),
+                    bookingDTO.getCheckinDate(),
+                    bookingDTO.getCheckoutDate()
             );
-            
+
             emailService.sendBookingConfirmation(bookingDTO.getCustomerEmail(), subject, emailContent);
             return "redirect:/booking/confirmation"; // Redirect to confirmation page
         }
@@ -267,8 +311,14 @@ public class BookingController {
     }
 
     private Long getLoggedInUserId() {
+        String username = "";
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String username = auth.getName();
+        if (auth instanceof OAuth2AuthenticationToken) {
+            OAuth2AuthenticationToken oauth2Token = (OAuth2AuthenticationToken) auth;
+            username = (String) oauth2Token.getPrincipal().getAttributes().get("email");
+        }else{
+            username = auth.getName();
+        }
         UserDTO userDTO = userService.findUserDTOByUsername(username);
         log.info("Fetched logged in user ID: {}", userDTO.getId());
         return userDTO.getId();
