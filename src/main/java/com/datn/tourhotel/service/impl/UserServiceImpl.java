@@ -1,5 +1,7 @@
 package com.datn.tourhotel.service.impl;
 
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -7,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -134,6 +137,15 @@ public class UserServiceImpl implements UserService {
         for (User user : userList) {
             UserDTO userDTO = mapUserToUserDto(user);
             userDTOList.add(userDTO);
+        }
+        return userDTOList;
+    }
+    
+    public List<UserDTO> searchUsersByUsername(String username) {
+        List<User> userList = userRepository.findByUsernameContainingIgnoreCase(username);
+        List<UserDTO> userDTOList = new ArrayList<>();
+        for (User user : userList) {
+            userDTOList.add(mapUserToUserDto(user));
         }
         return userDTOList;
     }
@@ -369,16 +381,102 @@ public class UserServiceImpl implements UserService {
     }
 
     private void sendNewPasswordEmail(String email, String newPassword) {
-        String subject = "Your New Password";
-        String text = "Your new password is: " + newPassword + "\n" +
-                      "Please change your password after logging in.";
+    	String subject = "🔑 Reset Your Password";
 
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setTo(email);
-        message.setSubject(subject);
-        message.setText(text);
+    	String body = String.format(
+    	        "<html>" +
+    	                "<head>" +
+    	                "<style>" +
+    	                "body {" +
+    	                "    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;" +
+    	                "    background-color: #f9f9f9;" +
+    	                "    margin: 0;" +
+    	                "    padding: 20px;" +
+    	                "    text-align: center;" +
+    	                "    color: #333;" +
+    	                "}" +
+    	                ".email-container {" +
+    	                "    background-color: #ffffff;" +
+    	                "    max-width: 600px;" +
+    	                "    margin: 50px auto;" +
+    	                "    padding: 30px;" +
+    	                "    border-radius: 10px;" +
+    	                "    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);" +
+    	                "    border: 1px solid #e1e1e1;" +
+    	                "}" +
+    	                ".header h2 {" +
+    	                "    font-size: 36px;" +
+    	                "    color: #FF5722;" + // Orange color for the header
+    	                "    margin-bottom: 20px;" +
+    	                "    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);" +
+    	                "}" +
+    	                ".content {" +
+    	                "    font-size: 18px;" +
+    	                "    line-height: 1.8;" +
+    	                "    color: #555;" +
+    	                "    margin-bottom: 20px;" +
+    	                "    text-align: left;" +
+    	                "}" +
+    	                ".content p {" +
+    	                "    margin: 15px 0;" +
+    	                "}" +
+    	                ".button {" +
+    	                "    background-color: #FF5722;" +
+    	                "    color: white;" +
+    	                "    padding: 12px 30px;" +
+    	                "    border-radius: 8px;" +
+    	                "    font-size: 20px;" +
+    	                "    font-weight: bold;" +
+    	                "    text-decoration: none;" +
+    	                "    transition: background-color 0.3s ease;" +
+    	                "    display: inline-block;" +
+    	                "    margin-top: 20px;" +
+    	                "}" +
+    	                ".button:hover {" +
+    	                "    background-color: #E64A19;" +
+    	                "}" +
+    	                ".footer {" +
+    	                "    font-size: 14px;" +
+    	                "    color: #777;" +
+    	                "    margin-top: 40px;" +
+    	                "    text-align: center;" +
+    	                "    line-height: 1.6;" +
+    	                "}" +
+    	                "</style>" +
+    	                "</head>" +
+    	                "<body>" +
+    	                "<div class='email-container'>" +
+    	                "<div class='header'>" +
+    	                "<h2>Password Reset Request</h2>" +
+    	                "</div>" +
+    	                "<div class='content'>" +
+    	                "<p>Hello <strong>%s</strong>,</p>" +
+    	                "<p>We've received a request to reset the password for your account.</p>" +
+    	                "<p><strong>Your new temporary password is:</strong></p>" +
+    	                "<ul>" +
+    	                "<li><strong>password:</strong> %s</li>" +
+    	                "</ul>" +
+    	                "<p>Please use this password to log in and make sure to change it from your account settings for security purposes.</p>" +
+    	                "<a href='http://localhost:8080/login' class='button'>Log In Now</a>" +
+    	                "</div>" +
+    	                "<div class='footer'>" +
+    	                "<p>If you didn't request this change, please contact our support team.<br>Thank you for using our service!</p>" +
+    	                "</div>" +
+    	                "</div>" +
+    	                "</body>" +
+    	                "</html>", email, newPassword
+    	);
 
-        mailSender.send(message);
+    	MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, "utf-8");
+        try {
+            helper.setText(body, true);  // true indicates HTML format
+            helper.setTo(email);
+            helper.setSubject(subject);
+            mailSender.send(message);
+        } catch (MessagingException e) {
+            e.printStackTrace();
+        }
     }
 
     private void updateAuthentication(UserDTO userDTO) {

@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{/layout/layout-main}">
+      layout:decorate="~{/admin/layout/layout-main}">
 <head>
     <title>Edit My Hotel</title>
         <script type="text/javascript">
@@ -19,8 +19,57 @@
 </head>
 <body>
 <th:block layout:fragment="content">
-    <div class="container mt-5">
-        <div class="row mt-4">
+    <div class="row">
+    <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+        <div class="position-sticky justify-content-center">
+            <ul class="nav flex-column">
+                <li class="nav-item">
+                    <a class="nav-link ms-5" aria-current="page" th:href="@{/admin/dashboard}">
+                        <i class="bi bi-house-door-fill"></i>
+                        <span class="ml-2 h5">Dashboard</span>
+                    </a>
+                </li>
+                <hr>
+                <li class="nav-item ms-5">
+                    <a class="nav-link" th:href="@{/admin/users}">
+                        <i class="bi bi-people-fill"></i>
+                        <span class="ml-2 h5">Users</span>
+                    </a>
+                </li>
+                <li class="nav-item ms-5">
+                    <a class="nav-link" th:href="@{/admin/hotels/add(language=${#locale.getLanguage()})}">
+                        <i class="bi bi-building"></i>
+                        <span class="ml-2 h5">Add hotels</span>
+                    </a>
+                </li>
+                <li class="nav-item ms-5">
+                    <a class="nav-link" th:href="@{/admin/hotels(language=${#locale.getLanguage()})}">
+                        <i class="bi bi-building"></i>
+                        <span class="ml-2 h5">Hotels</span>
+                    </a>
+                </li>
+                <li class="nav-item ms-5">
+                    <a class="nav-link" th:href="@{/admin/bookings(language=${#locale.getLanguage()})}">
+                        <i class="bi bi-calendar-check"></i>
+                        <span class="ml-2 h5">Bookings</span>
+                    </a>
+                </li>
+                <li class="nav-item ms-5">
+                    <a class="nav-link" th:href="@{/admin/report}">
+                        <i class="bi bi-bar-chart-line"></i>
+                        <span class="ml-2 h5">Reports</span>
+                    </a>
+                </li>
+                <li class="nav-item ms-5">
+                    <a class="nav-link" href="#">
+                        <i class="bi bi-layers-fill"></i>
+                        <span class="ml-2 h5">Integrations</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    <main class="col-md-9 ml-sm-auto col-lg-10 px-md-4 py-4 mt-4 mb-5">
             <div class="col-md-8 offset-md-2">
                 <div class="card">
                     <div class="card-header">
@@ -32,7 +81,7 @@
                         	    <label class="form-label">Image Hotel:</label>
                                 <div class="col-md-4">
                                     <div class="form-group mb-3">
-                                        <label for="img-input1" class="img-upload-container" style="cursor: pointer; height: 170px; width:110%;">
+                                        <label for="img-input1" class="img-upload-container" style="cursor: pointer; height: 170px; width:109%; display: block; border: 2px solid #ccc; border-radius: 10px; overflow: hidden;">
                                             <img id="img-preview1" th:src="${hotel.img}" alt="Choose Your Image" class="img-fluid rounded-3" style="height: 100%; width:100%; object-fit: cover;">
                                         </label>
                                         <input class="form-control mt-2" name="imageFile" id="img-input1" type="file" accept="image/*" onchange="previewImage(event, 'img-preview1')" style="display: none;">
@@ -42,7 +91,7 @@
                                 <!-- Second Image Upload -->
                                 <div class="col-md-4">
                                     <div class="form-group mb-3">
-                                        <label for="img-input2" class="img-upload-container" style="cursor: pointer; height: 170px; width:110%;">
+                                        <label for="img-input2" class="img-upload-container" style="cursor: pointer; height: 170px; width:109%; display: block; border: 2px solid #ccc; border-radius: 10px; overflow: hidden;">
                                             <img id="img-preview2" th:src="${hotel.img2}" alt="Choose Your Image" class="img-fluid rounded-3" style="height: 100%; width:100%; object-fit: cover;">
                                         </label>
                                         <input class="form-control mt-2" name="imageFile2" id="img-input2" type="file" accept="image/*" onchange="previewImage(event, 'img-preview2')" style="display: none;">
@@ -52,7 +101,7 @@
                                 <!-- Third Image Upload -->
                                 <div class="col-md-4">
                                     <div class="form-group mb-3">
-                                        <label for="img-input3" class="img-upload-container" style="cursor: pointer; height: 170px; width:110%;">
+                                        <label for="img-input3" class="img-upload-container" style="cursor: pointer; height: 170px; width:109%; display: block; border: 2px solid #ccc; border-radius: 10px; overflow: hidden;">
                                             <img id="img-preview3" th:src="${hotel.img3}" alt="Choose Your Image" class="img-fluid rounded-3" style="height: 100%; width:100%; object-fit: cover;">
                                         </label>
                                         <input class="form-control mt-2" name="imageFile3" id="img-input3" type="file" accept="image/*" onchange="previewImage(event, 'img-preview3')" style="display: none;">
@@ -109,7 +158,7 @@
                             <label class="form-label">Image Single Room:</label>
                                 <div class="col-md-4">
                                     <div class="form-group mb-3">
-                                        <label for="img-input4" class="img-upload-container" style="cursor: pointer; height: 170px; width:110%;">
+                                        <label for="img-input4" class="img-upload-container" style="cursor: pointer; height: 170px; width:109%; display: block; border: 2px solid #ccc; border-radius: 10px; overflow: hidden;">
                                             <img id="img-preview4" th:src="${hotel.roomDTOs[0].img}" alt="Choose Your Image" class="img-fluid rounded-3" style="height: 100%; width:100%; object-fit: cover;">
                                         </label>
                                         <input class="form-control mt-2" name="roomImages" id="img-input4" type="file" accept="image/*" onchange="previewImage(event, 'img-preview4')" style="display: none;">
@@ -119,7 +168,7 @@
                                 <!-- Second Image Upload -->
                                 <div class="col-md-4">
                                     <div class="form-group mb-3">
-                                        <label for="img-input5" class="img-upload-container" style="cursor: pointer; height: 170px; width:110%;">
+                                        <label for="img-input5" class="img-upload-container" style="cursor: pointer; height: 170px; width:109%; display: block; border: 2px solid #ccc; border-radius: 10px; overflow: hidden;">
                                             <img id="img-preview5" th:src="${hotel.roomDTOs[0].img2}" alt="Choose Your Image" class="img-fluid rounded-3" style="height: 100%; width:100%; object-fit: cover;">
                                         </label>
                                         <input class="form-control mt-2" name="roomImages2" id="img-input5" type="file" accept="image/*" onchange="previewImage(event, 'img-preview5')" style="display: none;">
@@ -129,7 +178,7 @@
                                 <!-- Third Image Upload -->
                                 <div class="col-md-4">
                                     <div class="form-group mb-3">
-                                        <label for="img-input6" class="img-upload-container" style="cursor: pointer; height: 170px; width:110%;">
+                                        <label for="img-input6" class="img-upload-container" style="cursor: pointer; height: 170px; width:109%; display: block; border: 2px solid #ccc; border-radius: 10px; overflow: hidden;">
                                             <img id="img-preview6" th:src="${hotel.roomDTOs[0].img3}" alt="Choose Your Image" class="img-fluid rounded-3" style="height: 100%; width:100%; object-fit: cover;">
                                         </label>
                                         <input class="form-control mt-2" name="roomImages3" id="img-input6" type="file" accept="image/*" onchange="previewImage(event, 'img-preview6')" style="display: none;">
@@ -159,7 +208,7 @@
                             <label class="form-label">Image Double Room:</label>
                                 <div class="col-md-4">
                                     <div class="form-group mb-3">
-                                        <label for="img-input7" class="img-upload-container" style="cursor: pointer; height: 170px; width:110%;">
+                                        <label for="img-input7" class="img-upload-container" style="cursor: pointer; height: 170px; width:109%; display: block; border: 2px solid #ccc; border-radius: 10px; overflow: hidden;">
                                             <img id="img-preview7" th:src="${hotel.roomDTOs[1].img}" alt="Choose Your Image" class="img-fluid rounded-3" style="height: 100%; width:100%; object-fit: cover;">
                                         </label>
                                         <input class="form-control mt-2" name="roomImages" id="img-input7" type="file" accept="image/*" onchange="previewImage(event, 'img-preview7')" style="display: none;">
@@ -169,7 +218,7 @@
                                 <!-- Second Image Upload -->
                                 <div class="col-md-4">
                                     <div class="form-group mb-3">
-                                        <label for="img-input8" class="img-upload-container" style="cursor: pointer; height: 170px; width:110%;">
+                                        <label for="img-input8" class="img-upload-container" style="cursor: pointer; height: 170px; width:109%; display: block; border: 2px solid #ccc; border-radius: 10px; overflow: hidden;">
                                             <img id="img-preview8" th:src="${hotel.roomDTOs[1].img2}" alt="Choose Your Image" class="img-fluid rounded-3" style="height: 100%; width:100%; object-fit: cover;">
                                         </label>
                                         <input class="form-control mt-2" name="roomImages2" id="img-input8" type="file" accept="image/*" onchange="previewImage(event, 'img-preview8')" style="display: none;">
@@ -179,7 +228,7 @@
                                 <!-- Third Image Upload -->
                                 <div class="col-md-4">
                                     <div class="form-group mb-3">
-                                        <label for="img-input9" class="img-upload-container" style="cursor: pointer; height: 170px; width:110%;">
+                                        <label for="img-input9" class="img-upload-container" style="cursor: pointer; height: 170px; width:109%; display: block; border: 2px solid #ccc; border-radius: 10px; overflow: hidden;">
                                             <img id="img-preview9" th:src="${hotel.roomDTOs[1].img3}" alt="Choose Your Image" class="img-fluid rounded-3" style="height: 100%; width:100%; object-fit: cover;">
                                         </label>
                                         <input class="form-control mt-2" name="roomImages3" id="img-input9" type="file" accept="image/*" onchange="previewImage(event, 'img-preview9')" style="display: none;">
@@ -201,6 +250,19 @@
                                        placeholder="Enter price for double rooms">
                                 <p class="text-danger" th:if="${#fields.hasErrors('roomDTOs[1].pricePerNight')}"
                                    th:errors="*{roomDTOs[1].pricePerNight}"></p>
+                                <div class="form-group mb-3">
+								    <label for="managerId" class="form-label">Hotel Manager</label>
+								    <select th:field="*{managerId}" class="form-select" id="managerId">
+								        <!-- Iterate over all managers and select the one whose id matches hotel.managerId -->
+								        <option th:each="manager : ${managers}" 
+								                th:value="${manager.id}" 
+								                th:text="${manager.user.username}"
+								                th:selected="${manager.id == hotel.managerId}">Manager</option>
+								    </select>
+								    <p class="text-danger" th:if="${#fields.hasErrors('managerId')}" th:errors="*{managerId}"></p>
+								</div>
+
+
                             </div>
                             <!-- -->
                             <div class="form-group mb-3">
@@ -211,6 +273,7 @@
                     </div>
                 </div>
             </div>
+            </main>
         </div>
     </div>
 </th:block>

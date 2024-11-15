@@ -7,7 +7,10 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,8 +20,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.datn.tourhotel.model.Booking;
+import com.datn.tourhotel.model.User;
 import com.datn.tourhotel.model.dto.BookingDTO;
 import com.datn.tourhotel.model.dto.HotelDTO;
+import com.datn.tourhotel.model.dto.UserDTO;
 import com.datn.tourhotel.service.BookingService;
 import com.datn.tourhotel.service.HotelService;
 import com.datn.tourhotel.service.UserService;
@@ -40,7 +45,9 @@ public class CustomerController {
     private final BookingService bookingService;
     private final HotelService hotelService;
     @GetMapping("/dashboard")
-    public String dashboard() {
+    public String dashboard(Model model, Authentication auth, UserDetails userDetails) {
+        System.out.println(auth.getCredentials());
+        System.out.println(userDetails.getUsername());
         return "customer/dashboard";
     }
 
@@ -56,7 +63,7 @@ public class CustomerController {
     public String listBookings(Model model, RedirectAttributes redirectAttributes, HttpServletRequest request) {
     	String message = messageSource.getMessage("hello", null, "default message", request.getLocale());
         try {
-            Long customerId = getCurrentCustomerId();
+            Long customerId = getLoggedInUserIdOrCustomerId();
             List<BookingDTO> bookingDTOs = bookingService.findBookingsByCustomerId(customerId);
             bookingDTOs.sort(Comparator.comparing(BookingDTO::getId).reversed());
             model.addAttribute("bookings", bookingDTOs);
@@ -76,7 +83,7 @@ public class CustomerController {
     public String viewBookingDetails(@PathVariable Long id, Model model, RedirectAttributes redirectAttributes, HttpServletRequest request) {
     	String message = messageSource.getMessage("hello", null, "default message", request.getLocale());
         try {
-            Long customerId = getCurrentCustomerId();
+            Long customerId = getLoggedInUserIdOrCustomerId();
             BookingDTO bookingDTO = bookingService.findBookingByIdAndCustomerId(id, customerId);
             model.addAttribute("bookingDTO", bookingDTO);
 
@@ -108,9 +115,30 @@ public class CustomerController {
         return "redirect:/customer/bookings/" + id;
     }
 
-    private Long getCurrentCustomerId() {
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        return userService.findUserByUsername(username).getCustomer().getId();
+    private Long getLoggedInUserIdOrCustomerId() {
+        String username = "";
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        
+        // Kiểm tra loại xác thực (OAuth2 hay thông thường)
+        if (auth instanceof OAuth2AuthenticationToken) {
+            OAuth2AuthenticationToken oauth2Token = (OAuth2AuthenticationToken) auth;
+            username = (String) oauth2Token.getPrincipal().getAttributes().get("email");
+        } else {
+            username = auth.getName();
+        }
+
+        // Lấy thông tin người dùng từ username
+        User user = userService.findUserByUsername(username);
+        log.info("Fetched logged in user ID: {}", user.getId());
+
+        // Nếu người dùng là khách hàng, trả về customer ID
+        if (user.getCustomer() != null) {
+            return user.getCustomer().getId();
+        }
+
+        // Trả về user ID
+        return user.getId();
     }
+
 
 }

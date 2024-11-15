@@ -2,6 +2,7 @@ package com.datn.tourhotel.controller;
 
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,13 +18,16 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.datn.tourhotel.exception.HotelAlreadyExistsException;
+import com.datn.tourhotel.exception.UsernameAlreadyExistsException;
 import com.datn.tourhotel.model.dto.BookingDTO;
 import com.datn.tourhotel.model.dto.HotelDTO;
 import com.datn.tourhotel.model.dto.HotelRegistrationDTO;
 import com.datn.tourhotel.model.dto.RoomDTO;
+import com.datn.tourhotel.model.dto.UserDTO;
 import com.datn.tourhotel.model.enums.RoomType;
 import com.datn.tourhotel.service.BookingService;
 import com.datn.tourhotel.service.CustomerService;
+import com.datn.tourhotel.service.ExcelExportService;
 import com.datn.tourhotel.service.HotelManagerService;
 import com.datn.tourhotel.service.HotelService;
 import com.datn.tourhotel.service.PaymentService;
@@ -50,6 +54,7 @@ public class HotelManagerController {
     private final CustomerService customerService;
     private final PaymentService paymentService;
     private final HotelManagerService hotelManagerService;
+    private final ExcelExportService excelExportService;
 
     @GetMapping("/dashboard")
     public String dashboard(HttpServletRequest request, Model model, @RequestParam(name = "earningsPeriod", required = false, defaultValue = "total") String period) {
@@ -92,13 +97,129 @@ public class HotelManagerController {
         model.addAttribute("currentUsername", currentUsername);
         return "hotelmanager/dashboard";
     }
-    
+    @GetMapping("/report")
+    public String report(HttpServletRequest request, Model model, @RequestParam(name = "earningsPeriod", required = false, defaultValue = "total") String period) {
+    	String message = messageSource.getMessage("hello", null, "default message", request.getLocale());
+    	Long managerId = getCurrentManagerId();
+    	Long customerCount = customerService.getCustomerCount();
+        model.addAttribute("customerCount", customerCount);
+
+        Long countHotelsByManager = hotelManagerService.countHotelsByManager(managerId);
+        model.addAttribute("countHotelsByManager", countHotelsByManager);
+        
+     // Fetch earnings for different periods
+        BigDecimal earningsToday = paymentService.getEarningsByPeriod(managerId, "day");
+        BigDecimal earningsThisWeek = paymentService.getEarningsByPeriod(managerId, "week");
+        BigDecimal earningsThisMonth = paymentService.getEarningsByPeriod(managerId, "month");
+        BigDecimal earningsThisYear = paymentService.getEarningsByPeriod(managerId, "year");
+        BigDecimal earningsTotal = paymentService.getEarningsByPeriod(managerId, "total");
+
+        // Add earnings data to the model for use in the frontend
+        model.addAttribute("earningsToday", earningsToday);
+        model.addAttribute("earningsThisWeek", earningsThisWeek);
+        model.addAttribute("earningsThisMonth", earningsThisMonth);
+        model.addAttribute("earningsThisYear", earningsThisYear);
+        model.addAttribute("earningsTotal", earningsTotal);
+        
+        List<BigDecimal> earningsPerDayInYear = paymentService.getEarningsPerDayInYear(managerId);
+        model.addAttribute("earningsPerDayInYear", earningsPerDayInYear);
+        
+     // Tổng thu nhập theo period
+        BigDecimal getEarningsByPeriod = paymentService.getEarningsByPeriod(managerId, period);
+        if (getEarningsByPeriod == null) {
+            getEarningsByPeriod = BigDecimal.ZERO;
+        }
+     // Format thu nhập theo định dạng "1,500,000"
+        DecimalFormat decimalFormat = new DecimalFormat("#,###");
+        String formattedEarnings = decimalFormat.format(getEarningsByPeriod);
+        model.addAttribute("formattedEarnings", formattedEarnings);
+        
+        List<BigDecimal> earningsPerWeekInYear = paymentService.getEarningsPerWeekInYear(managerId);
+        model.addAttribute("earningsPerWeekInYear", earningsPerWeekInYear);
+        
+        List<BigDecimal> earningsPerMonthInYear = paymentService.getEarningsPerMonthInYear(managerId);
+        model.addAttribute("earningsPerMonthInYear", earningsPerMonthInYear);
+        
+        String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
+        model.addAttribute("currentUsername", currentUsername);
+        return "hotelmanager/report";
+    }
     @GetMapping("/index")
     public String index(Model model, HttpServletRequest request) {
     	String message = messageSource.getMessage("hello", null, "default message", request.getLocale());
         List<HotelDTO> hotels = hotelService.findAllHotels();
         model.addAttribute("hotels", hotels);
         return "redirect:/index?language=" + request.getParameter("language");
+    }
+    @GetMapping("/users")
+    public String listUsers(@RequestParam(value = "username", required = false) String username, Model model, HttpServletRequest request) {
+        String message = messageSource.getMessage("hello", null, "default message", request.getLocale());
+
+        List<UserDTO> userDTOList;
+        
+        if (username != null && !username.isEmpty()) {
+            userDTOList = userService.searchUsersByUsername(username);  // Giả sử bạn có phương thức tìm kiếm theo username
+        } else {
+            userDTOList = userService.findAllUsers();
+        }
+
+        model.addAttribute("users", userDTOList);
+        String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
+        model.addAttribute("currentUsername", currentUsername);
+        return "hotelmanager/users";
+    }
+    @GetMapping("/users/edit/{id}")
+    public String showEditUserForm(@PathVariable Long id, Model model, HttpServletRequest request) {
+    	String message = messageSource.getMessage("hello", null, "default message", request.getLocale());
+        UserDTO userDTO = userService.findUserById(id);
+        model.addAttribute("user", userDTO);
+        String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
+        model.addAttribute("currentUsername", currentUsername);
+        return "hotelmanager/users-edit";
+    }
+
+    @PostMapping("/users/edit/{id}")
+    public String editUser(@PathVariable Long id,
+                           @Valid @ModelAttribute("user") UserDTO userDTO,
+                           BindingResult result,
+                           RedirectAttributes redirectAttributes,
+                           @RequestParam(value = "multipartFile", required = false) MultipartFile multipartFile) throws IOException {
+        try {
+            if (result.hasErrors()) {
+                return "hotelmanager/users-edit";
+            }
+
+            // Lấy thông tin người dùng hiện tại từ service
+            UserDTO currentUserDTO = userService.findUserById(id);
+
+            // Kiểm tra nếu người dùng không chọn ảnh mới, giữ nguyên ảnh cũ
+            if (multipartFile == null || multipartFile.isEmpty()) {
+                userDTO.setImg(currentUserDTO.getImg()); // Giữ nguyên ảnh cũ
+            }
+
+            userService.updateUser(userDTO, multipartFile);
+            redirectAttributes.addFlashAttribute("success", "User updated successfully");
+            redirectAttributes.addFlashAttribute("updatedUserId", userDTO.getId());
+
+            return "redirect:/hotelmanager/users";
+        } catch (UsernameAlreadyExistsException e) {
+            result.rejectValue("username", "user.exists", "Username is already registered!");
+            return "hotelmanager/users-edit";
+        } catch (IllegalStateException e) {
+            result.rejectValue("roleType", "role.invalid", e.getMessage());
+            return "hotelmanager/users-edit";
+        } catch (Exception e) {
+            result.rejectValue("", "error.general", "An error occurred while updating the user");
+            return "hotelmanager/users-edit";
+        }
+    }
+
+
+    // Workaround for @DeleteMapping via post method
+    @PostMapping("/users/delete/{id}")
+    public String deleteUser(@PathVariable Long id) {
+        userService.deleteUserById(id);
+        return "redirect:/hotelmanager/users";
     }
     @GetMapping("/hotels/add")
     public String showAddHotelForm(Model model) {
@@ -113,6 +234,8 @@ public class HotelManagerController {
         hotelRegistrationDTO.getRoomDTOs().add(suiteRoom);
 
         model.addAttribute("hotel", hotelRegistrationDTO);
+        String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
+        model.addAttribute("currentUsername", currentUsername);
         return "hotelmanager/hotels-add";
     }
 
@@ -144,6 +267,8 @@ public class HotelManagerController {
         Long managerId = getCurrentManagerId();
         List<HotelDTO> hotelList = hotelService.findAllHotelDtosByManagerId(managerId);
         model.addAttribute("hotels", hotelList);
+        String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
+        model.addAttribute("currentUsername", currentUsername);
         return "hotelmanager/hotels";
     }
 
@@ -152,6 +277,8 @@ public class HotelManagerController {
         Long managerId = getCurrentManagerId();
         HotelDTO hotelDTO = hotelService.findHotelByIdAndManagerId(id, managerId);
         model.addAttribute("hotel", hotelDTO);
+        String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
+        model.addAttribute("currentUsername", currentUsername);
         return "hotelmanager/hotels-edit";
     }
 
@@ -204,6 +331,9 @@ public class HotelManagerController {
             Long managerId = getCurrentManagerId();
             List<BookingDTO> bookingDTOs = bookingService.findBookingsByManagerId(managerId);
             model.addAttribute("bookings", bookingDTOs);
+            
+            String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
+            model.addAttribute("currentUsername", currentUsername);
 
             return "hotelmanager/bookings";
         } catch (EntityNotFoundException e) {
@@ -228,6 +358,9 @@ public class HotelManagerController {
             LocalDate checkoutDate = bookingDTO.getCheckoutDate();
             long durationDays = ChronoUnit.DAYS.between(checkinDate, checkoutDate);
             model.addAttribute("days", durationDays);
+            
+            String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
+            model.addAttribute("currentUsername", currentUsername);
 
             return "hotelmanager/bookings-details";
         } catch (EntityNotFoundException e) {
@@ -254,5 +387,18 @@ public class HotelManagerController {
     private Long getCurrentManagerId() {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         return userService.findUserByUsername(username).getHotelManager().getId();
+    }
+    @GetMapping("/hotels/export/excel")
+    public void exportHotelsToExcel(HttpServletResponse response) throws IOException {
+        Long managerId = getCurrentManagerId();
+        List<HotelDTO> hotelList = hotelService.findAllHotelDtosByManagerId(managerId);
+        excelExportService.exportHotelsToExcel(response, hotelList);
+    }
+    
+    @GetMapping("/bookings/export/excel")
+    public void exportBookingsToExcel(HttpServletResponse response) throws IOException {
+        Long managerId = getCurrentManagerId();
+        List<BookingDTO> bookings = bookingService.findBookingsByManagerId(managerId);
+        excelExportService.exportBookingsToExcel(response, bookings);
     }
 }

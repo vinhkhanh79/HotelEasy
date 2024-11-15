@@ -144,6 +144,121 @@ public class HotelServiceImpl implements HotelService {
         log.info("Successfully saved new hotel with ID: {}", hotel.getId());
         return savedHotel;
     }
+    @Transactional
+    public Hotel saveHotelAdmin(HotelRegistrationAdminDTO hotelRegistrationAdminDTO, 
+                                MultipartFile multipartFile, 
+                                MultipartFile multipartFile2, 
+                                MultipartFile multipartFile3, 
+                                List<MultipartFile> roomImages1, 
+                                List<MultipartFile> roomImages2, 
+                                List<MultipartFile> roomImages3, 
+                                HotelManager hotelManager) {
+        log.info("Attempting to save a new hotel: {}", hotelRegistrationAdminDTO.toString());
+
+        // Kiểm tra xem tên khách sạn đã tồn tại chưa
+        Optional<Hotel> existingHotel = hotelRepository.findByName(hotelRegistrationAdminDTO.getName());
+        if (existingHotel.isPresent()) {
+            throw new HotelAlreadyExistsException("This hotel name is already registered!");
+        }
+
+        // Tạo mới Hotel từ DTO
+        Hotel hotel = mapHotelRegistrationAdminDtoToHotel(hotelRegistrationAdminDTO);
+
+        // Upload hình ảnh khách sạn lên Cloudinary
+        if (multipartFile != null && !multipartFile.isEmpty()) {
+            try {
+                Map uploadResult = cloudinary.uploader().upload(multipartFile.getBytes(), Map.of("public_id", UUID.randomUUID().toString()));
+                hotel.setImg(uploadResult.get("url").toString());
+            } catch (IOException e) {
+                log.error("Image upload failed: {}", e.getMessage());
+                throw new RuntimeException("Image upload failed", e);
+            }
+        }
+
+        // Upload hình ảnh thứ hai cho khách sạn
+        if (multipartFile2 != null && !multipartFile2.isEmpty()) {
+            try {
+                Map uploadResult2 = cloudinary.uploader().upload(multipartFile2.getBytes(), Map.of("public_id", UUID.randomUUID().toString()));
+                hotel.setImg2(uploadResult2.get("url").toString());
+            } catch (IOException e) {
+                log.error("Image upload failed: {}", e.getMessage());
+                throw new RuntimeException("Image upload failed", e);
+            }
+        }
+
+        // Upload hình ảnh thứ ba cho khách sạn
+        if (multipartFile3 != null && !multipartFile3.isEmpty()) {
+            try {
+                Map uploadResult3 = cloudinary.uploader().upload(multipartFile3.getBytes(), Map.of("public_id", UUID.randomUUID().toString()));
+                hotel.setImg3(uploadResult3.get("url").toString());
+            } catch (IOException e) {
+                log.error("Image upload failed: {}", e.getMessage());
+                throw new RuntimeException("Image upload failed", e);
+            }
+        }
+
+        // Lưu địa chỉ
+        Address savedAddress = addressService.saveAddress(hotelRegistrationAdminDTO.getAddressDTO());
+        hotel.setAddress(savedAddress);
+
+        // Set HotelManager vào khách sạn
+        hotel.setHotelManager(hotelManager);
+
+        // Lưu khách sạn vào cơ sở dữ liệu
+        hotel = hotelRepository.save(hotel);
+
+        // Upload và cập nhật thông tin các phòng
+        List<RoomDTO> roomDTOs = hotelRegistrationAdminDTO.getRoomDTOs();
+        if (roomDTOs != null && roomImages1 != null && roomImages2 != null && roomImages3 != null) {
+            for (int i = 0; i < roomDTOs.size(); i++) {
+                RoomDTO roomDTO = roomDTOs.get(i);
+                MultipartFile roomImage1 = (roomImages1.size() > i) ? roomImages1.get(i) : null;
+                MultipartFile roomImage2 = (roomImages2.size() > i) ? roomImages2.get(i) : null;
+                MultipartFile roomImage3 = (roomImages3.size() > i) ? roomImages3.get(i) : null;
+
+                // Upload hình ảnh phòng 1
+                if (roomImage1 != null && !roomImage1.isEmpty()) {
+                    try {
+                        Map<String, String> uploadResult = cloudinary.uploader().upload(roomImage1.getBytes(), Map.of("public_id", UUID.randomUUID().toString()));
+                        roomDTO.setImg(uploadResult.get("url").toString());
+                    } catch (IOException e) {
+                        log.error("Room image upload failed: {}", e.getMessage());
+                        throw new RuntimeException("Room image upload failed", e);
+                    }
+                }
+
+                // Upload hình ảnh phòng 2
+                if (roomImage2 != null && !roomImage2.isEmpty()) {
+                    try {
+                        Map<String, String> uploadResult = cloudinary.uploader().upload(roomImage2.getBytes(), Map.of("public_id", UUID.randomUUID().toString()));
+                        roomDTO.setImg2(uploadResult.get("url").toString());
+                    } catch (IOException e) {
+                        log.error("Room image upload failed: {}", e.getMessage());
+                        throw new RuntimeException("Room image upload failed", e);
+                    }
+                }
+
+                // Upload hình ảnh phòng 3
+                if (roomImage3 != null && !roomImage3.isEmpty()) {
+                    try {
+                        Map<String, String> uploadResult = cloudinary.uploader().upload(roomImage3.getBytes(), Map.of("public_id", UUID.randomUUID().toString()));
+                        roomDTO.setImg3(uploadResult.get("url").toString());
+                    } catch (IOException e) {
+                        log.error("Room image upload failed: {}", e.getMessage());
+                        throw new RuntimeException("Room image upload failed", e);
+                    }
+                }
+
+                // Lưu thông tin phòng vào cơ sở dữ liệu
+                roomService.saveRoom(roomDTO, hotel, roomImage1, roomImage2, roomImage3);
+            }
+        }
+
+        // Lưu lại khách sạn với thông tin đầy đủ
+        Hotel savedHotel = hotelRepository.save(hotel);
+        log.info("Successfully saved new hotel with ID: {}", hotel.getId());
+        return savedHotel;
+    } 			
 
     @Override
     public HotelDTO findHotelDtoByName(String name) {
@@ -185,6 +300,7 @@ public class HotelServiceImpl implements HotelService {
         }
 
         existingHotel.setName(hotelDTO.getName());
+        existingHotel.setHotelManager(hotelDTO.getManager());
         
         if (multipartFile != null && !multipartFile.isEmpty()) {
             try {
@@ -363,6 +479,18 @@ public class HotelServiceImpl implements HotelService {
     }
 
     private Hotel mapHotelRegistrationDtoToHotel(HotelRegistrationDTO dto) {
+        return Hotel.builder()
+                .name(formatText(dto.getName()))
+                .describe(formatText(dto.getDescribe()))
+                .img(dto.getImg())
+                .img2(dto.getImg2())
+                .img3(dto.getImg3())
+//                .addressDTO(addressDTO)
+//                .roomDTOs(roomDTOs)
+                .build();
+    }
+    
+    private Hotel mapHotelRegistrationAdminDtoToHotel(HotelRegistrationAdminDTO dto) {
         return Hotel.builder()
                 .name(formatText(dto.getName()))
                 .describe(formatText(dto.getDescribe()))

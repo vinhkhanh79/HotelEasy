@@ -25,6 +25,8 @@ public interface UserService {
 
     List<UserDTO> findAllUsers();
     
+    List<UserDTO> searchUsersByUsername(String username);
+    
     boolean usernameExists(String username);
     
     boolean emailExists(String email);

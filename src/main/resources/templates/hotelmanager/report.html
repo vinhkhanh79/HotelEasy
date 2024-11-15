@@ -2,11 +2,11 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{/admin/layout/layout-main}">
 <head>
-    <title>Manager Dashboard</title>
+    <title>User List</title>
 </head>
 <body>
 <th:block layout:fragment="content">
-<div class="container-fluid">
+    <div class="container-fluid">
     <div class="row">
     <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
         <div class="position-sticky justify-content-center">
@@ -58,64 +58,23 @@
         </div>
     </nav>
     <main class="col-md-9 ml-sm-auto col-lg-10 px-md-4 py-4 mt-3 mb-5">
-        <h1 class="h2">Dashboard</h1>
-        <div class="row my-4">
-            <!-- Customer Card -->
-            <div class="col-12 col-md-4 mb-4">
-                <div class="card shadow-sm">
-                    <div class="card-body">
-                        <h6 class="card-subtitle mb-2 text-muted">
-                            <i class="bi bi-person-fill me-2"></i>Customers
-                        </h6>
-                        <h3 class="card-title py-1" th:text="${customerCount}"></h3>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Manager Card -->
-            <div class="col-12 col-md-4 mb-4">
-                <div class="card shadow-sm">
-                    <div class="card-body">
-                        <h6 class="card-subtitle mb-2 text-muted">
-                            <i class="bi bi-building me-2"></i>Hotels
-                        </h6>
-                        <h3 class="card-title py-1" th:text="${countHotelsByManager}"></h3>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Earning Card -->
-			<div class="col-12 col-md-4 mb-4">
-			    <div class="card shadow-sm">
-			        <div class="card-body">
-			            <div class="d-flex justify-content-between align-items-center">
-			                <h6 class="card-subtitle mb-2 text-muted">
-			                    <i class="bi bi-cash-stack me-2"></i> Earnings
-			                </h6>
-							<select id="earningsPeriod" class="form-select form-select-sm w-auto" onchange="updateEarnings()">
-							    <option value="day" selected>Day</option>
-							    <option value="week">Week</option>
-							    <option value="month">Month</option>
-							    <option value="year">Year</option>
-							    <option value="total">Total</option>
-							</select>
-			            </div>
-			            <h3 id="earningsPeriod" class="card-title">
-						    <span th:text="${formattedEarnings}">1,500,000</span> VND
-						</h3>
-			        </div>
-			    </div>
-			</div>
-        </div>
-        <div id="traffic-chart" style="height: 300px;"></div>
-        <div>
-            <canvas id="myChart"></canvas>
-        </div>
+    <h2 class="mt-3">Total revenue</h2>
+	        <div>
+	            <canvas id="myChart"></canvas>
+	        </div>
+	        
+        <h2>Total revenue by day</h2>
+        	<div id="traffic-chart" style="height: 400px;"></div>
+        	
+        <h2 class="mt-3">Total Revenue by Week</h2>
+			<div id="weekly-chart" style="height: 400px;"></div>
+        	
+        <h2 class="mt-3">Total Revenue by Month</h2>
+			<div id="monthly-chart" style="height: 400px;"></div>
     </main>
     </div>
     </div>
 </th:block>
-
 <!-- Đặt đoạn mã JavaScript vào additional-scripts -->
 <th:block layout:fragment="additional-scripts">
     <script src="https://cdn.jsdelivr.net/npm/chartist@0.11.4/dist/chartist.min.js"></script>
@@ -144,6 +103,68 @@
 	    }, {
 	        low: 0,
 	        high: maxEarnings, // Sử dụng giá trị cao nhất trong dữ liệu
+	        showArea: true,
+	        fullWidth: true,
+	        chartPadding: {
+	            right: 40,
+	            left: 40
+	        }
+	    });
+	    
+	    /* Đoạn mã Chartist: Earnings Per Month Chart */
+	    console.log("Initializing Chartist chart for Earnings Per Month");
+	
+	    // Lấy dữ liệu từ model
+	    const earningsPerMonthInYear = [[${earningsPerMonthInYear}]]; // Dữ liệu từ model
+	
+	    // Chuyển đổi dữ liệu thành định dạng phù hợp cho Chartist
+	    const monthLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']; // Nhãn tháng
+	
+	    // Chuyển đổi earningsPerMonthInYear thành mảng số cho Chartist và thay thế null bằng 0
+	    const monthlyEarningsData = earningsPerMonthInYear.map(e => e ? e : 0);
+	    const seriesDataMonth = [];
+	    seriesDataMonth.push(monthlyEarningsData);
+	
+	    // Tìm giá trị lớn nhất trong dữ liệu để thiết lập giá trị high
+	    const maxMonthlyEarnings = Math.max(...monthlyEarningsData);
+	
+	    new Chartist.Line('#monthly-chart', {
+	        labels: monthLabels,
+	        series: seriesDataMonth
+	    }, {
+	        low: 0,
+	        high: maxMonthlyEarnings, // Sử dụng giá trị cao nhất trong dữ liệu
+	        showArea: true,
+	        fullWidth: true,
+	        chartPadding: {
+	            right: 40,
+	            left: 40
+	        }
+	    });
+	    
+	    /* Đoạn mã Chartist: Earnings Per Week Chart */
+	    console.log("Initializing Chartist chart for Earnings Per Week");
+	
+	    // Lấy dữ liệu từ model
+	    const earningsPerWeekInYear = [[${earningsPerWeekInYear}]]; // Dữ liệu từ model
+	
+	    // Chuyển đổi dữ liệu thành định dạng phù hợp cho Chartist
+	    const weekLabels = Array.from({ length: 52 }, (_, i) => `${i + 1}`); // Nhãn tuần từ 1 đến 52
+	
+	    // Chuyển đổi earningsPerWeekInYear thành mảng số cho Chartist và thay thế null bằng 0
+	    const weeklyEarningsData = earningsPerWeekInYear.map(e => e ? e : 0);
+	    const seriesDataWeek = [];
+	    seriesDataWeek.push(weeklyEarningsData);
+	
+	    // Tìm giá trị lớn nhất trong dữ liệu để thiết lập giá trị high
+	    const maxWeeklyEarnings = Math.max(...weeklyEarningsData);
+	
+	    new Chartist.Line('#weekly-chart', {
+	        labels: weekLabels,
+	        series: seriesDataWeek
+	    }, {
+	        low: 0,
+	        high: maxWeeklyEarnings, // Sử dụng giá trị cao nhất trong dữ liệu
 	        showArea: true,
 	        fullWidth: true,
 	        chartPadding: {
@@ -211,6 +232,6 @@
         }
         
     </script>
-</th:block>
+    </th:block>
 </body>
 </html>

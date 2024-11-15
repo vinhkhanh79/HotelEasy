@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -93,6 +94,8 @@ public class MyAccountController {
     	String message = messageSource.getMessage("hello", null, "default message", request.getLocale());
         log.debug("Displaying hotel manager account");
         addLoggedInUserDataToModel(model);
+        String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
+        model.addAttribute("currentUsername", currentUsername);
         return "hotelmanager/account";
     }
 
@@ -101,6 +104,8 @@ public class MyAccountController {
     	String message = messageSource.getMessage("hello", null, "default message", request.getLocale());
         log.debug("Displaying hotel manager account edit form");
         addLoggedInUserDataToModel(model);
+        String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
+        model.addAttribute("currentUsername", currentUsername);
         return "hotelmanager/account-edit";
     }
 
@@ -121,7 +126,7 @@ public class MyAccountController {
         // Check for validation errors
         if (result.hasErrors()) {
             log.warn("Validation errors occurred while editing manager account");
-            return "manager/account-edit";
+            return "hotelmanager/account-edit";
         }
 
         try {
@@ -130,15 +135,82 @@ public class MyAccountController {
         } catch (UsernameAlreadyExistsException e) {
             log.error("Username already exists error", e);
             result.rejectValue("username", "user.exists", "Username is already registered!");
-            return "manager/account-edit";
+            return "hotelmanager/account-edit";
         }
 
         return "redirect:/manager/account?success";
     }
+    
+ // Admin actions
+    @GetMapping("/admin/account")
+    public String showAdminAccount(Model model, HttpServletRequest request){
+    	String message = messageSource.getMessage("hello", null, "default message", request.getLocale());
+        log.debug("Displaying hotel admin account");
+        addLoggedInUserDataToModel(model);
+        String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
+        model.addAttribute("currentUsername", currentUsername);
+        return "admin/account";
+    }
 
+    @GetMapping("/admin/account/edit")
+    public String showAdminEditForm(Model model, HttpServletRequest request){
+    	String message = messageSource.getMessage("hello", null, "default message", request.getLocale());
+        log.debug("Displaying hotel admin account edit form");
+        addLoggedInUserDataToModel(model);
+        String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
+        model.addAttribute("currentUsername", currentUsername);
+        return "admin/account-edit";
+    }
+
+    @PostMapping("/admin/account/edit")
+    public String editAdminAccount(@Valid @ModelAttribute("user") UserDTO userDTO, 
+                                       BindingResult result, 
+                                       @RequestParam("multipartFile") MultipartFile multipartFile) throws IOException {
+        log.info("Attempting to edit admin account details for ID: {}", userDTO.getId());
+
+        // Get the current user information from the service
+        UserDTO currentUserDTO = userService.findUserById(userDTO.getId());
+
+        // If the user did not select a new image, keep the old image
+        if (multipartFile.isEmpty()) {
+            userDTO.setImg(currentUserDTO.getImg()); // Keep the old image
+        }
+
+        // Check for validation errors
+        if (result.hasErrors()) {
+            log.warn("Validation errors occurred while editing admin account");
+            return "admin/account-edit";
+        }
+
+        try {
+            userService.updateLoggedInUser(userDTO, multipartFile);
+            log.info("Successfully edited admin account");
+        } catch (UsernameAlreadyExistsException e) {
+            log.error("Username already exists error", e);
+            result.rejectValue("username", "user.exists", "Username is already registered!");
+            return "admin/account-edit";
+        }
+
+        return "redirect:/admin/account?success";
+    }
+//    private void addLoggedInUserDataToModel(Model model) {
+//        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+//        String username = auth.getName();
+//        UserDTO userDTO = userService.findUserDTOByUsername(username);
+//        log.info("Adding logged in user data to model for user ID: {}", userDTO.getId());
+//        model.addAttribute("user", userDTO);
+//    }
     private void addLoggedInUserDataToModel(Model model) {
+    	String username = "";
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String username = auth.getName();
+        if (auth instanceof OAuth2AuthenticationToken) {
+            OAuth2AuthenticationToken oauth2Token = (OAuth2AuthenticationToken) auth;
+            username = (String) oauth2Token.getPrincipal().getAttributes().get("email");
+        }else{
+            username = auth.getName();
+        }
+
+        System.out.println(username);        
         UserDTO userDTO = userService.findUserDTOByUsername(username);
         log.info("Adding logged in user data to model for user ID: {}", userDTO.getId());
         model.addAttribute("user", userDTO);

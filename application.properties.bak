@@ -47,7 +47,7 @@ cloudinary.api-key=455439741442169
 cloudinary.api-secret=dHUsO9dPvN7QAtQNoocLYLErSNw
 spring.main.allow-bean-definition-overriding=true
 
-# Spring Security OAuth2 Client configuration for Google
+#Spring Security OAuth2 Client configuration for Google
 spring.security.oauth2.client.registration.google.client-id=983488938918-0btqhok01r4vk2ijmei60utop7bjvfo1.apps.googleusercontent.com
 spring.security.oauth2.client.registration.google.client-secret=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
 spring.security.oauth2.client.registration.google.scope=profile,email

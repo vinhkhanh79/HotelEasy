@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{/layout/layout-main}">
+      layout:decorate="~{/admin/layout/layout-main}">
 <head>
     <title>Edit User</title>
     <script type="text/javascript">
@@ -19,8 +19,57 @@
 </head>
 <body>
 <th:block layout:fragment="content">
-    <div class="container mt-5">
-        <div class="row">
+    <div class="row">
+    <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+        <div class="position-sticky justify-content-center">
+            <ul class="nav flex-column">
+                <li class="nav-item">
+                    <a class="nav-link ms-5" aria-current="page" th:href="@{/admin/dashboard}">
+                        <i class="bi bi-house-door-fill"></i>
+                        <span class="ml-2 h5">Dashboard</span>
+                    </a>
+                </li>
+                <hr>
+                <li class="nav-item ms-5">
+                    <a class="nav-link" th:href="@{/admin/users}">
+                        <i class="bi bi-people-fill"></i>
+                        <span class="ml-2 h5">Users</span>
+                    </a>
+                </li>
+                <li class="nav-item ms-5">
+                    <a class="nav-link" th:href="@{/admin/hotels/add(language=${#locale.getLanguage()})}">
+                        <i class="bi bi-building"></i>
+                        <span class="ml-2 h5">Add hotels</span>
+                    </a>
+                </li>
+                <li class="nav-item ms-5">
+                    <a class="nav-link" th:href="@{/admin/hotels(language=${#locale.getLanguage()})}">
+                        <i class="bi bi-building"></i>
+                        <span class="ml-2 h5">Hotels</span>
+                    </a>
+                </li>
+                <li class="nav-item ms-5">
+                    <a class="nav-link" th:href="@{/admin/bookings(language=${#locale.getLanguage()})}">
+                        <i class="bi bi-calendar-check"></i>
+                        <span class="ml-2 h5">Bookings</span>
+                    </a>
+                </li>
+                <li class="nav-item ms-5">
+                    <a class="nav-link" th:href="@{/admin/report}">
+                        <i class="bi bi-bar-chart-line"></i>
+                        <span class="ml-2 h5">Reports</span>
+                    </a>
+                </li>
+                <li class="nav-item ms-5">
+                    <a class="nav-link" href="#">
+                        <i class="bi bi-layers-fill"></i>
+                        <span class="ml-2 h5">Integrations</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    <main class="col-md-9 ml-sm-auto col-lg-10 px-md-4 py-4 mt-4 mb-5">
             <div class="col-md-8 offset-md-2">
                 <div class="card">
                     <div class="card-header">
@@ -31,7 +80,7 @@
                             <div class="row mb-3">
 								<div class="col-md-5">
                                     <div class="form-group mb-3">
-                                        <label for="img-input" class="img-upload-container" style="height: 310px; width:295px;">
+                                        <label for="img-input" class="img-upload-container ms-5" style="height: 310px; width:295px; display: block; border: 2px solid #ccc; border-radius: 10px; overflow: hidden;">
                                             <img id="img-preview" th:src="${user.img}" alt="User Image" class="img-fluid w-100 rounded-3" style="height: 100%; width: 100%; object-fit: cover;">
                                         </label>
                                         <input class="form-control mt-2" name="multipartFile" id="img-input" type="file" accept="image/*" onchange="previewImage(event)" style="display: none;">
@@ -103,6 +152,7 @@
                     </div>
                 </div>
             </div>
+            </main>
         </div>
     </div>
 </th:block>

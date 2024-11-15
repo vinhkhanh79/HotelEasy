@@ -17,7 +17,7 @@
                     <div class="slide-caption text-center">
                         <div>
                             <h1>Welcome to Tour Hotel</h1>
-                            <p>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Ipsum magni aliquam vero</p>
+                            <p>Relax in our elegantly designed rooms and suites, each offering spectacular views of the vibrant cityscape.</p>
                         </div>
                     </div>
                 </div>
@@ -25,7 +25,7 @@
                     <div class="slide-caption text-center">
                         <div>
                             <h1>Welcome to hotel in Ho Chi Minh City</h1>
-                            <p>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Ipsum magni aliquam vero</p>
+                            <p>Located in the heart of Ho Chi Minh City, our hotel offers you a perfect blend of comfort, convenience, and luxury.</p>
                         </div>
                     </div>
                 </div>
@@ -33,7 +33,7 @@
                     <div class="slide-caption text-center">
                         <div>
                             <h1>Welcome to hotel in Ho Chi Minh City</h1>
-                            <p>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Ipsum magni aliquam vero</p>
+                            <p>Enjoy world-class services and facilities, including fine dining restaurants, a refreshing rooftop pool, and a state-of-the-art fitness center.</p>
                         </div>
                     </div>
                 </div>
@@ -77,9 +77,8 @@
                         <div class="col-lg-6 text-center text-lg-start">
                             <h3>Welcome to <span>Hotel <br class="d-none d-lg-block"> the haven</span> of your weekend
                             </h3>
-                            <p>Lorem ipsum, dolor sit amet consectetur adipisicing elit. Sint eligendi quia, totam vero
-                                repellendus saepe quo in adipisci doloremque aspernatur.</p>
-                            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Non, alias!</p>
+                            <p>Welcome to our hotel in Ho Chi Minh City, a sanctuary for your weekend getaway. Nestled in the heart of this vibrant metropolis, our hotel offers a perfect blend of modern comfort and traditional charm.</p>
+                            <p>Whether you're here for business or leisure, our prime location provides easy access to the city's bustling markets, historic landmarks, and cultural attractions.</p>
                             <a class="main-btn mt-4" href="#">Explore</a>
                         </div>
                         <div class="col-lg-6 mb-4 mb-lg-0 ps-lg-4 text-center">
@@ -92,37 +91,49 @@
 
             <!-- Rooms Section -->
             <section id="rooms" class="rooms_wrapper">
-                <div class="container-fluid col-11">
-                    <div class="row">
-                        <div class="col-sm-12 section-title text-center mb-5">
-                            <h6>What I can do for you</h6>
-                            <h3>Our Favourite Rooms</h3>
+    <div class="container-fluid col-11">
+        <div class="row">
+            <div class="col-sm-12 section-title text-center mb-5">
+                <h6>What I can do for you</h6>
+                <h3>Our Favourite Rooms</h3>
+            </div>
+        </div>
+
+        <div class="row m-0" id="hotel-list">
+            <div class="col-md-4 mb-4 mb-lg-0" th:each="hotel, iterStat : ${hotels}">
+                <div class="room-items mb-5 hotel-item" style="height: 610px; width: 100%"
+                     th:classappend="${iterStat.index > 5} ? 'd-none' : ''">
+                    <img th:src="${hotel.img}" class="img-fluid" style="height: 100%; width: 100%">
+                    <div class="room-item-wrap">
+                        <div class="room-content">
+                            <a class="book-now-link" th:href="@{/hotel-details/{id}(id=${hotel.id})}">
+                                <h3 class="text-white mb-lg-5 text-decoration-none" th:text="${hotel.roomDTOs[0].roomType.name()}">Royal Suit</h3>
+                            </a>
+                            <a class="book-now-link" th:href="@{/hotel-details/{id}(id=${hotel.id})}">
+                                <h5 class="text-white mb-lg-5 text-decoration-none" th:text="${hotel.name}">Hotel Name</h5>
+                            </a>
+                            <p class="text-white" th:text="${hotel.describe}">Describe</p>
+                            <p class="text-white fw-bold mt-lg-4"
+                               th:text="${#numbers.formatDecimal(hotel.roomDTOs[0].pricePerNight, 0, 'COMMA', 0, 'POINT')} + ' VND/ Per Night'">
+                                $220/ Per Night
+                            </p>
+                            <a class="main-btn border-white text-white mt-lg-5 book-now-link"
+                               th:href="@{/hotel-details/{id}(id=${hotel.id}, checkinDate=${checkinDate}, checkoutDate=${checkoutDate}, language=${#locale.language})}">
+                                Book Now
+                            </a>
                         </div>
                     </div>
-                    
-                    <div class="row m-0">
-                        <div class="col-md-4 mb-4 mb-lg-0" th:each="hotel : ${hotels}">
-                            <div class="room-items mb-5" style="height: 610px; width: 100%">
-		                        <img th:src="${hotel.img}" class="img-fluid" style="height: 100%; width: 100%">
-                                <div class="room-item-wrap">
-                                    <div class="room-content">
-                                    	<a class="book-now-link" th:href="@{/hotel-details/{id}(id=${hotel.id})}">
-                                    		<h3 class="text-white mb-lg-5 text-decoration-none" th:text="${hotel.roomDTOs[0].roomType.name()}">Royal Suit</h3>
-                                    	</a>
-                                    		<a class="book-now-link" th:href="@{/hotel-details/{id}(id=${hotel.id})}">
-				                        		<h5 class="text-white mb-lg-5 text-decoration-none" th:text="${hotel.name}">Hotel Name</h5>
-				                        	</a>
-                                        <p class="text-white"th:text="${hotel.describe}">Describe</p>
-                                        <p class="text-white fw-bold mt-lg-4" th:text="${#numbers.formatDecimal(hotel.roomDTOs[0].pricePerNight, 0, 'COMMA', 0, 'POINT')} + ' VND/ Per Night'">$220/ Per Night</p>
-                                        <a class="main-btn border-white text-white mt-lg-5 book-now-link" th:href="@{/hotel-details/{id}(id=${hotel.id}, checkinDate=${checkinDate}, checkoutDate=${checkoutDate}, language=${#locale.language})}">Book Now</a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-   
                 </div>
-            </section>
+            </div>
+        </div>
+
+        <div class="row text-center">
+            <div class="col-12">
+                <button id="show-more-btn1" class="main-btn rounded-3 px-lg-4">Show More</button>
+            </div>
+        </div>
+    </div>
+</section>
             <!-- Rooms Section End -->
 
             <!-- Services Section -->
@@ -304,7 +315,7 @@
                             </div>
                         </div>
                         <div class="col-lg-3 col-md-6 gallery-item">
-                            <img src="https://res.cloudinary.com/dliwvet1v/image/upload/v1729859416/gallery/sxul6vlmlgfif346fjlc.jpg" alt="..." class="img-fluid w-100">
+                            <img src="https://res.cloudinary.com/dliwvet1v/image/upload/w_900,h_600/v1729758216/gallery/n6ckdtmiksawrlohljxv.jpg" alt="..." class="img-fluid w-100">
                             <div class="gallery-item-content">
 
                             </div>
@@ -328,46 +339,53 @@
     
 		    <!-- Our Hotel Section -->
 		    <section id="hotel" class="price_wrapper">
-		        <div class="container">
-		            <div class="row">
-		                <div class="col-sm-12 section-title text-center mb-5">
-		                    <h6>Best & Affordable Hotels for you</h6>
-		                    <h3>Our Hotels</h3>
-		                </div>
-		            </div>
-		            <div class="row">
-		                <!-- Iterate over hotels -->
-		                <div class="col-lg-3 col-md-6 mb-4" th:each="hotel : ${hotels}">
-		                    <div class="card p-4 text-center rounded-3 shadow-sm" style="height: 100%; width:100%;">
-		                    	<a th:href="@{/hotel-details/{id}(id=${hotel.id})}" class="text-decoration-none book-now-link">
-		                        	<h5 class="text-decoration-none mb-4" th:text="${hotel.name}">Hotel Name</h5>
-		                        </a>
-		                        <a th:href="@{/hotel-details/{id}(id=${hotel.id})}" class="book-now-link">
-		                        <img th:src="${hotel.img}" class="img-fluid w-100 mb-3 rounded-3" style="height: 250px; width:100%; object-fit: cover;">
-		                        </a>
-		                        <hr>
-		                        <ul class="list-unstyled" style="min-height: 75px;">
-		                            <th:block th:each="room : ${hotel.roomDTOs}">
-		                                <li th:if="${room.roomType.name() == 'SINGLE'}">
-		                                    Single: <strong th:text="${#numbers.formatDecimal(room.pricePerNight, 0, 'COMMA', 0, 'POINT')}">0</strong> VND/Night
-		                                </li>
-		                                <li th:if="${room.roomType.name() == 'DOUBLE'}">
-		                                    Double: <strong th:text="${#numbers.formatDecimal(room.pricePerNight, 0, 'COMMA', 0, 'POINT')}">0</strong> VND/Night
-		                                </li>
-		                                <li th:if="${room.roomType.name() == 'SUITE'}">
-		                                    Suite: <strong th:text="${#numbers.formatDecimal(room.pricePerNight, 0, 'COMMA', 0, 'POINT')}">0</strong> VND/Night
-		                                </li>
-		                            </th:block>
-		                        </ul>
-		                        <hr>
-		                        <!-- Add class 'book-now-link' to make it easy to update href in JS -->
-		                        <a th:href="@{/hotel-details/{id}(id=${hotel.id})}" class="main-btn book-now-link">Book now</a>
-		                    </div>
-		                </div>
-		                <!-- End of hotel card -->
-		            </div>
-		        </div>
-		    </section>
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-12 section-title text-center mb-5">
+                <h6>Best & Affordable Hotels for you</h6>
+                <h3>Our Hotels</h3>
+            </div>
+        </div>
+        <div class="row" id="hotel-list">
+            <!-- Iterate over hotels -->
+            <div class="col-lg-3 col-md-6 mb-4" th:each="hotel, iterStat : ${hotels}">
+                <div class="card p-4 text-center rounded-3 shadow-sm hotel-item" 
+                     th:classappend="${iterStat.index > 7} ? 'd-none' : ''" style="height: 100%; width:100%;">
+                    <a th:href="@{/hotel-details/{id}(id=${hotel.id})}" class="text-decoration-none book-now-link">
+                        <h5 class="text-decoration-none mb-4" th:text="${hotel.name}">Hotel Name</h5>
+                    </a>
+                    <a th:href="@{/hotel-details/{id}(id=${hotel.id})}" class="book-now-link">
+                        <img th:src="${hotel.img}" class="img-fluid w-100 mb-3 rounded-3" style="height: 250px; width:100%; object-fit: cover;">
+                    </a>
+                    <hr>
+                    <ul class="list-unstyled" style="min-height: 75px;">
+                        <th:block th:each="room : ${hotel.roomDTOs}">
+                            <li th:if="${room.roomType.name() == 'SINGLE'}">
+                                Single: <strong th:text="${#numbers.formatDecimal(room.pricePerNight, 0, 'COMMA', 0, 'POINT')}">0</strong> VND/Night
+                            </li>
+                            <li th:if="${room.roomType.name() == 'DOUBLE'}">
+                                Double: <strong th:text="${#numbers.formatDecimal(room.pricePerNight, 0, 'COMMA', 0, 'POINT')}">0</strong> VND/Night
+                            </li>
+                            <li th:if="${room.roomType.name() == 'SUITE'}">
+                                Suite: <strong th:text="${#numbers.formatDecimal(room.pricePerNight, 0, 'COMMA', 0, 'POINT')}">0</strong> VND/Night
+                            </li>
+                        </th:block>
+                    </ul>
+                    <hr>
+                    <a th:href="@{/hotel-details/{id}(id=${hotel.id})}" class="main-btn book-now-link">Book now</a>
+                </div>
+            </div>
+            <!-- End of hotel card -->
+        </div>
+
+        <!-- "Show More" button -->
+        <div class="row text-center">
+            <div class="col-12">
+                <button id="show-more-btn2" class="main-btn rounded-3 px-lg-4">Show More</button>
+            </div>
+        </div>
+    </div>
+</section>
 		    <!-- Pricing Section End -->
 		    
 		    <!-- Blog Section -->
@@ -503,6 +521,28 @@
 </body>
 <th:block layout:fragment="additional-scripts">
     <script>
+    document.getElementById('show-more-btn1').addEventListener('click', function() {
+        const hiddenItems = document.querySelectorAll('.hotel-item.d-none');
+        for (let i = 0; i < 6 && i < hiddenItems.length; i++) {
+            hiddenItems[i].classList.remove('d-none');
+        }
+
+        // If there are no more hidden items, hide the button
+        if (document.querySelectorAll('.hotel-item.d-none').length === 0) {
+            this.style.display = 'none';
+        }
+    });
+    document.getElementById('show-more-btn2').addEventListener('click', function() {
+        const hiddenItems = document.querySelectorAll('.hotel-item.d-none');
+        for (let i = 0; i < 4 && i < hiddenItems.length; i++) {  // Show 4 more items at a time
+            hiddenItems[i].classList.remove('d-none');
+        }
+
+        // If no more items are hidden, hide the "Show More" button
+        if (document.querySelectorAll('.hotel-item.d-none').length === 0) {
+            this.style.display = 'none';
+        }
+    });
     $(document).ready(function () {
         const displayFormat = "dd.mm.yy";
         const submitFormat = "yy-mm-dd"; // Format that Spring Boot expects for LocalDate

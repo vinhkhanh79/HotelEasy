@@ -3,19 +3,19 @@ package com.datn.tourhotel.model.dto;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import com.datn.tourhotel.model.HotelManager;
-
 @Data
 @Builder
-public class HotelDTO {
-
-    private Long id;
+@AllArgsConstructor
+@NoArgsConstructor
+public class HotelRegistrationAdminDTO {
 
     @NotBlank(message = "Hotel name cannot be empty")
     @Pattern(regexp = "^(?!\\s*$)[A-Za-z0-9 ]+$", message = "Hotel name must only contain letters and numbers")
@@ -23,23 +23,19 @@ public class HotelDTO {
     
     @NotBlank(message = "Hotel describe cannot be empty")
     private String describe;
+
+    @Valid
+    private AddressDTO addressDTO;
     
     private String img;
     
     private String img2;
     
     private String img3;
-
-    @Valid
-    private AddressDTO addressDTO;
+    
+    private Long managerId;
 
     @Valid
     private List<RoomDTO> roomDTOs = new ArrayList<>();
-    
-    private Long managerId;
-    
-    private HotelManager manager;
-
-    private String managerUsername;
 
 }

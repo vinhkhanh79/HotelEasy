@@ -17,6 +17,7 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import com.datn.tourhotel.security.CustomAuthenticationFailureHandler;
 import com.datn.tourhotel.security.CustomAuthenticationSuccessHandler;
 import com.datn.tourhotel.security.CustomLogoutSuccessHandler;
+import com.datn.tourhotel.service.impl.CustomOAuth2UserServiceImpl;
 
 @Configuration
 @EnableWebSecurity
@@ -25,6 +26,7 @@ public class SecurityConfig {
 
     private final UserDetailsService userDetailsService;
     private final CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
+    private final CustomOAuth2UserServiceImpl customOAuth2UserService;
 
     @Bean
     public static PasswordEncoder passwordEncoder() {
@@ -49,7 +51,7 @@ public class SecurityConfig {
 
         http.authorizeHttpRequests((authorize) ->
                         authorize.requestMatchers("/css/**", "/js/**", "/webjars/**" , "/search/**" , "/search-results/**" , "/hotel-details/**" , "/img/**", "/language/**").permitAll()
-                                .requestMatchers("/home/**", "/index/**", "/register/**", "/changePass/**", "/forgotPass/**", "/login/**", "/").permitAll()
+                                .requestMatchers("/home/**", "/index/**", "/register/**", "/forgotPass/**", "/login/**", "/**").permitAll()
                                 .requestMatchers("/admin/**").hasRole("ADMIN")
                                 .requestMatchers("/customer/**").hasRole("CUSTOMER")
                                 .requestMatchers("/manager/**").hasRole("HOTEL_MANAGER")
@@ -59,8 +61,17 @@ public class SecurityConfig {
                                 .loginPage("/login")
                                 .loginProcessingUrl("/login")
                                 .successHandler(customAuthenticationSuccessHandler)
-                                .failureHandler(customAuthenticationFailureHandler()) // Use the bean here
+                                .failureHandler(customAuthenticationFailureHandler())
                                 .permitAll())
+                .oauth2Login(
+                        oauth->oauth
+                                .loginPage("/login")// Redirect to custom login page
+                                .defaultSuccessUrl("/", true)
+                                .successHandler(customAuthenticationSuccessHandler)
+                                .failureHandler(customAuthenticationFailureHandler())
+                                .userInfoEndpoint(userinfo -> userinfo.userService(customOAuth2UserService))
+                                .permitAll()
+                )                
                 .logout(
                         logout -> logout
                                 .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))

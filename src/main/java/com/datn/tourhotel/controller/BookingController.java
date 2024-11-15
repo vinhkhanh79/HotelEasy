@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -28,8 +29,10 @@ import com.datn.tourhotel.service.UserService;
 import com.datn.tourhotel.service.VNPayService;
 
 import java.math.BigDecimal;
+import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
+import java.util.Locale;
 import java.util.Optional;
 
 
@@ -84,17 +87,42 @@ public class BookingController {
                               @RequestParam("orderInfo") String orderInfo,
                               HttpServletRequest request,
                               RedirectAttributes redirectAttributes) {
-    	HttpSession session = request.getSession();
+        HttpSession session = request.getSession();
         BookingInitiationDTO bookingInitiationDTO = (BookingInitiationDTO) session.getAttribute("bookingInitiationDTO");
         UserDTO userDTO = userService.findUserById(getLoggedInUserId());
         HotelDTO hotelDTO = hotelService.findHotelDtoById(bookingInitiationDTO.getHotelId());
         Long userId = (Long) session.getAttribute("userId");
+        
+        // Tìm user hiện tại
         Optional<Customer> customer = customerService.findByUserId(getLoggedInUserId());
 
-        if (customer.isEmpty()) {
-        	redirectAttributes.addFlashAttribute("errorMessage", "Manager and admin don't have permission to add booking.");
+        if (customer.isPresent()) {
+            Long roleId = customer.get().getUser().getRole().getId();
+            if (roleId == 1 || roleId == 3) {
+                redirectAttributes.addFlashAttribute("errorMessage", "Manager and admin don't have permission to add booking.");
+                return "redirect:/booking/payment";
+            }
+        } else {
+            // Thêm chi tiết lỗi tại đây
+            String errorMessage = "User not found or unauthorized. Possible reasons: ";
+            
+            // Kiểm tra thêm cho OAuth2 user (Google, Facebook)
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            if (auth instanceof OAuth2AuthenticationToken) {
+                OAuth2AuthenticationToken oauth2Token = (OAuth2AuthenticationToken) auth;
+                String email = (String) oauth2Token.getPrincipal().getAttributes().get("email");
+                errorMessage += "OAuth2 user with email: " + email + " not found in the system.";
+            } else {
+                errorMessage += "Regular user with username: " + auth.getName() + " not found.";
+            }
+
+            // Log chi tiết lỗi để debug dễ hơn
+            log.error(errorMessage);
+
+            redirectAttributes.addFlashAttribute("errorMessage", errorMessage);
             return "redirect:/booking/payment";
         }
+
         BookingDTO bookingDTO = bookingService.confirmBooking(bookingInitiationDTO, getLoggedInUserId());
         redirectAttributes.addFlashAttribute("bookingDTO", bookingDTO);
 
@@ -106,8 +134,9 @@ public class BookingController {
         session.setAttribute("orderInfo", orderInfo);
         session.setAttribute("amount", orderTotal);
 
-        return "redirect:" + vnpayUrl;  
+        return "redirect:" + vnpayUrl;
     }
+
 
     @GetMapping("/vnpay-payment")
     public String paymentReturn(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes) {
@@ -133,112 +162,119 @@ public class BookingController {
             // Handle booking confirmation
             bookingService.confirmBookingFromPayment(orderInfo);
             redirectAttributes.addFlashAttribute("bookingDTO", bookingDTO);
+         // Chuyển đổi totalPrice thành số nguyên (giả sử totalPrice hiện tại là số với đơn vị VND)
+            long totalPriceLong = Long.parseLong(totalPrice) / 100; // Giả sử giá trị trả về là số nhân với 100 (do VNPAY thường trả về như vậy)
+
+            // Format theo định dạng tiền tệ của Việt Nam
+            NumberFormat currencyFormat = NumberFormat.getInstance(new Locale("vi", "VN"));
+            String formattedTotalPrice = currencyFormat.format(totalPriceLong);
+
             String subject = "Booking Confirmation - Thank you for booking with us!";
             String emailContent = String.format(
-            		"<!DOCTYPE html>\n"
-            			    + "<html lang=\"en\">\n"
-            			    + "<head>\n"
-            			    + "    <meta charset=\"UTF-8\">\n"
-            			    + "    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n"
-            			    + "    <title>Confirm Your Booking</title>\n"
-            			    + "    <style>\n"
-            			    + "        body {\n"
-            			    + "            font-family: Arial, sans-serif;\n"
-            			    + "            background-color: #f4f4f4;\n"
-            			    + "            margin: 0;\n"
-            			    + "            padding: 0;\n"
-            			    + "        }\n"
-            			    + "        .container {\n"
-            			    + "            max-width: 600px;\n"
-            			    + "            margin: 0 auto;\n"
-            			    + "            background-color: #ffffff;\n"
-            			    + "            padding: 20px;\n"
-            			    + "            border-radius: 8px;\n"
-            			    + "            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);\n"
-            			    + "        }\n"
-            			    + "        .header {\n"
-            			    + "            text-align: center;\n"
-            			    + "            padding: 10px;\n"
-            			    + "        }\n"
-            			    + "        .header img {\n"
-            			    + "            width: 120px;\n"
-            			    + "        }\n"
-            			    + "        .content {\n"
-            			    + "            text-align: center;\n"
-            			    + "            padding: 20px;\n"
-            			    + "        }\n"
-            			    + "        .content h1 {\n"
-            			    + "            color: #333;\n"
-            			    + "            font-size: 24px;\n"
-            			    + "            margin-bottom: 10px;\n"
-            			    + "        }\n"
-            			    + "        .content p {\n"
-            			    + "            color: #666;\n"
-            			    + "            font-size: 16px;\n"
-            			    + "            margin-bottom: 20px;\n"
-            			    + "        }\n"
-            			    + "        .button {\n"
-            			    + "            text-align: center;\n"
-            			    + "        }\n"
-            			    + "        .button a {\n"
-            			    + "            background-color: #4a90e2;\n"
-            			    + "            color: white;\n"
-            			    + "            text-decoration: none;\n"
-            			    + "            padding: 12px 24px;\n"
-            			    + "            border-radius: 4px;\n"
-            			    + "            font-size: 16px;\n"
-            			    + "            display: inline-block;\n"
-            			    + "        }\n"
-            			    + "        .footer {\n"
-            			    + "            text-align: center;\n"
-            			    + "            padding: 20px;\n"
-            			    + "            color: #999;\n"
-            			    + "            font-size: 14px;\n"
-            			    + "        }\n"
-            			    + "        .footer a {\n"
-            			    + "            color: #4a90e2;\n"
-            			    + "            text-decoration: none;\n"
-            			    + "        }\n"
-            			    + "    </style>\n"
-            			    + "</head>\n"
-            			    + "<body>\n"
-            			    + "    <div class=\"container\">\n"
-            			    + "        <div class=\"header\">\n"
-            			    + "            <img src=\"https://res.cloudinary.com/dliwvet1v/image/upload/v1729759384/i7xwpwwwsmwikzk5v8hm.png\" alt=\"Company Logo\">\n"
-            			    + "        </div>\n"
-            			    + "        <div class=\"content\">\n"
-            			    + "            <h1>Confirm Your Booking</h1>\n"
-            			    + "            <p>We are thrilled to inform you that your booking has been confirmed!</p>\n"
-            			    + "            <p>Order ID: %s<br>\n"
-            			    + "               Total Price: %s VND<br>\n"
-            			    + "               Payment Time: %s<br>\n"
-            			    + "               Transaction ID: %s<br>\n"
-            			    + "               Booking Information:<br>\n"
-            			    + "               Customer Name: %s<br>\n"
-            			    + "               Check-in Date: %s<br>\n"
-            			    + "               Check-out Date: %s<br>\n"
-            			    + "            </p>\n"
-            			    + "            <p>If you have any questions or need further assistance, feel free to contact us.</p>\n"
-            			    + "            <p>Thank you for choosing our services! We look forward to welcoming you.</p>\n"
-            			    + "            <p>Best regards,<br>The Hotel Booking Team</p>\n"
-            			    + "        </div>\n"
-            			    + "        <div class=\"footer\">\n"
-            			    + "            <p>Style Casual © 2021 Style Casual, Inc. All Rights Reserved.</p>\n"
-            			    + "            <p>4562 Hazy Panda Limits, Chair Crossing, Kentucky, US, 607898</p>\n"
-            			    + "            <p><a href=\"#\">Visit Us</a> | <a href=\"#\">Privacy Policy</a> | <a href=\"#\">Terms of Use</a></p>\n"
-            			    + "        </div>\n"
-            			    + "    </div>\n"
-            			    + "</body>\n"
-            			    + "</html>",
-                bookingDTO.getCustomerName(),
-                orderInfo,
-                totalPrice,
-                paymentTime,
-                transactionId,
-                bookingDTO.getCustomerName(),
-                bookingDTO.getCheckinDate(),
-                bookingDTO.getCheckoutDate()
+                    "<!DOCTYPE html>\n"
+                            + "<html lang=\"en\">\n"
+                            + "<head>\n"
+                            + "    <meta charset=\"UTF-8\">\n"
+                            + "    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n"
+                            + "    <title>Confirm Your Booking</title>\n"
+                            + "    <style>\n"
+                            + "        body {\n"
+                            + "            font-family: Arial, sans-serif;\n"
+                            + "            background-color: #f4f4f4;\n"
+                            + "            margin: 0;\n"
+                            + "            padding: 0;\n"
+                            + "        }\n"
+                            + "        .container {\n"
+                            + "            max-width: 600px;\n"
+                            + "            margin: 0 auto;\n"
+                            + "            background-color: #ffffff;\n"
+                            + "            padding: 20px;\n"
+                            + "            border-radius: 8px;\n"
+                            + "            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);\n"
+                            + "        }\n"
+                            + "        .header {\n"
+                            + "            text-align: center;\n"
+                            + "            padding: 10px;\n"
+                            + "        }\n"
+                            + "        .header img {\n"
+                            + "            width: 120px;\n"
+                            + "        }\n"
+                            + "        .content {\n"
+                            + "            text-align: center;\n"
+                            + "            padding: 20px;\n"
+                            + "        }\n"
+                            + "        .content h1 {\n"
+                            + "            color: #333;\n"
+                            + "            font-size: 24px;\n"
+                            + "            margin-bottom: 10px;\n"
+                            + "        }\n"
+                            + "        .content p {\n"
+                            + "            color: #666;\n"
+                            + "            font-size: 16px;\n"
+                            + "            margin-bottom: 20px;\n"
+                            + "        }\n"
+                            + "        .button {\n"
+                            + "            text-align: center;\n"
+                            + "        }\n"
+                            + "        .button a {\n"
+                            + "            background-color: #4a90e2;\n"
+                            + "            color: white;\n"
+                            + "            text-decoration: none;\n"
+                            + "            padding: 12px 24px;\n"
+                            + "            border-radius: 4px;\n"
+                            + "            font-size: 16px;\n"
+                            + "            display: inline-block;\n"
+                            + "        }\n"
+                            + "        .footer {\n"
+                            + "            text-align: center;\n"
+                            + "            padding: 20px;\n"
+                            + "            color: #999;\n"
+                            + "            font-size: 14px;\n"
+                            + "        }\n"
+                            + "        .footer a {\n"
+                            + "            color: #4a90e2;\n"
+                            + "            text-decoration: none;\n"
+                            + "        }\n"
+                            + "    </style>\n"
+                            + "</head>\n"
+                            + "<body>\n"
+                            + "    <div class=\"container\">\n"
+                            + "        <div class=\"header\">\n"
+                            + "            <img src=\"https://res.cloudinary.com/dliwvet1v/image/upload/v1729759384/i7xwpwwwsmwikzk5v8hm.png\" alt=\"Company Logo\">\n"
+                            + "        </div>\n"
+                            + "        <div class=\"content\">\n"
+                            + "            <h1>Confirm Your Booking</h1>\n"
+                            + "            <p>We are thrilled to inform you that your booking has been confirmed!</p>\n"
+                            + "            <p>Order ID: %s<br>\n"
+                            + "               Total Price: %s VND<br>\n"
+                            + "               Payment Time: %s<br>\n"
+                            + "               Transaction ID: %s<br>\n"
+                            + "               Booking Information:<br>\n"
+                            + "               Customer Name: %s<br>\n"
+                            + "               Check-in Date: %s<br>\n"
+                            + "               Check-out Date: %s<br>\n"
+                            + "            </p>\n"
+                            + "            <p>If you have any questions or need further assistance, feel free to contact us.</p>\n"
+                            + "            <p>Thank you for choosing our services! We look forward to welcoming you.</p>\n"
+                            + "            <p>Best regards,<br>The Hotel Booking Team</p>\n"
+                            + "        </div>\n"
+                            + "        <div class=\"footer\">\n"
+                            + "            <p>Style Casual © 2021 Style Casual, Inc. All Rights Reserved.</p>\n"
+                            + "            <p>4562 Hazy Panda Limits, Chair Crossing, Kentucky, US, 607898</p>\n"
+                            + "            <p><a href=\"#\">Visit Us</a> | <a href=\"#\">Privacy Policy</a> | <a href=\"#\">Terms of Use</a></p>\n"
+                            + "        </div>\n"
+                            + "    </div>\n"
+                            + "</body>\n"
+                            + "</html>",
+                    orderInfo, // Thông tin đơn hàng
+                    formattedTotalPrice, // Tổng số tiền
+                    paymentTime, // Thời gian thanh toán
+                    transactionId, // Mã giao dịch
+                    bookingDTO.getCustomerName(), // Tên khách hàng
+                    bookingDTO.getCheckinDate(), // Ngày check-in
+                    bookingDTO.getCheckoutDate() // Ngày check-out
             );
+
             
             emailService.sendBookingConfirmation(bookingDTO.getCustomerEmail(), subject, emailContent);
             return "redirect:/booking/confirmation"; // Redirect to confirmation page
@@ -283,9 +319,14 @@ public class BookingController {
     }
 
     private Long getLoggedInUserId() {
+    	String username = "";
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String username = auth.getName();
-        UserDTO userDTO = userService.findUserDTOByUsername(username);
+        if (auth instanceof OAuth2AuthenticationToken) {
+            OAuth2AuthenticationToken oauth2Token = (OAuth2AuthenticationToken) auth;
+            username = (String) oauth2Token.getPrincipal().getAttributes().get("email");
+        }else{
+            username = auth.getName();
+        }        UserDTO userDTO = userService.findUserDTOByUsername(username);
         log.info("Fetched logged in user ID: {}", userDTO.getId());
         return userDTO.getId();
     }

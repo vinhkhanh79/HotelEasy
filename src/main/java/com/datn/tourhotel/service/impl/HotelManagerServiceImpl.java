@@ -3,6 +3,10 @@ package com.datn.tourhotel.service.impl;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.stereotype.Service;
 
 import com.datn.tourhotel.model.HotelManager;
@@ -42,5 +46,13 @@ public class HotelManagerServiceImpl implements HotelManagerService {
     public long countHotelsByManager(Long managerId) {
         log.info("Counting total Hotels by manager");
         return hotelRepository.countHotelsByManagerId(managerId);
+    }
+    
+    public Optional<HotelManager> findById(Long id) {
+        return hotelManagerRepository.findById(id);
+    }
+    
+    public List<HotelManager> findAll() {
+        return hotelManagerRepository.findAll(); // JpaRepository đã cung cấp sẵn phương thức này
     }
 }

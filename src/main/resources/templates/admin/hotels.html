@@ -1,13 +1,62 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{/layout/layout-main}">
+      layout:decorate="~{/admin/layout/layout-main}">
 <head>
     <title>Hotel List</title>
 </head>
 <body>
 <th:block layout:fragment="content">
-    <div class="container mt-5">
-        <div class="row">
+    <div class="row">
+    <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+        <div class="position-sticky justify-content-center">
+            <ul class="nav flex-column">
+                <li class="nav-item">
+                    <a class="nav-link ms-5" aria-current="page" th:href="@{/admin/dashboard}">
+                        <i class="bi bi-house-door-fill"></i>
+                        <span class="ml-2 h5">Dashboard</span>
+                    </a>
+                </li>
+                <hr>
+                <li class="nav-item ms-5">
+                    <a class="nav-link" th:href="@{/admin/users}">
+                        <i class="bi bi-people-fill"></i>
+                        <span class="ml-2 h5">Users</span>
+                    </a>
+                </li>
+                <li class="nav-item ms-5">
+                    <a class="nav-link" th:href="@{/admin/hotels/add(language=${#locale.getLanguage()})}">
+                        <i class="bi bi-building"></i>
+                        <span class="ml-2 h5">Add hotels</span>
+                    </a>
+                </li>
+                <li class="nav-item ms-5">
+                    <a class="nav-link" th:href="@{/admin/hotels(language=${#locale.getLanguage()})}">
+                        <i class="bi bi-building"></i>
+                        <span class="ml-2 h5">Hotels</span>
+                    </a>
+                </li>
+                <li class="nav-item ms-5">
+                    <a class="nav-link" th:href="@{/admin/bookings(language=${#locale.getLanguage()})}">
+                        <i class="bi bi-calendar-check"></i>
+                        <span class="ml-2 h5">Bookings</span>
+                    </a>
+                </li>
+                <li class="nav-item ms-5">
+                    <a class="nav-link" th:href="@{/admin/report}">
+                        <i class="bi bi-bar-chart-line"></i>
+                        <span class="ml-2 h5">Reports</span>
+                    </a>
+                </li>
+                <li class="nav-item ms-5">
+                    <a class="nav-link" href="#">
+                        <i class="bi bi-layers-fill"></i>
+                        <span class="ml-2 h5">Integrations</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    <main class="col-md-9 ml-sm-auto col-lg-10 px-md-4 py-4 mt-3 mb-5">
             <div class="col-md-12">
                 <h2>Hotel List</h2>
                 <div th:if="${param.success}">
@@ -15,11 +64,19 @@
                         Hotel ID: <span th:text="${updatedHotelId}"></span> info has been successfully updated
                     </div>
                 </div>
+                <div class="text-end"> 
+	                <a href="/admin/hotels/export/excel" class="btn btn-info mb-3 ">
+					    Export to Excel
+					</a>
+				</div>
                 <table class="table table-striped align-middle">
                     <thead>
                     <tr>
                         <th>ID</th>
                         <th>Name</th>
+                        <th>Address</th>
+                        <th>City</th>
+                        <th>Country</th>
                         <th>Hotel Manager</th>
                         <th>Edit</th>
                         <th>Delete</th>
@@ -29,6 +86,9 @@
                     <tr class="align-middle" th:each="hotel : ${hotels}">
                         <td th:text="${hotel.id}"></td>
                         <td th:text="${hotel.name}"></td>
+                        <td th:text="${hotel.addressDTO.addressLine}"></td>
+                       	<td th:text="${hotel.addressDTO.city}"></td>
+                       	<td th:text="${hotel.addressDTO.country}"></td>
                         <td th:text="${hotel.managerUsername}"></td>
                         <td>
                             <a th:href="@{/admin/hotels/edit/{id}(id=${hotel.id})}">Edit</a>
@@ -44,9 +104,102 @@
                     </tr>
                     </tbody>
                 </table>
+                <div class="pagination-container text-center mt-4">
+				    <button id="prevPage" class="btn btn-outline-primary mx-1">«</button>
+				    <span id="pageNumbers"></span>
+				    <button id="nextPage" class="btn btn-outline-primary mx-1">»</button>
+				</div>  
             </div>
+            </main>
         </div>
     </div>
+    <script>
+		// Lấy danh sách các hàng trong bảng (trừ tiêu đề)
+		const rows = document.querySelectorAll('tbody tr');
+		const rowsPerPage = 10;
+		let currentPage = 1;
+		const totalPages = Math.ceil(rows.length / rowsPerPage);
+		
+		function displayPage(page) {
+		    // Ẩn tất cả các hàng
+		    rows.forEach((row, index) => {
+		        row.style.display = 'none';
+		    });
+		
+		    // Hiển thị các hàng thuộc trang hiện tại
+		    const start = (page - 1) * rowsPerPage;
+		    const end = start + rowsPerPage;
+		    rows.forEach((row, index) => {
+		        if (index >= start && index < end) {
+		            row.style.display = '';
+		        }
+		    });
+		}
+		
+		function setupPagination() {
+		    const pageNumbersContainer = document.getElementById('pageNumbers');
+		    pageNumbersContainer.innerHTML = '';
+		
+		    // Tạo các nút số trang
+		    for (let i = 1; i <= totalPages; i++) {
+		        const pageNumberBtn = document.createElement('button');
+		        pageNumberBtn.classList.add('btn', 'btn-outline-primary', 'mx-1');
+		        pageNumberBtn.innerText = i;
+		
+		        // Thêm sự kiện khi nhấn vào số trang
+		        pageNumberBtn.addEventListener('click', function () {
+		            currentPage = i;
+		            displayPage(currentPage);
+		            updatePageButtons();
+		        });
+		
+		        pageNumbersContainer.appendChild(pageNumberBtn);
+		    }
+		
+		    // Cập nhật nút mũi tên
+		    updatePageButtons();
+		}
+		
+		function updatePageButtons() {
+		    // Kiểm tra nút "prev"
+		    document.getElementById('prevPage').disabled = currentPage === 1;
+		
+		    // Kiểm tra nút "next"
+		    document.getElementById('nextPage').disabled = currentPage === totalPages;
+		
+		    // Cập nhật style cho nút số trang hiện tại
+		    const buttons = document.querySelectorAll('#pageNumbers button');
+		    buttons.forEach((button, index) => {
+		        if (index + 1 === currentPage) {
+		            button.classList.add('active');
+		        } else {
+		            button.classList.remove('active');
+		        }
+		    });
+		}
+		
+		// Sự kiện khi nhấn nút "prev"
+		document.getElementById('prevPage').addEventListener('click', function () {
+		    if (currentPage > 1) {
+		        currentPage--;
+		        displayPage(currentPage);
+		        updatePageButtons();
+		    }
+		});
+		
+		// Sự kiện khi nhấn nút "next"
+		document.getElementById('nextPage').addEventListener('click', function () {
+		    if (currentPage < totalPages) {
+		        currentPage++;
+		        displayPage(currentPage);
+		        updatePageButtons();
+		    }
+		});
+		
+		// Hiển thị trang đầu tiên khi tải trang
+		displayPage(currentPage);
+		setupPagination();	
+	</script>
 </th:block>
 </body>
 </html>

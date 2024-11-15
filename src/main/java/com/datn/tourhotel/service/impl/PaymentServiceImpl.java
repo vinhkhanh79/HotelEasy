@@ -94,4 +94,53 @@ public class PaymentServiceImpl implements PaymentService {
         }
         return earningsPerDay;
     }
+    
+    public List<BigDecimal> getEarningsPerWeekInYearAdmin() {
+        List<Object[]> results = paymentRepository.getTotalEarningsPerWeekInYearAdmin();
+        List<BigDecimal> earningsPerWeek = new ArrayList<>(Collections.nCopies(52, BigDecimal.ZERO)); // Giả định năm có 52 tuần
+
+        for (Object[] result : results) {
+            int week = (Integer) result[0];
+            BigDecimal total = (BigDecimal) result[1];
+            earningsPerWeek.set(week - 1, total); // Lưu tổng vào vị trí tương ứng với tuần
+        }
+        return earningsPerWeek;
+    }
+    
+    public List<BigDecimal> getEarningsPerMonthInYearAdmin() {
+        List<Object[]> results = paymentRepository.getTotalEarningsPerMonthInYearAdmin();
+        List<BigDecimal> earningsPerMonth = new ArrayList<>(Collections.nCopies(12, BigDecimal.ZERO)); // 12 tháng
+
+        for (Object[] result : results) {
+            int month = (Integer) result[0];
+            BigDecimal total = (BigDecimal) result[1];
+            earningsPerMonth.set(month - 1, total); // Lưu tổng vào vị trí tương ứng với tháng
+        }
+        return earningsPerMonth;
+    }
+    
+    public List<BigDecimal> getEarningsPerWeekInYear(Long managerId) {
+        List<Object[]> results = paymentRepository.getTotalEarningsPerWeekInYear(managerId);
+        List<BigDecimal> earningsPerWeek = new ArrayList<>(Collections.nCopies(52, BigDecimal.ZERO)); // Giả định năm có 52 tuần
+
+        for (Object[] result : results) {
+            int week = (Integer) result[0];
+            BigDecimal total = (BigDecimal) result[1];
+            earningsPerWeek.set(week - 1, total); // Lưu tổng vào vị trí tương ứng với tuần
+        }
+        return earningsPerWeek;
+    }
+    
+    public List<BigDecimal> getEarningsPerMonthInYear(Long managerId) {
+        List<Object[]> results = paymentRepository.getTotalEarningsPerMonthInYear(managerId);
+        List<BigDecimal> earningsPerMonth = new ArrayList<>(Collections.nCopies(12, BigDecimal.ZERO)); // 12 tháng
+
+        for (Object[] result : results) {
+            int month = (Integer) result[0];
+            BigDecimal total = (BigDecimal) result[1];
+            earningsPerMonth.set(month - 1, total); // Lưu tổng vào vị trí tương ứng với tháng
+        }
+        return earningsPerMonth;
+    }
+
 }

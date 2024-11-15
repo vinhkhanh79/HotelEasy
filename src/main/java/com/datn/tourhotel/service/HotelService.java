@@ -7,12 +7,16 @@ import java.util.Optional;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.datn.tourhotel.model.Hotel;
+import com.datn.tourhotel.model.HotelManager;
 import com.datn.tourhotel.model.dto.HotelDTO;
+import com.datn.tourhotel.model.dto.HotelRegistrationAdminDTO;
 import com.datn.tourhotel.model.dto.HotelRegistrationDTO;
 
 public interface HotelService {
 
     Hotel saveHotel(HotelRegistrationDTO hotelRegistrationDTO, MultipartFile multipartFile, MultipartFile multipartFile2, MultipartFile multipartFile3, List<MultipartFile> roomImages1, List<MultipartFile> roomImages2, List<MultipartFile> roomImages3);
+    
+    Hotel saveHotelAdmin(HotelRegistrationAdminDTO hotelRegistrationAdminDTO, MultipartFile multipartFile, MultipartFile multipartFile2, MultipartFile multipartFile3, List<MultipartFile> roomImages1, List<MultipartFile> roomImages2, List<MultipartFile> roomImages3, HotelManager hotelManager);
 
     HotelDTO findHotelDtoByName(String name);
 

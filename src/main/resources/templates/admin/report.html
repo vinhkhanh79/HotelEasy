@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{/admin/layout/layout-main}">
+<head>
+    <title>User List</title>
+</head>
+<body>
+<th:block layout:fragment="content">
+<div class="container-fluid">
+    <div class="row">
+    <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+        <div class="position-sticky justify-content-center">
+            <ul class="nav flex-column">
+                <li class="nav-item">
+                    <a class="nav-link ms-5" aria-current="page" th:href="@{/admin/dashboard}">
+                        <i class="bi bi-house-door-fill"></i>
+                        <span class="ml-2 h5">Dashboard</span>
+                    </a>
+                </li>
+                <hr>
+                <li class="nav-item ms-5">
+                    <a class="nav-link" th:href="@{/admin/users}">
+                        <i class="bi bi-people-fill"></i>
+                        <span class="ml-2 h5">Users</span>
+                    </a>
+                </li>
+                <li class="nav-item ms-5">
+                    <a class="nav-link" th:href="@{/admin/hotels/add(language=${#locale.getLanguage()})}">
+                        <i class="bi bi-building"></i>
+                        <span class="ml-2 h5">Add hotels</span>
+                    </a>
+                </li>
+                <li class="nav-item ms-5">
+                    <a class="nav-link" th:href="@{/admin/hotels(language=${#locale.getLanguage()})}">
+                        <i class="bi bi-building"></i>
+                        <span class="ml-2 h5">Hotels</span>
+                    </a>
+                </li>
+                <li class="nav-item ms-5">
+                    <a class="nav-link" th:href="@{/admin/bookings(language=${#locale.getLanguage()})}">
+                        <i class="bi bi-calendar-check"></i>
+                        <span class="ml-2 h5">Bookings</span>
+                    </a>
+                </li>
+                <li class="nav-item ms-5">
+                    <a class="nav-link" th:href="@{/admin/report}">
+                        <i class="bi bi-bar-chart-line"></i>
+                        <span class="ml-2 h5">Reports</span>
+                    </a>
+                </li>
+                <li class="nav-item ms-5">
+                    <a class="nav-link" href="#">
+                        <i class="bi bi-layers-fill"></i>
+                        <span class="ml-2 h5">Integrations</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    <main class="col-md-9 ml-sm-auto col-lg-10 px-md-4 py-4 mt-3 mb-5">
+        <h2 class="mt-3">Total revenue</h2>
+	        <div>
+	            <canvas id="myChart"></canvas>
+	        </div>
+	        
+        <h2>Total revenue by day</h2>
+        	<div id="traffic-chart" style="height: 400px;"></div>
+        	
+        <h2 class="mt-3">Total Revenue by Week</h2>
+			<div id="weekly-chart" style="height: 400px;"></div>
+        	
+        <h2 class="mt-3">Total Revenue by Month</h2>
+			<div id="monthly-chart" style="height: 400px;"></div>
+    </main>
+    </div>
+    </div>
+</th:block>
+<!-- Đặt đoạn mã JavaScript vào additional-scripts -->
+<th:block layout:fragment="additional-scripts">
+    <script src="https://cdn.jsdelivr.net/npm/chartist@0.11.4/dist/chartist.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script th:inline="javascript">
+    
+	    /* Đoạn mã Chart.js */
+	    /* Chart.js: Earnings Chart */
+	    console.log("Initializing Chart.js chart");
+	    const ctx = document.getElementById('myChart').getContext('2d');
+	    new Chart(ctx, {
+	        type: 'bar',
+	        data: {
+	            labels: ['Day', 'Week', 'Month', 'Year', 'Total'],
+	            datasets: [{
+	                label: 'Earnings (VND)',
+	                data: [
+	                    /* Use Thymeleaf to inject data for each period */
+	                    [[${earningsToday}]], 
+	                    [[${earningsThisWeek}]], 
+	                    [[${earningsThisMonth}]], 
+	                    [[${earningsThisYear}]], 
+	                    [[${earningsTotal}]]
+	                ],
+	                backgroundColor: [
+	                    'rgba(255, 99, 132, 0.2)',
+	                    'rgba(54, 162, 235, 0.2)',
+	                    'rgba(255, 206, 86, 0.2)',
+	                    'rgba(75, 192, 192, 0.2)',
+	                    'rgba(153, 102, 255, 0.2)'
+	                ],
+	                borderColor: [
+	                    'rgba(255, 99, 132, 1)',
+	                    'rgba(54, 162, 235, 1)',
+	                    'rgba(255, 206, 86, 1)',
+	                    'rgba(75, 192, 192, 1)',
+	                    'rgba(153, 102, 255, 1)'
+	                ],
+	                borderWidth: 1
+	            }]
+	        },
+	        options: {
+	            scales: {
+	                y: {
+	                    beginAtZero: true
+	                }
+	            }
+	        }
+	    });
+    
+	    /* Đoạn mã Chartist: Earnings Per Month Chart */
+	    console.log("Initializing Chartist chart for Earnings Per Month");
+	
+	    // Lấy dữ liệu từ model
+	    const earningsPerMonthInYear = [[${earningsPerMonthInYear}]]; // Dữ liệu từ model
+	
+	    // Chuyển đổi dữ liệu thành định dạng phù hợp cho Chartist
+	    const monthLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']; // Nhãn tháng
+	
+	    // Chuyển đổi earningsPerMonthInYear thành mảng số cho Chartist và thay thế null bằng 0
+	    const monthlyEarningsData = earningsPerMonthInYear.map(e => e ? e : 0);
+	    const seriesDataMonth = [];
+	    seriesDataMonth.push(monthlyEarningsData);
+	
+	    // Tìm giá trị lớn nhất trong dữ liệu để thiết lập giá trị high
+	    const maxMonthlyEarnings = Math.max(...monthlyEarningsData);
+	
+	    new Chartist.Line('#monthly-chart', {
+	        labels: monthLabels,
+	        series: seriesDataMonth
+	    }, {
+	        low: 0,
+	        high: maxMonthlyEarnings, // Sử dụng giá trị cao nhất trong dữ liệu
+	        showArea: true,
+	        fullWidth: true,
+	        chartPadding: {
+	            right: 40,
+	            left: 40
+	        }
+	    });
+	    
+	    /* Đoạn mã Chartist: Earnings Per Week Chart */
+	    console.log("Initializing Chartist chart for Earnings Per Week");
+	
+	    // Lấy dữ liệu từ model
+	    const earningsPerWeekInYear = [[${earningsPerWeekInYear}]]; // Dữ liệu từ model
+	
+	    // Chuyển đổi dữ liệu thành định dạng phù hợp cho Chartist
+	    const weekLabels = Array.from({ length: 52 }, (_, i) => `${i + 1}`); // Nhãn tuần từ 1 đến 52
+	
+	    // Chuyển đổi earningsPerWeekInYear thành mảng số cho Chartist và thay thế null bằng 0
+	    const weeklyEarningsData = earningsPerWeekInYear.map(e => e ? e : 0);
+	    const seriesDataWeek = [];
+	    seriesDataWeek.push(weeklyEarningsData);
+	
+	    // Tìm giá trị lớn nhất trong dữ liệu để thiết lập giá trị high
+	    const maxWeeklyEarnings = Math.max(...weeklyEarningsData);
+	
+	    new Chartist.Line('#weekly-chart', {
+	        labels: weekLabels,
+	        series: seriesDataWeek
+	    }, {
+	        low: 0,
+	        high: maxWeeklyEarnings, // Sử dụng giá trị cao nhất trong dữ liệu
+	        showArea: true,
+	        fullWidth: true,
+	        chartPadding: {
+	            right: 40,
+	            left: 40
+	        }
+	    });
+	
+	
+	    
+	    /* Đoạn mã Chartist */
+	    console.log("Initializing Chartist chart for Earnings per Day in Year");
+	    
+	    // Lấy dữ liệu từ model
+	    const earningsPerDayInYear = [[${earningsPerDayInYear}]]; // Dữ liệu từ model
+	    
+	    // Chuyển đổi dữ liệu thành định dạng phù hợp cho Chartist
+	    const seriesData = [];
+	    const dayLabels = Array.from({ length: 30 }, (_, i) => i + 1); // Tạo nhãn từ 1 đến 365
+	    
+	    // Chuyển đổi earningsPerDayInYear thành mảng số cho Chartist và thay thế null bằng 0
+	    const earningsData = earningsPerDayInYear.map(e => e ? e : 0);
+	    seriesData.push(earningsData);
+	
+	    // Tìm giá trị lớn nhất trong dữ liệu để thiết lập giá trị high
+	    const maxEarnings = Math.max(...earningsData);
+	
+	    new Chartist.Line('#traffic-chart', {
+	        labels: dayLabels,
+	        series: seriesData
+	    }, {
+	        low: 0,
+	        high: maxEarnings, // Sử dụng giá trị cao nhất trong dữ liệu
+	        showArea: true,
+	        fullWidth: true,
+	        chartPadding: {
+	            right: 40,
+	            left: 40
+	        }
+	    });
+
+        document.addEventListener("DOMContentLoaded", function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const earningsPeriod = urlParams.get('earningsPeriod') || 'day'; // Mặc định là 'day' nếu không có tham số
+
+            // Chọn giá trị đúng trong dropdown
+            const selectElement = document.getElementById("earningsPeriod");
+            selectElement.value = earningsPeriod;
+        });
+
+        function updateEarnings() {
+            const period = document.getElementById("earningsPeriod").value;
+            window.location.href = `/admin/dashboard?earningsPeriod=${period}`;
+        }
+    </script>
+</th:block>
+</body>
+</html>

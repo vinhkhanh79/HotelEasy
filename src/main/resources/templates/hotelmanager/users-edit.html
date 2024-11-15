@@ -2,12 +2,7 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{/admin/layout/layout-main}">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manager Edit Account</title>
-    <!-- Bootstrap CSS -->
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Preview Image Script -->
+    <title>Edit User</title>
     <script type="text/javascript">
         function previewImage(event) {
             var reader = new FileReader();
@@ -78,10 +73,10 @@
             <div class="col-md-8 offset-md-2">
                 <div class="card">
                     <div class="card-header">
-                        <h2 class="text-center">User Account Editing</h2>
+                        <h2 class="text-center">User Editing</h2>
                     </div>
                     <div class="card-body">
-                        <form method="post" th:action="@{/manager/account/edit}" th:object="${user}" enctype="multipart/form-data">
+                        <form method="post" th:action="@{/manager/users/edit/{id}(id=${user.id})}" th:object="${user}" enctype="multipart/form-data">
                             <div class="row mb-3">
 								<div class="col-md-5">
                                     <div class="form-group mb-3">
@@ -131,11 +126,27 @@
                                                placeholder="Select your birthday">
                                         <p class="text-danger" th:if="${#fields.hasErrors('birthday')}" th:errors="*{birthday}"></p>
                                     </div>
+                                    <!-- Thay thế phần role selection hiện tại bằng đoạn code sau -->
+                                    <div class="form-group mb-3">
+                                        <label class="form-label" for="roleType">Role:</label>
+                                        <select class="form-control" id="roleType" th:field="*{roleType}" 
+                                                th:if="${user.role.roleType.name() != 'ADMIN'}">
+                                            <option th:each="roleType : ${T(com.datn.tourhotel.model.enums.RoleType).values()}"
+                                                    th:if="${roleType.name() != 'ADMIN'}"
+                                                    th:value="${roleType}"
+                                                    th:text="${roleType.name()}">
+                                            </option>
+                                        </select>
+                                        <!-- Hiển thị text readonly nếu user là admin -->
+                                        <input th:if="${user.role.roleType.name() == 'ADMIN'}" 
+                                               type="text" class="form-control" 
+                                               value="ADMIN" readonly>
+                                    </div>
                                 </div>
                             </div>
                             <div class="form-group mb-3 text-end">
                                 <button type="submit" class="btn btn-primary">Update</button>
-                                <a th:href="@{/manager/account}" class="btn btn-secondary">Cancel</a>
+                                <a th:href="@{/manager/users}" class="btn btn-secondary">Cancel</a>
                             </div>
                         </form>
                     </div>

@@ -18,4 +18,12 @@ public interface PaymentService {
     List<BigDecimal> getEarningsPerDayInYearAdmin();
     
     List<BigDecimal> getEarningsPerDayInYear(Long managerId);
+    
+    List<BigDecimal> getEarningsPerWeekInYearAdmin();
+    
+    List<BigDecimal> getEarningsPerMonthInYearAdmin();
+    
+    List<BigDecimal> getEarningsPerWeekInYear(Long managerId);
+    	
+    List<BigDecimal> getEarningsPerMonthInYear(Long managerId);
 }
