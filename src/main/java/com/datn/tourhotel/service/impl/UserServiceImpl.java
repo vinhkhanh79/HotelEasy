@@ -150,11 +150,14 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findById(userDTO.getId())
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
-        if (user.getRole().getRoleType() == RoleType.ADMIN) {
-            throw new IllegalStateException("Cannot modify ADMIN role");
+        // Chỉ kiểm tra việc thay đổi role, không chặn việc cập nhật thông tin
+        if (user.getRole().getRoleType() == RoleType.ADMIN && 
+            userDTO.getRoleType() != RoleType.ADMIN) {
+            throw new IllegalStateException("Cannot change ADMIN role");
         }
 
-        if (userDTO.getRoleType() == RoleType.ADMIN) {
+        if (userDTO.getRoleType() == RoleType.ADMIN && 
+            user.getRole().getRoleType() != RoleType.ADMIN) {
             throw new IllegalStateException("Cannot assign ADMIN role");
         }
 
@@ -172,40 +175,43 @@ public class UserServiceImpl implements UserService {
 
         setFormattedDataToUser(user, userDTO, url);
 
-        if (userDTO.getRoleType() != user.getRole().getRoleType()) {
-            Role newRole = roleRepository.findByRoleType(userDTO.getRoleType());
-            if (newRole == null) {
-                throw new IllegalStateException("Role not found");
-            }
+        // Chỉ cập nhật role nếu không phải ADMIN hoặc không thay đổi role
+        if (user.getRole().getRoleType() != RoleType.ADMIN || 
+            userDTO.getRoleType() == RoleType.ADMIN) {
+            if (userDTO.getRoleType() != user.getRole().getRoleType()) {
+                Role newRole = roleRepository.findByRoleType(userDTO.getRoleType());
+                if (newRole == null) {
+                    throw new IllegalStateException("Role not found");
+                }
 
-            if (user.getCustomer() != null) {
-                Long customerId = user.getCustomer().getId();
-                user.setCustomer(null);
-                customerRepository.deleteById(customerId);
-            }
+                if (user.getCustomer() != null) {
+                    Long customerId = user.getCustomer().getId();
+                    user.setCustomer(null);
+                    customerRepository.deleteById(customerId);
+                }
 
-            if (user.getHotelManager() != null) {
-                Long managerId = user.getHotelManager().getId();
-                user.setHotelManager(null);
-                hotelManagerRepository.deleteById(managerId);
-            }
+                if (user.getHotelManager() != null) {
+                    Long managerId = user.getHotelManager().getId();
+                    user.setHotelManager(null);
+                    hotelManagerRepository.deleteById(managerId);
+                }
 
-            user.setRole(newRole);
-            user = userRepository.save(user);
+                user.setRole(newRole);
+                user = userRepository.save(user);
 
-            if (userDTO.getRoleType() == RoleType.CUSTOMER) {
-                Customer newCustomer = new Customer();
-                newCustomer.setUser(user);
-                customerRepository.save(newCustomer);
-            } else if (userDTO.getRoleType() == RoleType.HOTEL_MANAGER) {
-                HotelManager newManager = new HotelManager();
-                newManager.setUser(user);
-                hotelManagerRepository.save(newManager);
+                if (userDTO.getRoleType() == RoleType.CUSTOMER) {
+                    Customer newCustomer = new Customer();
+                    newCustomer.setUser(user);
+                    customerRepository.save(newCustomer);
+                } else if (userDTO.getRoleType() == RoleType.HOTEL_MANAGER) {
+                    HotelManager newManager = new HotelManager();
+                    newManager.setUser(user);
+                    hotelManagerRepository.save(newManager);
+                }
             }
-        } else {
-            userRepository.save(user);
         }
-
+        
+        userRepository.save(user);
         log.info("Successfully updated user with ID: {}", userDTO.getId());
     }
 
@@ -313,6 +319,7 @@ public class UserServiceImpl implements UserService {
                 .phone(user.getPhone())
                 .birthday(user.getBirthday())
                 .role(user.getRole())
+                .roleType(user.getRole().getRoleType())
                 .build();
     }
 

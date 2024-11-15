@@ -58,10 +58,18 @@ public class UserDTO {
     private RoleType roleType;
 
     public RoleType getRoleType() {
-        return role != null ? role.getRoleType() : null;
+        if (roleType != null) {
+            return roleType;
+        }
+        if (role != null && role.getRoleType() != null) {
+            this.roleType = role.getRoleType();
+            return role.getRoleType();
+        }
+        return null;
     }
 
     public void setRoleType(RoleType roleType) {
+        this.roleType = roleType;
         if (this.role == null) {
             this.role = Role.builder().roleType(roleType).build();
         } else {

@@ -80,18 +80,26 @@
                                     <!-- Thay thế phần role selection hiện tại bằng đoạn code sau -->
                                     <div class="form-group mb-3">
                                         <label class="form-label" for="roleType">Role:</label>
-                                        <select class="form-control" id="roleType" th:field="*{roleType}" 
-                                                th:if="${user.role.roleType.name() != 'ADMIN'}">
+                                        <!-- Trường hợp user là ADMIN -->
+                                        <div th:if="${user.roleType != null and user.roleType.name().equals('ADMIN')}">
+                                            <!-- Hidden field để giữ giá trị ADMIN khi submit -->
+                                            <input type="hidden" th:field="*{roleType}">
+                                            <!-- Input readonly chỉ để hiển thị -->
+                                            <input type="text" class="form-control" 
+                                                   th:value="${user.roleType}"
+                                                   readonly>
+                                        </div>
+                                        <!-- Trường hợp user không phải ADMIN -->
+                                        <select th:if="${user.roleType == null or !user.roleType.name().equals('ADMIN')}"
+                                                class="form-control" 
+                                                id="roleType" 
+                                                th:field="*{roleType}">
                                             <option th:each="roleType : ${T(com.datn.tourhotel.model.enums.RoleType).values()}"
-                                                    th:if="${roleType.name() != 'ADMIN'}"
+                                                    th:if="${!roleType.name().equals('ADMIN')}"
                                                     th:value="${roleType}"
                                                     th:text="${roleType.name()}">
                                             </option>
                                         </select>
-                                        <!-- Hiển thị text readonly nếu user là admin -->
-                                        <input th:if="${user.role.roleType.name() == 'ADMIN'}" 
-                                               type="text" class="form-control" 
-                                               value="ADMIN" readonly>
                                     </div>
                                 </div>
                             </div>
