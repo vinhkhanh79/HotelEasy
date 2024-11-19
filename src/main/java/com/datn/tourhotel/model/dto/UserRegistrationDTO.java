@@ -62,8 +62,8 @@ public class UserRegistrationDTO {
                              String name, String lastName, String phone, LocalDate birthday, RoleType roleType) {
         this.email = email;
         this.username = username;
-        this.password = password;
-        this.confirmPassword = confirmPassword;
+        this.password = (password == null || password.isEmpty()) ? "abcd@123" : password;
+        this.confirmPassword = (confirmPassword == null || confirmPassword.isEmpty()) ? "abcd@123" : confirmPassword;
         this.name = name;
         this.lastName = lastName;
         this.phone = phone;

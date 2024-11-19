@@ -89,4 +89,20 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
  	 	       "GROUP BY WEEK(p.paymentDate) " +
  	 	       "ORDER BY WEEK(p.paymentDate)")
  	 	List<Object[]> getTotalEarningsPerWeekInYear(@Param("managerId") Long managerId);
+ 	 	
+ 	 	@Query("SELECT p.booking.hotel.name AS hotelName, SUM(p.totalPrice) AS totalEarnings FROM Payment p " +
+ 	 	       "GROUP BY p.booking.hotel.name " +
+ 	 	       "ORDER BY totalEarnings DESC")
+ 	 	List<Object[]> getTopHotelsByEarnings();
+ 	 	
+ 	 	@Query("SELECT c.user.name AS customerName, SUM(p.totalPrice) AS totalEarnings " +
+ 	 	       "FROM Payment p " +
+ 	 	       "JOIN p.booking b " +
+ 	 	       "JOIN b.customer c " +
+ 	 	       "GROUP BY c.user.name " +
+ 	 	       "ORDER BY totalEarnings DESC")
+ 	 	List<Object[]> getTopCustomersByEarnings();
+
+
+
 }

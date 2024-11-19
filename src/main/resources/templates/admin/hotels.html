@@ -11,46 +11,46 @@
         <div class="position-sticky justify-content-center">
             <ul class="nav flex-column">
                 <li class="nav-item">
-                    <a class="nav-link ms-5" aria-current="page" th:href="@{/admin/dashboard}">
+                    <a class="nav-link ms-5" aria-current="page" th:href="@{/admin/dashboard(language=${#locale.language})}">
                         <i class="bi bi-house-door-fill"></i>
-                        <span class="ml-2 h5">Dashboard</span>
+                        <span class="ml-2 h5" th:text="#{dashboardTitle}">Dashboard</span>
                     </a>
                 </li>
                 <hr>
                 <li class="nav-item ms-5">
-                    <a class="nav-link" th:href="@{/admin/users}">
+                        <a class="nav-link" th:href="@{/admin/users/add(language=${#locale.language})}">
+                            <i class="bi bi-people-fill"></i>
+                            <span class="ml-2 h5" th:text="#{dashboardNavAddUsers}">Add Users</span>
+                        </a>
+                    </li>
+                <li class="nav-item ms-5">
+                    <a class="nav-link" th:href="@{/admin/users(language=${#locale.language})}">
                         <i class="bi bi-people-fill"></i>
-                        <span class="ml-2 h5">Users</span>
+                        <span class="ml-2 h5" th:text="#{dashboardNavUsers}">Users</span>
                     </a>
                 </li>
                 <li class="nav-item ms-5">
                     <a class="nav-link" th:href="@{/admin/hotels/add(language=${#locale.getLanguage()})}">
                         <i class="bi bi-building"></i>
-                        <span class="ml-2 h5">Add hotels</span>
+                        <span class="ml-2 h5" th:text="#{dashboardNavAddHotels}">Add hotels</span>
                     </a>
                 </li>
                 <li class="nav-item ms-5">
-                    <a class="nav-link" th:href="@{/admin/hotels(language=${#locale.getLanguage()})}">
+                    <a class="nav-link" th:href="@{/admin/hotels(language=${#locale.language})}">
                         <i class="bi bi-building"></i>
-                        <span class="ml-2 h5">Hotels</span>
+                        <span class="ml-2 h5" th:text="#{dashboardNavHotels}">Hotels</span>
                     </a>
                 </li>
                 <li class="nav-item ms-5">
-                    <a class="nav-link" th:href="@{/admin/bookings(language=${#locale.getLanguage()})}">
+                    <a class="nav-link" th:href="@{/admin/bookings(language=${#locale.language})}">
                         <i class="bi bi-calendar-check"></i>
-                        <span class="ml-2 h5">Bookings</span>
+                        <span class="ml-2 h5" th:text="#{dashboardNavBookings}">Bookings</span>
                     </a>
                 </li>
                 <li class="nav-item ms-5">
-                    <a class="nav-link" th:href="@{/admin/report}">
+                    <a class="nav-link" th:href="@{/admin/report(language=${#locale.language})}">
                         <i class="bi bi-bar-chart-line"></i>
-                        <span class="ml-2 h5">Reports</span>
-                    </a>
-                </li>
-                <li class="nav-item ms-5">
-                    <a class="nav-link" href="#">
-                        <i class="bi bi-layers-fill"></i>
-                        <span class="ml-2 h5">Integrations</span>
+                        <span class="ml-2 h5" th:text="#{dashboardNavReports}">Reports</span>
                     </a>
                 </li>
             </ul>
@@ -58,7 +58,7 @@
     </nav>
     <main class="col-md-9 ml-sm-auto col-lg-10 px-md-4 py-4 mt-3 mb-5">
             <div class="col-md-12">
-                <h2>Hotel List</h2>
+                <h2 th:text="#{dashboardHotelList}">Hotel List</h2>
                 <div th:if="${param.success}">
                     <div class="alert alert-success">
                         Hotel ID: <span th:text="${updatedHotelId}"></span> info has been successfully updated
@@ -95,7 +95,7 @@
                         </td>
                         <td>
                             <form method="post"
-                                  th:action="@{/admin/hotels/delete/{id}(id=${hotel.id})}"
+                                  th:action="@{/admin/hotels/delete/{id}(id=${hotel.id},language=${#locale.getLanguage()})}"
                                   onsubmit="return confirm('Are you sure you want to delete this hotel?');">
                                 <input type="hidden" name="_method" value="DELETE"/>
                                 <button type="submit" class="btn btn-danger btn-sm">Delete</button>

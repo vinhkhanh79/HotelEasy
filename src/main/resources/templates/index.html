@@ -16,24 +16,24 @@
                 <div class="swiper-slide" style="background-image: url(https://res.cloudinary.com/dliwvet1v/image/upload/v1729758160/slider/qxghdbdibkturtf4mpei.jpg);">
                     <div class="slide-caption text-center">
                         <div>
-                            <h1>Welcome to Tour Hotel</h1>
-                            <p>Relax in our elegantly designed rooms and suites, each offering spectacular views of the vibrant cityscape.</p>
+                            <h1 th:text="#{welcome}">Welcome to Tour Hotel</h1>
+                            <p th:text="#{relax}">Relax in our elegantly designed rooms and suites, each offering spectacular views of the vibrant cityscape.</p>
                         </div>
                     </div>
                 </div>
                 <div class="swiper-slide" style="background-image: url(https://res.cloudinary.com/dliwvet1v/image/upload/v1729758160/slider/x6kkpdxw1dtz9n4vpyyf.jpg);">
                     <div class="slide-caption text-center">
                         <div>
-                            <h1>Welcome to hotel in Ho Chi Minh City</h1>
-                            <p>Located in the heart of Ho Chi Minh City, our hotel offers you a perfect blend of comfort, convenience, and luxury.</p>
+                            <h1 th:text="#{welcomeHotel}">Welcome to hotel in Ho Chi Minh City</h1>
+                            <p th:text="#{location}">Located in the heart of Ho Chi Minh City, our hotel offers you a perfect blend of comfort, convenience, and luxury.</p>
                         </div>
                     </div>
                 </div>
                 <div class="swiper-slide" style="background-image: url(https://res.cloudinary.com/dliwvet1v/image/upload/v1729758160/slider/qaiw7wbjjmeb1gkixh1n.jpg);">
                     <div class="slide-caption text-center">
                         <div>
-                            <h1>Welcome to hotel in Ho Chi Minh City</h1>
-                            <p>Enjoy world-class services and facilities, including fine dining restaurants, a refreshing rooftop pool, and a state-of-the-art fitness center.</p>
+                            <h1 th:text="#{welcomeHotel}">Welcome to hotel in Ho Chi Minh City</h1>
+                            <p th:text="#{enjoy}">Enjoy world-class services and facilities, including fine dining restaurants, a refreshing rooftop pool, and a state-of-the-art fitness center.</p>
                         </div>
                     </div>
                 </div>
@@ -43,22 +43,22 @@
         <div class="container booking-area">
 		    <form class="row align-items-end" method="post" th:action="@{/index}" th:object="${hotelSearchDTO}">
 		        <div class="col-lg-3 mb-3 mb-lg-0">
-		            <label class="form-label" for="addressLine">Address line:</label>
+		            <label class="form-label" for="addressLine" th:text="#{addressLine}">Address line:</label>
 		            <input class="form-control" id="addressLine" type="text" th:field="*{addressLine}" placeholder="Enter address line">
 		            <p class="text-danger" th:if="${#fields.hasErrors('addressLine')}" th:errors="*{addressLine}"></p>
 		        </div>
 		        <div class="col-lg-3 mb-3 mb-lg-0">
-		            <label class="form-label" for="checkinDate">Check-in Date:</label>
+		            <label class="form-label" for="checkinDate" th:text="#{checkinDate}">Check-in Date:</label>
 		            <input type="date" class="form-control" id="checkinDate" th:field="*{checkinDate}" placeholder="Check-in Date">
 		            <p class="text-danger" th:if="${#fields.hasErrors('checkinDate')}" th:errors="*{checkinDate}"></p>
 		        </div>
 		        <div class="col-lg-3 mb-3 mb-lg-0">
-		            <label class="form-label" for="checkoutDate">Check-out Date:</label>
+		            <label class="form-label" for="checkoutDate" th:text="#{checkoutDate}">Check-out Date:</label>
 		            <input type="date" name="checkoutDate" class="form-control" id="checkoutDate" th:field="*{checkoutDate}" placeholder="Check-out Date">
 		            <p class="text-danger" th:if="${#fields.hasErrors('checkoutDate')}" th:errors="*{checkoutDate}"></p>
 		        </div>
 		        <div class="col-lg-3 d-flex justify-content-lg-end">
-		            <button type="submit" class="main-btn rounded-3 px-lg-4">Search</button>
+		            <button type="submit" class="main-btn rounded-3 px-lg-4" th:text="#{searchButton}">Search</button>
 		        </div>
 		    </form>
 		    <div class="mt-4 text-center" th:if="${errorMessage}">
@@ -75,11 +75,11 @@
                 <div class="container">
                     <div class="row flex-lg-row flex-column-reverse">
                         <div class="col-lg-6 text-center text-lg-start">
-                            <h3>Welcome to <span>Hotel <br class="d-none d-lg-block"> the haven</span> of your weekend
+                            <h3 th:text="#{aboutTitle}">Welcome to <span>Hotel <br class="d-none d-lg-block"> the haven</span> of your weekend
                             </h3>
-                            <p>Welcome to our hotel in Ho Chi Minh City, a sanctuary for your weekend getaway. Nestled in the heart of this vibrant metropolis, our hotel offers a perfect blend of modern comfort and traditional charm.</p>
-                            <p>Whether you're here for business or leisure, our prime location provides easy access to the city's bustling markets, historic landmarks, and cultural attractions.</p>
-                            <a class="main-btn mt-4" href="#">Explore</a>
+                            <p th:text="#{aboutDescription}">Welcome to our hotel in Ho Chi Minh City, a sanctuary for your weekend getaway. Nestled in the heart of this vibrant metropolis, our hotel offers a perfect blend of modern comfort and traditional charm.</p>
+                            <p th:text="#{aboutDescription2}">Whether you're here for business or leisure, our prime location provides easy access to the city's bustling markets, historic landmarks, and cultural attractions.</p>
+                            <a class="main-btn mt-4" href="#" th:text="#{aboutExplore}">Explore</a>
                         </div>
                         <div class="col-lg-6 mb-4 mb-lg-0 ps-lg-4 text-center">
                             <img src="https://res.cloudinary.com/dliwvet1v/image/upload/v1729759531/z5xnydcyfzbtogmsn0tm.png" class="img-fluid" alt="about">
@@ -94,8 +94,8 @@
     <div class="container-fluid col-11">
         <div class="row">
             <div class="col-sm-12 section-title text-center mb-5">
-                <h6>What I can do for you</h6>
-                <h3>Our Favourite Rooms</h3>
+                <h6 th:text="#{roomsSectionTitle}">What I can do for you</h6>
+                <h3 th:text="#{roomsSectionHeading}">Our Favourite Rooms</h3>
             </div>
         </div>
 
@@ -129,7 +129,7 @@
 
         <div class="row text-center">
             <div class="col-12">
-                <button id="show-more-btn1" class="main-btn rounded-3 px-lg-4">Show More</button>
+                <button id="show-more-btn1" class="main-btn rounded-3 px-lg-4" th:text="#{showMore}">Show More</button>
             </div>
         </div>
     </div>
@@ -141,8 +141,8 @@
                 <div class="container">
                     <div class="row">
                         <div class="col-sm-12 section-title text-center mb-5">
-                            <h6>We Are Here for Your</h6>
-                            <h3>Our Awesome Services</h3>
+                            <h6 th:text="#{servicesSectionTitle}">We Are Here for Your</h6>
+                            <h3 th:text="#{servicesSectionHeading}">Our Awesome Services</h3>
                         </div>
                     </div>
                     <!-- Tab Content -->
@@ -170,8 +170,8 @@
                                         <a data-bs-toggle="tab" class="active" href="#spa">
                                             <span class="service-icon">
                                                 <img src="https://res.cloudinary.com/dliwvet1v/image/upload/v1729863735/services/oanif1ez0zdxrbiajujt.png" alt="..."></span>
-                                            <h5>Spa, beauty & Health</h5>
-                                            <p><span>Spa and beauty </span> Lorem ipsum dolor sit amet consectetur,
+                                            <h5 th:text="#{spaTitle}">Spa, beauty & Health</h5>
+                                            <p th:text="#{spaDescription}"><span>Spa and beauty </span> Lorem ipsum dolor sit amet consectetur,
                                                 adipisicing elit.</p>
                                         </a>
                                     </li>
@@ -179,8 +179,8 @@
                                         <a data-bs-toggle="tab" href="#restaurent">
                                             <span class="service-icon">
                                                 <img src="https://res.cloudinary.com/dliwvet1v/image/upload/v1729863119/services/fb0pxxhxrglglcwj5zga.png" alt="..."></span>
-                                            <h5>Restaurent</h5>
-                                            <p><span>Restaurent </span> Lorem ipsum dolor sit amet consectetur,
+                                            <h5 th:text="#{restaurantTitle}">Restaurent</h5>
+                                            <p th:text="#{restaurantDescription}"><span>Restaurent </span> Lorem ipsum dolor sit amet consectetur,
                                                 adipisicing elit. Iure, itaque!</p>
                                         </a>
                                     </li>
@@ -188,8 +188,8 @@
                                         <a data-bs-toggle="tab" href="#swimming">
                                             <span class="service-icon">
                                                 <img src="https://res.cloudinary.com/dliwvet1v/image/upload/v1729863119/services/ctlphvi1p9wrwyhqubav.png" alt="..."></span>
-                                            <h5>Swimming Pool</h5>
-                                            <p><span>Swimming </span> Lorem ipsum dolor sit amet consectetur,
+                                            <h5 th:text="#{swimmingTitle}">Swimming Pool</h5>
+                                            <p th:text="#{swimmingDescription}"><span>Swimming </span> Lorem ipsum dolor sit amet consectetur,
                                                 adipisicing elit. Iure, itaque!</p>
                                         </a>
                                     </li>
@@ -197,8 +197,8 @@
                                         <a data-bs-toggle="tab" href="#conference">
                                             <span class="service-icon">
                                                 <img src="https://res.cloudinary.com/dliwvet1v/image/upload/v1729863118/services/hxrxfw2rntz7xpcm8ac0.png" alt="..."></span>
-                                            <h5>Conference Hall</h5>
-                                            <p><span>Conference </span> Lorem ipsum dolor sit amet consectetur,
+                                            <h5 th:text="#{conferenceTitle}">Conference Hall</h5>
+                                            <p th:text="#{conferenceDescription}"><span>Conference </span> Lorem ipsum dolor sit amet consectetur,
                                                 adipisicing elit. Iure, itaque!</p>
                                         </a>
                                     </li>
@@ -215,8 +215,8 @@
                 <div class="container">
                     <div class="row">
                         <div class="col-sm-12 section-title text-center mb-5">
-                            <h6>What I can do for you</h6>
-                            <h3>Our Special Staff</h3>
+                            <h6 th:text="#{teamSectionTitle}">What I can do for you</h6>
+                            <h3 th:text="#{teamSectionHeading}">Our Special Staff</h3>
                         </div>
                     </div>
                     <div class="row">
@@ -224,8 +224,8 @@
                             <div class="card p-0 rounded-3">
                                 <img src="https://res.cloudinary.com/dliwvet1v/image/upload/v1729758121/team/pqedpautan8xepmfydm6.png" alt="" class="img-fluid rounded-3">
                                 <div class="team-info">
-                                    <h5>Shirley Gibson</h5>
-                                    <p>Manager</p>
+                                    <h5 th:text="#{shirleyName}">Shirley Gibson</h5>
+                                    <p th:text="#{shirleyRole}">Manager</p>
                                     <ul class="social-network">
                                         <li><a href="#"><i class="fa-brands fa-facebook-f"></i></a></li>
                                         <li><a href="#"><i class="fa-brands fa-twitter"></i></a></li>
@@ -239,8 +239,8 @@
                             <div class="card p-0 rounded-3">
                                 <img src="https://res.cloudinary.com/dliwvet1v/image/upload/v1729758114/team/rmaih5w8dzv6lawwnojp.png" alt="" class="img-fluid rounded-3">
                                 <div class="team-info">
-                                    <h5>Ronald Long</h5>
-                                    <p>Chif Reciption Officier</p>
+                                    <h5 th:text="#{ronaldName}">Ronald Long</h5>
+                                    <p th:text="#{ronaldRole}">Chif Reciption Officier</p>
                                     <ul class="social-network">
                                         <li><a href="#"><i class="fa-brands fa-facebook-f"></i></a></li>
                                         <li><a href="#"><i class="fa-brands fa-twitter"></i></a></li>
@@ -254,8 +254,8 @@
                             <div class="card p-0 rounded-3">
                                 <img src="https://res.cloudinary.com/dliwvet1v/image/upload/v1729859092/team/g6pwdgu1jp7zjxi7vqu5.png" alt="" class="img-fluid rounded-3">
                                 <div class="team-info">
-                                    <h5>Ashley Sanchez</h5>
-                                    <p>Master Chef</p>
+                                    <h5 th:text="#{ashleyName}">Ashley Sanchez</h5>
+                                    <p th:text="#{ashleyRole}">Master Chef</p>
                                     <ul class="social-network">
                                         <li><a href="#"><i class="fa-brands fa-facebook-f"></i></a></li>
                                         <li><a href="#"><i class="fa-brands fa-twitter"></i></a></li>
@@ -269,8 +269,8 @@
                             <div class="card p-0 rounded-3">
                                 <img src="https://res.cloudinary.com/dliwvet1v/image/upload/v1729758113/team/juzbw78kokcsrxpzfcsj.png" alt="" class="img-fluid rounded-3">
                                 <div class="team-info">
-                                    <h5>Jessica Watson</h5>
-                                    <p>Housekeeping</p>
+                                    <h5 th:text="#{jessicaName}">Jessica Watson</h5>
+                                    <p th:text="#{jessicaRole}">Housekeeping</p>
                                     <ul class="social-network">
                                         <li><a href="#"><i class="fa-brands fa-facebook-f"></i></a></li>
                                         <li><a href="#"><i class="fa-brands fa-twitter"></i></a></li>
@@ -291,8 +291,8 @@
                 <div class="container">
                     <div class="row">
                         <div class="col-sm-12 section-title text-center mb-5">
-                            <h6>Best Pictures of Our Hotel</h6>
-                            <h3>Our Gallery</h3>
+                            <h6 th:text="#{gallerySectionTitle}">Best Pictures of Our Hotel</h6>
+                            <h3 th:text="#{gallerySectionHeading}">Our Gallery</h3>
                         </div>
                     </div>
                     <div class="row g-0">
@@ -342,8 +342,8 @@
     <div class="container">
         <div class="row">
             <div class="col-sm-12 section-title text-center mb-5">
-                <h6>Best & Affordable Hotels for you</h6>
-                <h3>Our Hotels</h3>
+                <h6 th:text="#{hotelSectionTitle}">Best & Affordable Hotels for you</h6>
+                <h3 th:text="#{hotelSectionHeading}">Our Hotels</h3>
             </div>
         </div>
         <div class="row" id="hotel-list">
@@ -381,7 +381,7 @@
         <!-- "Show More" button -->
         <div class="row text-center">
             <div class="col-12">
-                <button id="show-more-btn2" class="main-btn rounded-3 px-lg-4">Show More</button>
+                <button id="show-more-btn2" class="main-btn rounded-3 px-lg-4" th:text="#{showMore}">Show More</button>
             </div>
         </div>
     </div>
@@ -393,8 +393,8 @@
                 <div class="container">
                     <div class="row">
                         <div class="col-sm-12 section-title text-center mb-5">
-                            <h6>Say Hello to Our Visiters</h6>
-                            <h3>Our Blog</h3>
+                            <h6 th:text="#{blogSectionTitle}">Say Hello to Our Visiters</h6>
+                            <h3 th:text="#{blogSectionHeading}">Our Blog</h3>
                         </div>
                     </div>
                     <div class="row">
@@ -402,10 +402,10 @@
                             <div class="card p-0 border-0 rounded-0">
                                 <img src="https://res.cloudinary.com/dliwvet1v/image/upload/v1729860266/blog/v3awtsv30cnajttwep0f.jpg" alt="">
                                 <div class="blog-content bg-white p-4">
-                                    <h5 class="text-decoration-underline mb-4">Hotels in Ho Chi Minh City</h5>
+                                    <h5 class="text-decoration-underline mb-4" th:text="#{hotelDetails}">Hotels in Ho Chi Minh City</h5>
                                     <h6>By Admin - March 18, 2024</h6>
                                     <p class="mt-2">Ho Chi Minh City is a bustling metropolis with a wide range of hotels, from budget to luxury. Below are some standout hotels in Ho Chi Minh City.</p>
-                                    <a href="/post/post1" class="main-btn mt-2">Read More</a>
+                                    <a href="/post/post1" class="main-btn mt-2" th:text="#{readMoreButton}">Read More</a>
                                 </div>
                             </div>
                         </div>
@@ -413,10 +413,10 @@
                             <div class="card p-0 border-0 rounded-0">
                                 <img src="https://res.cloudinary.com/dliwvet1v/image/upload/v1729760813/blog/tdicicjrcq9udztgtmrd.jpg" alt="">
                                 <div class="blog-content bg-white p-4">
-                                    <h5 class="text-decoration-underline mb-4">Discover Ho Chi Minh City - The Vibrant Heart of Vietnam</h5>
+                                    <h5 class="text-decoration-underline mb-4" th:text="#{hotelDetails}">Discover Ho Chi Minh City - The Vibrant Heart of Vietnam</h5>
                                     <h6>By Admin - February 20, 2024</h6>
-                                    <p class="mt-2">Experience famous tourist destinations and a variety of accommodation spaces.</p>
-                                    <a href="/post/post2" class="main-btn mt-2">Read More</a>
+                                    <p class="mt-2">Experience famous tourist destinations and a variety of accommodation spaces in Ho Chi Minh City you should try one a life.</p>
+                                    <a href="/post/post2" class="main-btn mt-2" th:text="#{readMoreButton}">Read More</a>
                                 </div>
                             </div>
                         </div>
@@ -458,52 +458,52 @@
                     <div class="col-12 col-lg-6">
                       <div class="row justify-content-xl-end">
                         <div class="col-12 col-xl-11">
-                          <h2 class="h1 mb-3">How can we help you?</h2>
-                          <p class="lead fs-4 text-secondary mb-5">We hope you have found an answer to your question. If you need any help, please search your query on our Support Center or contact us via email.</p>
+                          <h2 class="h1 mb-3" th:text="#{faqSectionTitle}">How can we help you?</h2>
+                          <p class="lead fs-4 text-secondary mb-5" th:text="#{faqSectionDescription}">We hope you have found an answer to your question. If you need any help, please search your query on our Support Center or contact us via email.</p>
                           <div class="accordion accordion-flush" id="accordionExample">
                             <div class="accordion-item">
                               <h2 class="accordion-header" id="headingOne">
-                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne" th:text="#{faqQuestion1}">
                                   How Do I Cancellation Room?
                                 </button>
                               </h2>
                               <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
                                 <div class="accordion-body">
-                                  <p>The cancellation policy on the Go2Joy application is applied to successful bookings when fully complying with the following terms and conditions:</p>
+                                  <p  th:text="#{faqAnswer1}">The cancellation policy on the Go2Joy application is applied to successful bookings when fully complying with the following terms and conditions:</p>
                                   <ul>
-                                    <li>Hourly Booking: Free cancellation 1 hour before check-in time.</li>
-                                    <li>Overnight Booking: Free cancellation 2 hours before check-in time.</li>
-                                    <li>Day Booking: Free cancellation 12 hours before check-in time.</li>
+                                    <li th:text="#{faqAnswer1Point1}">Hourly Booking: Free cancellation 1 hour before check-in time.</li>
+                                    <li th:text="#{faqAnswer1Point2}">Overnight Booking: Free cancellation 2 hours before check-in time.</li>
+                                    <li th:text="#{faqAnswer1Point3}">Day Booking: Free cancellation 12 hours before check-in time.</li>
                                   </ul>
                                 </div>
                               </div>
                             </div>
                             <div class="accordion-item">
                               <h2 class="accordion-header" id="headingTwo">
-                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo" th:text="#{faqQuestion2}">
                                   How Does Payment System Work?
                                 </button>
                               </h2>
                               <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionExample">
-                                <div class="accordion-body">
+                                <div class="accordion-body" th:text="#{faqAnswer2}">
                                   A payment system is a way to transfer money from one person or organization to another. It is a complex process that involves many different parties, including banks, credit card companies, and merchants.
                                 </div>
                               </div>
                             </div>
                             <div class="accordion-item">
                               <h2 class="accordion-header" id="headingThree">
-                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree" th:text="#{faqQuestion3}">
                                   How Do I Cancel My Account?
                                 </button>
                               </h2>
                               <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#accordionExample">
                                 <div class="accordion-body">
-                                  <p>To cancel your account, please follow these steps:</p>
+                                  <p th:text="#{faqAnswer3}">To cancel your account, please follow these steps:</p>
                                   <ul>
-                                    <li>Go to our website and sign in to your account.</li>
-                                    <li>Click on your profile picture in the top right corner of the page and select "Account Settings."</li>
-                                    <li>Scroll to the bottom of the page and click on "Cancel Account."</li>
-                                    <li>Enter your password and click on "Cancel Account."</li>
+                                    <li th:text="#{faqAnswer3Step1}">Go to our website and sign in to your account.</li>
+                                    <li th:text="#{faqAnswer3Step2}">Click on your profile picture in the top right corner of the page and select "Account Settings."</li>
+                                    <li th:text="#{faqAnswer3Step3}">Scroll to the bottom of the page and click on "Cancel Account."</li>
+                                    <li th:text="#{faqAnswer3Step4}">Enter your password and click on "Cancel Account."</li>
                                   </ul>
                                 </div>
                               </div>

@@ -26,6 +26,7 @@ import com.datn.tourhotel.model.dto.HotelRegistrationAdminDTO;
 import com.datn.tourhotel.model.dto.HotelRegistrationDTO;
 import com.datn.tourhotel.model.dto.RoomDTO;
 import com.datn.tourhotel.model.dto.UserDTO;
+import com.datn.tourhotel.model.dto.UserRegistrationDTO;
 import com.datn.tourhotel.model.enums.RoomType;
 import com.datn.tourhotel.service.BookingService;
 import com.datn.tourhotel.service.CustomerService;
@@ -40,6 +41,7 @@ import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.List;
 
 @Controller
@@ -97,6 +99,18 @@ public class AdminController {
         model.addAttribute("currentUsername", currentUsername);
         
         model.addAttribute("greetingMessage", message);
+        
+        List<Object[]> topHotelsByEarnings = paymentService.getTopHotelsByEarnings();
+        List<String> hotelNames = new ArrayList<>();
+        List<BigDecimal> hotelEarnings = new ArrayList<>();
+
+        for (Object[] result : topHotelsByEarnings) {
+            hotelNames.add((String) result[0]);
+            hotelEarnings.add((BigDecimal) result[1]);
+        }
+
+        model.addAttribute("hotelNames", hotelNames);
+        model.addAttribute("hotelEarnings", hotelEarnings);
         return "admin/dashboard";
     }
 
@@ -145,6 +159,17 @@ public class AdminController {
         model.addAttribute("currentUsername", currentUsername);
         
         model.addAttribute("greetingMessage", message);
+        List<Object[]> topHotelsByEarnings = paymentService.getTopHotelsByEarnings();
+        List<String> hotelNames = new ArrayList<>();
+        List<BigDecimal> hotelEarnings = new ArrayList<>();
+
+        for (Object[] result : topHotelsByEarnings) {
+            hotelNames.add((String) result[0]);
+            hotelEarnings.add((BigDecimal) result[1]);
+        }
+
+        model.addAttribute("hotelNames", hotelNames);
+        model.addAttribute("hotelEarnings", hotelEarnings);
         return "admin/report";
     }
 
@@ -164,6 +189,32 @@ public class AdminController {
         String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
         model.addAttribute("currentUsername", currentUsername);
         return "admin/users";
+    }
+    @GetMapping("/users/add")
+    public String showAddUserForm(Model model) {
+        model.addAttribute("user", new UserRegistrationDTO()); // Khởi tạo đối tượng mới
+        return "admin/users-add"; // Trả về view cho form thêm người dùng
+    }
+    @PostMapping("/users/add")
+    public String addUser(@Valid @ModelAttribute("user") UserRegistrationDTO registrationDTO,
+                          BindingResult result,
+                          @RequestParam(value = "multipartFile", required = false) MultipartFile multipartFile,
+                          RedirectAttributes redirectAttributes) {
+        try {
+            userService.saveUser2(registrationDTO, multipartFile);
+            redirectAttributes.addFlashAttribute("success", "User added successfully!");
+            return "redirect:/admin/users";
+        } catch (UsernameAlreadyExistsException e) {
+            // Ghi log lỗi khi username/email đã tồn tại
+            result.rejectValue("username", "user.exists", e.getMessage());
+            log.error("Username or Email already exists: {}", e.getMessage(), e); // In thêm stack trace
+            return "admin/users-add";
+        } catch (Exception e) {
+            // Ghi log lỗi tổng quát
+            log.error("Unexpected error occurred while adding user: {}", e.getMessage(), e); // In lỗi chi tiết
+            redirectAttributes.addFlashAttribute("error", "Failed to add user! See logs for more details.");
+            return "admin/users-add";
+        }
     }
 
 
@@ -232,7 +283,8 @@ public class AdminController {
     }
     
     @GetMapping("/hotels/add")
-    public String showAddHotelForm(Model model) {
+    public String showAddHotelForm(Model model, HttpServletRequest request) {
+    	String message = messageSource.getMessage("hello", null, "default message", request.getLocale());
         HotelRegistrationAdminDTO hotelRegistrationAdminDTO = new HotelRegistrationAdminDTO();
 
         // Initialize roomDTOs with SINGLE and DOUBLE room types

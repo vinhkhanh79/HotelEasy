@@ -2,12 +2,7 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{/admin/layout/layout-main}">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manager Edit Account</title>
-    <!-- Bootstrap CSS -->
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Preview Image Script -->
+    <title>Add User</title>
     <script type="text/javascript">
         function previewImage(event) {
             var reader = new FileReader();
@@ -20,6 +15,21 @@
             }
             reader.readAsDataURL(event.target.files[0]); // Read the file input as DataURL
         }
+
+        // Optional: Validate image file type and size before upload
+        function validateImage(event) {
+            var file = event.target.files[0];
+            if (file) {
+                var validTypes = ['image/jpeg', 'image/png', 'image/gif'];
+                if (!validTypes.includes(file.type)) {
+                    alert('Invalid image type. Please upload a JPG, PNG, or GIF file.');
+                    event.target.value = ''; // Clear the input
+                } else if (file.size > 5000000) { // 5MB size limit
+                    alert('File is too large. Please upload an image smaller than 5MB.');
+                    event.target.value = ''; // Clear the input
+                }
+            }
+        }
     </script>
 </head>
 <body>
@@ -29,38 +39,44 @@
         <div class="position-sticky justify-content-center">
             <ul class="nav flex-column">
                 <li class="nav-item">
-                    <a class="nav-link ms-5" aria-current="page" th:href="@{/manager/dashboard(language=${#locale.language})}">
+                    <a class="nav-link ms-5" aria-current="page" th:href="@{/admin/dashboard(language=${#locale.language})}">
                         <i class="bi bi-house-door-fill"></i>
                         <span class="ml-2 h5" th:text="#{dashboardTitle}">Dashboard</span>
                     </a>
                 </li>
                 <hr>
                 <li class="nav-item ms-5">
-                    <a class="nav-link" th:href="@{/manager/users(language=${#locale.language})}">
+                    <a class="nav-link" th:href="@{/admin/users/add(language=${#locale.language})}">
+                        <i class="bi bi-people-fill"></i>
+                        <span class="ml-2 h5" th:text="#{dashboardNavAddUsers}">Add Users</span>
+                    </a>
+                </li>
+                <li class="nav-item ms-5">
+                    <a class="nav-link" th:href="@{/admin/users(language=${#locale.language})}">
                         <i class="bi bi-people-fill"></i>
                         <span class="ml-2 h5" th:text="#{dashboardNavUsers}">Users</span>
                     </a>
                 </li>
                 <li class="nav-item ms-5">
-                    <a class="nav-link" th:href="@{/manager/hotels/add(language=${#locale.getLanguage()})}">
+                    <a class="nav-link" th:href="@{/admin/hotels/add(language=${#locale.getLanguage()})}">
                         <i class="bi bi-building"></i>
                         <span class="ml-2 h5" th:text="#{dashboardNavAddHotels}">Add hotels</span>
                     </a>
                 </li>
                 <li class="nav-item ms-5">
-                    <a class="nav-link" th:href="@{/manager/hotels(language=${#locale.getLanguage()})}">
+                    <a class="nav-link" th:href="@{/admin/hotels(language=${#locale.language})}">
                         <i class="bi bi-building"></i>
                         <span class="ml-2 h5" th:text="#{dashboardNavHotels}">Hotels</span>
                     </a>
                 </li>
                 <li class="nav-item ms-5">
-                    <a class="nav-link" th:href="@{/manager/bookings(language=${#locale.getLanguage()})}">
+                    <a class="nav-link" th:href="@{/admin/bookings(language=${#locale.language})}">
                         <i class="bi bi-calendar-check"></i>
                         <span class="ml-2 h5" th:text="#{dashboardNavBookings}">Bookings</span>
                     </a>
                 </li>
                 <li class="nav-item ms-5">
-                    <a class="nav-link" th:href="@{/manager/report(language=${#locale.language})}">
+                    <a class="nav-link" th:href="@{/admin/report(language=${#locale.language})}">
                         <i class="bi bi-bar-chart-line"></i>
                         <span class="ml-2 h5" th:text="#{dashboardNavReports}">Reports</span>
                     </a>
@@ -72,22 +88,21 @@
             <div class="col-md-8 offset-md-2">
                 <div class="card">
                     <div class="card-header">
-                        <h2 class="text-center">User Account Editing</h2>
+                        <h2 class="text-center" th:text="#{dashboardNavAddUsers}">User Add</h2>
                     </div>
                     <div class="card-body">
-                        <form method="post" th:action="@{/manager/account/edit}" th:object="${user}" enctype="multipart/form-data">
+                        <form method="post" th:action="@{/admin/users/add}" th:object="${user}" enctype="multipart/form-data">
                             <div class="row mb-3">
 								<div class="col-md-5">
                                     <div class="form-group mb-3">
                                         <label for="img-input" class="img-upload-container ms-5" style="height: 310px; width:295px; display: block; border: 2px solid #ccc; border-radius: 10px; overflow: hidden;">
                                             <img id="img-preview" th:src="${user.img}" alt="User Image" class="img-fluid w-100 rounded-3" style="height: 100%; width: 100%; object-fit: cover;">
                                         </label>
-                                        <input class="form-control mt-2" name="multipartFile" id="img-input" type="file" accept="image/*" onchange="previewImage(event)" style="display: none;">
+                                        <input class="form-control mt-2" name="multipartFile" id="img-input" type="file" accept="image/*" onchange="previewImage(event); validateImage(event)" style="display: none;">
                                         <p class="text-danger" th:if="${#fields.hasErrors('img')}" th:errors="*{img}"></p>
                                     </div>
                                 </div>
                                 <div class="col-md-7">
-                                		<input type="hidden" th:field="*{id}" />
                                     <div class="form-group mb-3">
                                         <label class="form-label" for="username">Username:</label>
                                         <input class="form-control" id="username" type="text" th:field="*{username}"
@@ -112,24 +127,33 @@
                                                placeholder="Enter email address">
                                         <p class="text-danger" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></p>
                                     </div>
-									<!-- Thêm trường phone -->
                                     <div class="form-group mb-3">
                                         <label class="form-label" for="phone">Phone:</label>
                                         <input class="form-control" id="phone" type="text" th:field="*{phone}"
                                                placeholder="Enter phone number">
                                         <p class="text-danger" th:if="${#fields.hasErrors('phone')}" th:errors="*{phone}"></p>
                                     </div>
-									<div class="form-group mb-3">
+                                    <div class="form-group mb-3">
                                         <label class="form-label" for="birthday">Birthday:</label>
                                         <input class="form-control" id="birthday" type="date" th:field="*{birthday}" th:max="${#dates.format(#dates.createNow(), 'yyyy-MM-dd')}"
                                                placeholder="Select your birthday">
                                         <p class="text-danger" th:if="${#fields.hasErrors('birthday')}" th:errors="*{birthday}"></p>
                                     </div>
+                                    <div class="form-group mb-3">
+                                        <label class="form-label" for="roleType">Role:</label>
+                                        <select class="form-control" id="roleType" th:field="*{roleType}">
+                                            <option th:each="roleType : ${T(com.datn.tourhotel.model.enums.RoleType).values()}"
+                                                    th:value="${roleType}"
+                                                    th:text="${roleType.name()}">
+                                            </option>
+                                        </select>
+                                        
+                                    </div>
                                 </div>
                             </div>
                             <div class="form-group mb-3 text-end">
-                                <button type="submit" class="btn btn-primary">Update</button>
-                                <a th:href="@{/manager/account}" class="btn btn-secondary">Cancel</a>
+                                <button type="submit" class="btn btn-primary">Create</button>
+                                <a th:href="@{/admin/users}" class="btn btn-secondary">Cancel</a>
                             </div>
                         </form>
                     </div>

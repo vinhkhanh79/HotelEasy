@@ -7,6 +7,8 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -33,6 +35,7 @@ import com.datn.tourhotel.repository.CustomerRepository;
 import com.datn.tourhotel.repository.HotelManagerRepository;
 import com.datn.tourhotel.repository.RoleRepository;
 import com.datn.tourhotel.repository.UserRepository;
+import com.datn.tourhotel.service.CloudinaryService;
 import com.datn.tourhotel.service.UserService;
 
 import java.io.IOException;
@@ -54,6 +57,9 @@ public class UserServiceImpl implements UserService {
     private final PasswordEncoder passwordEncoder;
     private final JavaMailSender mailSender;
     private final Cloudinary cloudinary;
+    @Lazy
+    @Autowired
+    private final CloudinaryService cloudinaryService;
 
     @Override
     @Transactional
@@ -94,6 +100,79 @@ public class UserServiceImpl implements UserService {
 	        throw e;
 	    }
     }
+    @Override
+    @Transactional
+    public User saveUser2(UserRegistrationDTO registrationDTO, MultipartFile multipartFile) throws IOException {
+        // Kiểm tra username và email
+        Optional<User> existingUser = Optional.ofNullable(userRepository.findByUsername(registrationDTO.getUsername()));
+        if (existingUser.isPresent()) {
+            throw new UsernameAlreadyExistsException("This username is already registered!");
+        }
+
+        Optional<User> existingUserByEmail = Optional.ofNullable(userRepository.findByEmail(registrationDTO.getEmail()));
+        if (existingUserByEmail.isPresent()) {
+            throw new UsernameAlreadyExistsException("This email is already registered!");
+        }
+
+        // Gán mật khẩu mặc định nếu không được cung cấp
+        String defaultPassword = "abcd@123";
+        String password = registrationDTO.getPassword() == null || registrationDTO.getPassword().isEmpty()
+            ? defaultPassword
+            : registrationDTO.getPassword();
+
+        String confirmPassword = registrationDTO.getConfirmPassword() == null || registrationDTO.getConfirmPassword().isEmpty()
+            ? defaultPassword
+            : registrationDTO.getConfirmPassword();
+
+        // Kiểm tra mật khẩu khớp
+        if (!password.equals(confirmPassword)) {
+            throw new IllegalArgumentException("Password and confirm password do not match");
+        }
+
+        // Upload ảnh (hoặc sử dụng ảnh mặc định nếu không có)
+        String imageUrl = multipartFile != null && !multipartFile.isEmpty()
+            ? cloudinaryService.uploadImage(multipartFile, null)
+            : "https://res.cloudinary.com/dliwvet1v/image/upload/v1729755833/user/jvs7bxrioi3iro4fk1c1.png";
+
+        // Tạo user
+        Role userRole = roleRepository.findByRoleType(
+            registrationDTO.getRoleType() != null ? registrationDTO.getRoleType() : RoleType.CUSTOMER
+        );
+
+        User user = User.builder()
+                .email(registrationDTO.getEmail())
+                .username(registrationDTO.getUsername().trim())
+                .password(passwordEncoder.encode(password)) // Mã hóa mật khẩu
+                .name(formatText(registrationDTO.getName()))
+                .lastName(formatText(registrationDTO.getLastName()))
+                .phone(registrationDTO.getPhone())
+                .birthday(registrationDTO.getBirthday())
+                .img(imageUrl)
+                .role(userRole)
+                .build();
+
+        try {
+            User savedUser = userRepository.save(user);
+
+            // Tạo relationship tương ứng
+            if (RoleType.CUSTOMER.equals(registrationDTO.getRoleType())) {
+                Customer customer = Customer.builder().user(savedUser).build();
+                customerRepository.save(customer);
+            } else if (RoleType.HOTEL_MANAGER.equals(registrationDTO.getRoleType())) {
+                HotelManager hotelManager = HotelManager.builder().user(savedUser).build();
+                hotelManagerRepository.save(hotelManager);
+            }
+
+            log.info("Successfully saved new user: {}", registrationDTO.getUsername());
+            return savedUser;
+        } catch (Exception e) {
+            log.error("Error during user registration: ", e);
+            throw e;
+        }
+    }
+
+
+
 
     @Override
     public User findUserByUsername(String username) {

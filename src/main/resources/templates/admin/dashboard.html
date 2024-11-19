@@ -12,60 +12,60 @@
         <div class="position-sticky justify-content-center">
             <ul class="nav flex-column">
                 <li class="nav-item">
-                    <a class="nav-link ms-5" aria-current="page" th:href="@{/admin/dashboard}">
+                    <a class="nav-link ms-5" aria-current="page" th:href="@{/admin/dashboard(language=${#locale.language})}">
                         <i class="bi bi-house-door-fill"></i>
-                        <span class="ml-2 h5">Dashboard</span>
+                        <span class="ml-2 h5" th:text="#{dashboardTitle}">Dashboard</span>
                     </a>
                 </li>
                 <hr>
                 <li class="nav-item ms-5">
-                    <a class="nav-link" th:href="@{/admin/users}">
+                        <a class="nav-link" th:href="@{/admin/users/add(language=${#locale.language})}">
+                            <i class="bi bi-people-fill"></i>
+                            <span class="ml-2 h5" th:text="#{dashboardNavAddUsers}">Add Users</span>
+                        </a>
+                    </li>
+                <li class="nav-item ms-5">
+                    <a class="nav-link" th:href="@{/admin/users(language=${#locale.language})}">
                         <i class="bi bi-people-fill"></i>
-                        <span class="ml-2 h5">Users</span>
+                        <span class="ml-2 h5" th:text="#{dashboardNavUsers}">Users</span>
                     </a>
                 </li>
                 <li class="nav-item ms-5">
                     <a class="nav-link" th:href="@{/admin/hotels/add(language=${#locale.getLanguage()})}">
                         <i class="bi bi-building"></i>
-                        <span class="ml-2 h5">Add hotels</span>
+                        <span class="ml-2 h5" th:text="#{dashboardNavAddHotels}">Add hotels</span>
                     </a>
                 </li>
                 <li class="nav-item ms-5">
-                    <a class="nav-link" th:href="@{/admin/hotels}">
+                    <a class="nav-link" th:href="@{/admin/hotels(language=${#locale.language})}">
                         <i class="bi bi-building"></i>
-                        <span class="ml-2 h5">Hotels</span>
+                        <span class="ml-2 h5" th:text="#{dashboardNavHotels}">Hotels</span>
                     </a>
                 </li>
                 <li class="nav-item ms-5">
-                    <a class="nav-link" th:href="@{/admin/bookings}">
+                    <a class="nav-link" th:href="@{/admin/bookings(language=${#locale.language})}">
                         <i class="bi bi-calendar-check"></i>
-                        <span class="ml-2 h5">Bookings</span>
+                        <span class="ml-2 h5" th:text="#{dashboardNavBookings}">Bookings</span>
                     </a>
                 </li>
                 <li class="nav-item ms-5">
-                    <a class="nav-link" th:href="@{/admin/report}">
+                    <a class="nav-link" th:href="@{/admin/report(language=${#locale.language})}">
                         <i class="bi bi-bar-chart-line"></i>
-                        <span class="ml-2 h5">Reports</span>
-                    </a>
-                </li>
-                <li class="nav-item ms-5">
-                    <a class="nav-link" href="#">
-                        <i class="bi bi-layers-fill"></i>
-                        <span class="ml-2 h5">Integrations</span>
+                        <span class="ml-2 h5" th:text="#{dashboardNavReports}">Reports</span>
                     </a>
                 </li>
             </ul>
         </div>
     </nav>
     <main class="col-md-9 ml-sm-auto col-lg-10 px-md-4 py-4 mt-3 mb-5">
-        <h1 class="h2">Dashboard</h1>
+        <h1 class="h2" th:text="#{dashboardTitle}">Dashboard</h1>
         <div class="row my-4">
             <!-- Customer Card -->
             <div class="col-12 col-md-4 mb-4">
                 <div class="card shadow-sm">
                     <div class="card-body">
                         <h6 class="card-subtitle mb-2 text-muted">
-                            <i class="bi bi-person-fill me-2"></i>Customers
+                            <i class="bi bi-person-fill me-2"> <span th:text="#{dashboardCustomers}">Customers</span></i>
                         </h6>
                         <h3 class="card-title py-1" th:text="${customerCount}"></h3>
                     </div>
@@ -77,7 +77,7 @@
                 <div class="card shadow-sm">
                     <div class="card-body">
                         <h6 class="card-subtitle mb-2 text-muted">
-                            <i class="bi bi-people-fill me-2"></i>Managers
+                            <i class="bi bi-people-fill me-2"><span th:text="#{dashboardManagers}">Managers</span></i>
                         </h6>
                         <h3 class="card-title py-1" th:text="${countHotelManagers}"></h3>
                     </div>
@@ -91,7 +91,7 @@
 			        <div class="card-body">
 			            <div class="d-flex justify-content-between align-items-center">
 			                <h6 class="card-subtitle mb-2 text-muted">
-			                    <i class="bi bi-cash-stack me-2"></i> Earnings
+			                    <i class="bi bi-cash-stack me-2"> <span th:text="#{dashboardEarnings}">Earnings</span></i>
 			                </h6>
 							<select id="earningsPeriod" class="form-select form-select-sm w-auto" onchange="updateEarnings()">
 							    <option value="day">Day</option>
@@ -110,10 +110,19 @@
 
 
         </div>
+        <h3 th:text="#{dashboardRevenueHotelInMonth}">Revenue Hotel in Month</h3>
         <div id="traffic-chart" style="height: 300px;"></div>
-        <div>
-            <canvas id="myChart"></canvas>
-        </div>
+        <div style="display: flex; justify-content: space-between; gap: 20px;">
+		    <div style="flex: 1; height: 400px;">
+		    	<h2 th:text="#{dashboardTopRevenueHotel}">Revenue Hotel Overview</h2>
+		        <canvas id="myChart"></canvas>
+		    </div>
+		    <div style="flex: 1; height: 400px;">
+		    	<h2 th:text="#{dashboardTopRevenue}">Top revenue Hotel</h2>
+		        <canvas id="topHotelsChart"></canvas>
+		    </div>
+		</div>
+
     </main>
     </div>
     </div>
@@ -124,6 +133,49 @@
     <script src="https://cdn.jsdelivr.net/npm/chartist@0.11.4/dist/chartist.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script th:inline="javascript">
+    
+    console.log("Initializing Top Hotels Earnings Chart");
+
+    const hotelNames = [[${hotelNames}]]; // Tên khách sạn
+    const hotelEarnings = [[${hotelEarnings}]]; // Doanh thu của từng khách sạn
+
+    const ctxTopHotels = document.getElementById('topHotelsChart').getContext('2d');
+    new Chart(ctxTopHotels, {
+        type: 'bar',
+        data: {
+            labels: hotelNames,
+            datasets: [{
+                label: 'Earnings (VND)',
+                data: hotelEarnings,
+                backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) {
+                            return value.toLocaleString(); // Format số
+                        }
+                    }
+                },
+                x: {
+                    ticks: {
+                        autoSkip: false, // Hiển thị tất cả nhãn
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false // Ẩn chú thích
+                }
+            }
+        }
+    });
     /* Đoạn mã Chartist */
     console.log("Initializing Chartist chart for Earnings per Day in Year");
     
@@ -201,7 +253,7 @@
 
         document.addEventListener("DOMContentLoaded", function() {
             const urlParams = new URLSearchParams(window.location.search);
-            const earningsPeriod = urlParams.get('earningsPeriod') || 'day'; // Mặc định là 'day' nếu không có tham số
+            const earningsPeriod = urlParams.get('earningsPeriod') || 'total'; // Mặc định là 'day' nếu không có tham số
 
             // Chọn giá trị đúng trong dropdown
             const selectElement = document.getElementById("earningsPeriod");

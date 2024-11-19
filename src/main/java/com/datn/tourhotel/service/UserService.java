@@ -13,6 +13,8 @@ import com.datn.tourhotel.model.dto.UserRegistrationDTO;
 public interface UserService {
 
     User saveUser(UserRegistrationDTO registrationDTO);
+    
+    User saveUser2(UserRegistrationDTO registrationDTO, MultipartFile multipartFile) throws IOException;
 
     // For registration
     User findUserByUsername(String username);

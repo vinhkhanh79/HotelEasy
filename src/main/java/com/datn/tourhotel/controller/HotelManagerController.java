@@ -38,6 +38,7 @@ import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.List;
 
 @Controller
@@ -95,6 +96,20 @@ public class HotelManagerController {
         
         String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
         model.addAttribute("currentUsername", currentUsername);
+        
+        List<Object[]> topCustomers = paymentService.getTopCustomersByEarnings();
+        List<String> customerNames = new ArrayList<>();
+        List<BigDecimal> customerEarnings = new ArrayList<>();
+
+        // Chỉ lấy 10 khách hàng đầu tiên
+        int count = Math.min(topCustomers.size(), 10);
+        for (int i = 0; i < count; i++) {
+            customerNames.add((String) topCustomers.get(i)[0]);
+            customerEarnings.add((BigDecimal) topCustomers.get(i)[1]);
+        }
+
+        model.addAttribute("topCustomerNames", customerNames);
+        model.addAttribute("topCustomerEarnings", customerEarnings);
         return "hotelmanager/dashboard";
     }
     @GetMapping("/report")
@@ -142,6 +157,20 @@ public class HotelManagerController {
         
         String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
         model.addAttribute("currentUsername", currentUsername);
+        
+        List<Object[]> topCustomers = paymentService.getTopCustomersByEarnings();
+        List<String> customerNames = new ArrayList<>();
+        List<BigDecimal> customerEarnings = new ArrayList<>();
+
+        // Chỉ lấy 10 khách hàng đầu tiên
+        int count = Math.min(topCustomers.size(), 10);
+        for (int i = 0; i < count; i++) {
+            customerNames.add((String) topCustomers.get(i)[0]);
+            customerEarnings.add((BigDecimal) topCustomers.get(i)[1]);
+        }
+
+        model.addAttribute("topCustomerNames", customerNames);
+        model.addAttribute("topCustomerEarnings", customerEarnings);
         return "hotelmanager/report";
     }
     @GetMapping("/index")
@@ -222,7 +251,8 @@ public class HotelManagerController {
         return "redirect:/hotelmanager/users";
     }
     @GetMapping("/hotels/add")
-    public String showAddHotelForm(Model model) {
+    public String showAddHotelForm(Model model, HttpServletRequest request) {
+    	String message = messageSource.getMessage("hello", null, "default message", request.getLocale());
         HotelRegistrationDTO hotelRegistrationDTO = new HotelRegistrationDTO();
 
         // Initialize roomDTOs with SINGLE and DOUBLE room types
@@ -263,7 +293,8 @@ public class HotelManagerController {
     }
 
     @GetMapping("/hotels")
-    public String listHotels(Model model) {
+    public String listHotels(Model model, HttpServletRequest request) {
+    	String message = messageSource.getMessage("hello", null, "default message", request.getLocale());
         Long managerId = getCurrentManagerId();
         List<HotelDTO> hotelList = hotelService.findAllHotelDtosByManagerId(managerId);
         model.addAttribute("hotels", hotelList);
@@ -273,7 +304,8 @@ public class HotelManagerController {
     }
 
     @GetMapping("/hotels/edit/{id}")
-    public String showEditHotelForm(@PathVariable Long id, Model model) {
+    public String showEditHotelForm(@PathVariable Long id, Model model, HttpServletRequest request) {
+    	String message = messageSource.getMessage("hello", null, "default message", request.getLocale());
         Long managerId = getCurrentManagerId();
         HotelDTO hotelDTO = hotelService.findHotelByIdAndManagerId(id, managerId);
         model.addAttribute("hotel", hotelDTO);
@@ -326,7 +358,8 @@ public class HotelManagerController {
     }
 
     @GetMapping("/bookings")
-    public String listBookings(Model model, RedirectAttributes redirectAttributes) {
+    public String listBookings(Model model, RedirectAttributes redirectAttributes, HttpServletRequest request) {
+    	String message = messageSource.getMessage("hello", null, "default message", request.getLocale());
         try {
             Long managerId = getCurrentManagerId();
             List<BookingDTO> bookingDTOs = bookingService.findBookingsByManagerId(managerId);
@@ -348,7 +381,8 @@ public class HotelManagerController {
     }
 
     @GetMapping("/bookings/{id}")
-    public String viewBookingDetails(@PathVariable Long id, Model model, RedirectAttributes redirectAttributes) {
+    public String viewBookingDetails(@PathVariable Long id, Model model, RedirectAttributes redirectAttributes, HttpServletRequest request) {
+    	String message = messageSource.getMessage("hello", null, "default message", request.getLocale());
         try {
             Long managerId = getCurrentManagerId();
             BookingDTO bookingDTO = bookingService.findBookingByIdAndManagerId(id, managerId);

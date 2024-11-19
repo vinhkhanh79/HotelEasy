@@ -20,7 +20,7 @@
         <!-- Kiểm tra vai trò người dùng -->
 		    <form class="d-flex justify-content-center mb-4 col-6" action="/admin/users" method="get" sec:authorize="hasRole('ROLE_ADMIN')">
 		        <div class="input-group w-75">
-		            <input class="form-control form-control-lg" type="text" placeholder="Search username" aria-label="Search" name="username">
+		            <input class="form-control form-control-lg" type="text" th:placeholder="#{searchPlaceholder}" aria-label="Search" name="username">
 		            <button class="btn btn-outline-primary btn-lg" type="submit">
 		                <i class="bi bi-search"></i> <!-- Optional icon (Bootstrap Icons) -->
 		            </button>
@@ -29,40 +29,38 @@
 		
 		    <form class="d-flex justify-content-center mb-4 col-6" action="/manager/users" method="get" sec:authorize="hasRole('ROLE_HOTEL_MANAGER')">
 		        <div class="input-group w-75">
-		            <input class="form-control form-control-lg" type="text" placeholder="Search by name" aria-label="Search" name="username">
+		            <input class="form-control form-control-lg" type="text" th:placeholder="#{searchPlaceholder}" aria-label="Search" name="username">
 		            <button class="btn btn-outline-primary btn-lg" type="submit">
 		                <i class="bi bi-search"></i> <!-- Optional icon (Bootstrap Icons) -->
 		            </button>
 		        </div>
 		    </form>
 
-
-		
         <div class="col-12 col-md-5 col-lg-4 d-flex align-items-center justify-content-md-end mt-3 mt-md-0">
                         <div class="dropdown">
                             <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
-                                Hello, <span th:text="${currentUsername}">User</span>
+                                <span th:text="#{hello}">Hello,</span> <span th:text="${currentUsername}">User</span>
                             </button>
                             <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                                 <li class="nav-item" sec:authorize="hasRole('ROLE_HOTEL_MANAGER')">
                                     <a class="dropdown-item" th:href="@{/manager/account(language=${#locale.getLanguage()})}">
-                                        <i class="bi bi-box-arrow-in-right" th:text="#{myAccount}"></i>
+                                        <i class="bi bi-box-arrow-in-right"> <span th:text="#{myAccount}"></span></i>
                                     </a>
                                 </li>
                                 <li class="nav-item" sec:authorize="hasRole('ROLE_ADMIN')">
                                     <a class="dropdown-item" th:href="@{/admin/account(language=${#locale.getLanguage()})}">
-                                        <i class="bi bi-box-arrow-in-right" th:text="#{myAccount}"></i>
+                                        <i class="bi bi-box-arrow-in-right"> <span th:text="#{myAccount}"></span></i>
                                     </a>
                                 </li>
                                 <li class="nav-item" sec:authorize="isAuthenticated()">
                                     <a class="dropdown-item" th:href="@{/customer/changePass(language=${#locale.getLanguage()})}">
-                                        <i class="bi bi-box-arrow-in-right" th:text="#{change}"></i> 
+                                        <i class="bi bi-box-arrow-in-right"> <span th:text="#{change}"></span></i>
                                     </a>
                                 </li>
                                 <li class="nav-item" sec:authorize="isAuthenticated()">
                                     <form class="form-inline" method="post" th:action="@{/logout}">
                                         <button class="btn btn-link nav-link" type="submit">
-                                            <i class="bi bi-box-arrow-right"></i> Logout
+                                            <i class="bi bi-box-arrow-right"><span th:text="#{logout}">Logout</span></i>
                                         </button>
                                     </form>
                                 </li>
@@ -76,22 +74,22 @@
                                 <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
                                     <li class="nav-item">
                                         <a class="nav-link" href="?language=en">
-                                            <i class="bi bi-box-arrow-in-right" th:text="#{english}"></i> 
+                                            <i class="bi bi-box-arrow-in-right"> <span th:text="#{english}"></span></i> 
                                         </a> 
                                     </li>
                                     <li class="nav-item">
                                         <a class="nav-link" href="?language=vi_VN">
-                                            <i class="bi bi-box-arrow-in-right" th:text="#{vietNam}"></i> 
+                                            <i class="bi bi-box-arrow-in-right"> <span th:text="#{vietNam}"></span></i> 
                                         </a> 
                                     </li>
                                     <li class="nav-item">
                                         <a class="nav-link" href="?language=ja_JP">
-                                            <i class="bi bi-box-arrow-in-right" th:text="#{japanese}"></i> 
+                                            <i class="bi bi-box-arrow-in-right"> <span th:text="#{japanese}"></span></i> 
                                         </a> 
                                     </li>
                                     <li class="nav-item">
                                         <a class="nav-link" href="?language=fr_FR">
-                                            <i class="bi bi-box-arrow-in-right" th:text="#{france}"></i> 
+                                            <i class="bi bi-box-arrow-in-right"> <span th:text="#{france}"></span></i> 
                                         </a> 
                                     </li>
                                 </ul>

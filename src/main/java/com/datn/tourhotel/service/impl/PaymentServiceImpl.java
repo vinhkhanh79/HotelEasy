@@ -142,5 +142,13 @@ public class PaymentServiceImpl implements PaymentService {
         }
         return earningsPerMonth;
     }
+    
+    public List<Object[]> getTopHotelsByEarnings() {
+        return paymentRepository.getTopHotelsByEarnings();
+    }
+    public List<Object[]> getTopCustomersByEarnings() {
+        return paymentRepository.getTopCustomersByEarnings();
+    }
+
 
 }

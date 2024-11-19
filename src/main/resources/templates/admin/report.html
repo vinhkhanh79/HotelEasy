@@ -12,64 +12,70 @@
         <div class="position-sticky justify-content-center">
             <ul class="nav flex-column">
                 <li class="nav-item">
-                    <a class="nav-link ms-5" aria-current="page" th:href="@{/admin/dashboard}">
+                    <a class="nav-link ms-5" aria-current="page" th:href="@{/admin/dashboard(language=${#locale.language})}">
                         <i class="bi bi-house-door-fill"></i>
-                        <span class="ml-2 h5">Dashboard</span>
+                        <span class="ml-2 h5" th:text="#{dashboardTitle}">Dashboard</span>
                     </a>
                 </li>
                 <hr>
                 <li class="nav-item ms-5">
-                    <a class="nav-link" th:href="@{/admin/users}">
+                        <a class="nav-link" th:href="@{/admin/users/add(language=${#locale.language})}">
+                            <i class="bi bi-people-fill"></i>
+                            <span class="ml-2 h5" th:text="#{dashboardNavAddUsers}">Add Users</span>
+                        </a>
+                    </li>
+                <li class="nav-item ms-5">
+                    <a class="nav-link" th:href="@{/admin/users(language=${#locale.language})}">
                         <i class="bi bi-people-fill"></i>
-                        <span class="ml-2 h5">Users</span>
+                        <span class="ml-2 h5" th:text="#{dashboardNavUsers}">Users</span>
                     </a>
                 </li>
                 <li class="nav-item ms-5">
                     <a class="nav-link" th:href="@{/admin/hotels/add(language=${#locale.getLanguage()})}">
                         <i class="bi bi-building"></i>
-                        <span class="ml-2 h5">Add hotels</span>
+                        <span class="ml-2 h5" th:text="#{dashboardNavAddHotels}">Add hotels</span>
                     </a>
                 </li>
                 <li class="nav-item ms-5">
-                    <a class="nav-link" th:href="@{/admin/hotels(language=${#locale.getLanguage()})}">
+                    <a class="nav-link" th:href="@{/admin/hotels(language=${#locale.language})}">
                         <i class="bi bi-building"></i>
-                        <span class="ml-2 h5">Hotels</span>
+                        <span class="ml-2 h5" th:text="#{dashboardNavHotels}">Hotels</span>
                     </a>
                 </li>
                 <li class="nav-item ms-5">
-                    <a class="nav-link" th:href="@{/admin/bookings(language=${#locale.getLanguage()})}">
+                    <a class="nav-link" th:href="@{/admin/bookings(language=${#locale.language})}">
                         <i class="bi bi-calendar-check"></i>
-                        <span class="ml-2 h5">Bookings</span>
+                        <span class="ml-2 h5" th:text="#{dashboardNavBookings}">Bookings</span>
                     </a>
                 </li>
                 <li class="nav-item ms-5">
-                    <a class="nav-link" th:href="@{/admin/report}">
+                    <a class="nav-link" th:href="@{/admin/report(language=${#locale.language})}">
                         <i class="bi bi-bar-chart-line"></i>
-                        <span class="ml-2 h5">Reports</span>
-                    </a>
-                </li>
-                <li class="nav-item ms-5">
-                    <a class="nav-link" href="#">
-                        <i class="bi bi-layers-fill"></i>
-                        <span class="ml-2 h5">Integrations</span>
+                        <span class="ml-2 h5" th:text="#{dashboardNavReports}">Reports</span>
                     </a>
                 </li>
             </ul>
         </div>
     </nav>
     <main class="col-md-9 ml-sm-auto col-lg-10 px-md-4 py-4 mt-3 mb-5">
-        <h2 class="mt-3">Total revenue</h2>
-	        <div>
-	            <canvas id="myChart"></canvas>
-	        </div>
+        <div style="display: flex; justify-content: space-between; gap: 20px;">
+		    <div style="flex: 1; height: 400px;">
+		    	<h2 th:text="#{dashboardTopRevenueHotel}">Revenue Hotel Overview</h2>
+		        <canvas id="myChart"></canvas>
+		    </div>
+		    <div style="flex: 1; height: 400px;">
+		    	<h2 th:text="#{dashboardTopRevenueHotel}">Top revenue Hotel</h2>
+		        <canvas id="topHotelsChart"></canvas>
+		    </div>
+		</div>
 	        
-        <h2>Total revenue by day</h2>
+        <h2 class="mt-4" th:text="#{dashboardRevenueHotelInDay}">Total revenue by day</h2>
         	<div id="traffic-chart" style="height: 400px;"></div>
         	
-        <h2 class="mt-3">Total Revenue by Week</h2>
+        <h2 class="mt-4" th:text="#{dashboardRevenueHotelInWeek}">Total Revenue by Week</h2>
 			<div id="weekly-chart" style="height: 400px;"></div>
         	
-        <h2 class="mt-3">Total Revenue by Month</h2>
+        <h2 class="mt-4" th:text="#{dashboardRevenueHotelInMonth}">Total Revenue by Month</h2>
 			<div id="monthly-chart" style="height: 400px;"></div>
     </main>
     </div>
@@ -80,7 +86,48 @@
     <script src="https://cdn.jsdelivr.net/npm/chartist@0.11.4/dist/chartist.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script th:inline="javascript">
-    
+    console.log("Initializing Top Hotels Earnings Chart");
+
+    const hotelNames = [[${hotelNames}]]; // Tên khách sạn
+    const hotelEarnings = [[${hotelEarnings}]]; // Doanh thu của từng khách sạn
+
+    const ctxTopHotels = document.getElementById('topHotelsChart').getContext('2d');
+    new Chart(ctxTopHotels, {
+        type: 'bar',
+        data: {
+            labels: hotelNames,
+            datasets: [{
+                label: 'Earnings (VND)',
+                data: hotelEarnings,
+                backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) {
+                            return value.toLocaleString(); // Format số
+                        }
+                    }
+                },
+                x: {
+                    ticks: {
+                        autoSkip: false, // Hiển thị tất cả nhãn
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false // Ẩn chú thích
+                }
+            }
+        }
+    });
 	    /* Đoạn mã Chart.js */
 	    /* Chart.js: Earnings Chart */
 	    console.log("Initializing Chart.js chart");

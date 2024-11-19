@@ -26,4 +26,8 @@ public interface PaymentService {
     List<BigDecimal> getEarningsPerWeekInYear(Long managerId);
     	
     List<BigDecimal> getEarningsPerMonthInYear(Long managerId);
+    
+    List<Object[]> getTopHotelsByEarnings();
+    
+    List<Object[]> getTopCustomersByEarnings();
 }

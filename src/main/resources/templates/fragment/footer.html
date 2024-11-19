@@ -10,55 +10,55 @@
                 <div class="container pb-3">
                     <div class="row">
                         <div class="col-lg-3 col-md-6">
-                            <h5>Hotel Location</h5>
-                            <p class="ps-0">Lorem ipsum dolor sit amet consectetur adipisicing elit. Incidunt, cum.....
+                            <h5 th:text="#{footerHotelLocation}">Hotel Location</h5>
+                            <p class="ps-0"  th:text="#{footerLocationAddress}">Lorem ipsum dolor sit amet consectetur adipisicing elit. Incidunt, cum.....
                             </p>
                             <div class="contact-info">
                                 <ul class="list-unstyled">
-                                    <li><a href="#"><i class="fa-solid fa-home me-3"></i>No. 99, Thao Dien, Thu Đuc, Ho Chi Minh City</a></li>
-                                    <li><a href="#"><i class="fa-solid fa-phone me-3"></i>+84 999 222 3333</a></li>
-                                    <li><a href="#"><i class="fa-solid fa-envelope me-3"></i>TourHotel@Gmail.com</a></li>
+                                    <li><a href="#"><i class="fa-solid fa-home me-3"></i><span th:text="#{footerLocationAddress}">No. 99, Thao Dien, Thu Đuc, Ho Chi Minh City</span></a></li>
+                                    <li><a href="#"><i class="fa-solid fa-phone me-3"></i><span th:text="#{footerPhoneNumber}">+84 999 222 3333</span></a></li>
+                                    <li><a href="#"><i class="fa-solid fa-envelope me-3"></i><span th:text="#{footerEmail}">TourHotel@Gmail.com</span></a></li>
                                 </ul>
                             </div>
                         </div>
 
 
                         <div class="col-lg-3 col-md-6">
-                            <h5>More Links</h5>
+                            <h5 th:text="#{footerMoreLinks}">More Links</h5>
                             <ul class="link-widget p-0">
-                                <li><a href="#">About Us</a></li>
-                                <li><a href="#">Our Office</a></li>
-                                <li><a href="#">Delivery</a></li>
-                                <li><a href="#">Our Store</a></li>
-                                <li><a href="#">Guarantee</a></li>
-                                <li><a href="#">Buy Gift Card</a></li>
-                                <li><a href="#">Return Policy</a></li>
+                                <li><a href="#" th:text="#{footerAboutUs}">About Us</a></li>
+		                        <li><a href="#" th:text="#{footerOurOffice}">Our Office</a></li>
+		                        <li><a href="#" th:text="#{footerDelivery}">Delivery</a></li>
+		                        <li><a href="#" th:text="#{footerOurStore}">Our Store</a></li>
+		                        <li><a href="#" th:text="#{footerGuarantee}">Guarantee</a></li>
+		                        <li><a href="#" th:text="#{footerBuyGiftCard}">Buy Gift Card</a></li>
+		                        <li><a href="#" th:text="#{footerReturnPolicy}">Return Policy</a></li>
                             </ul>
                         </div>
 
 
                         <div class="col-lg-3 col-md-6">
-                            <h5>More Links</h5>
-                            <ul class="link-widget p-0">
-                                <li><a href="#">About Us</a></li>
-                                <li><a href="#">Our Office</a></li>
-                                <li><a href="#">Delivery</a></li>
-                                <li><a href="#">Our Store</a></li>
-                                <li><a href="#">Guarantee</a></li>
-                                <li><a href="#">Buy Gift Card</a></li>
-                                <li><a href="#">Return Policy</a></li>
-                            </ul>
-                        </div>
+	                    <h5 th:text="#{footerMoreLinks}">More Links</h5>
+	                    <ul class="link-widget p-0">
+	                        <li><a href="#" th:text="#{footerAboutUs}">About Us</a></li>
+	                        <li><a href="#" th:text="#{footerOurOffice}">Our Office</a></li>
+	                        <li><a href="#" th:text="#{footerDelivery}">Delivery</a></li>
+	                        <li><a href="#" th:text="#{footerOurStore}">Our Store</a></li>
+	                        <li><a href="#" th:text="#{footerGuarantee}">Guarantee</a></li>
+	                        <li><a href="#" th:text="#{footerBuyGiftCard}">Buy Gift Card</a></li>
+	                        <li><a href="#" th:text="#{footerReturnPolicy}">Return Policy</a></li>
+	                    </ul>
+	                </div>
 
                         <div class="col-lg-3 col-md-6">
-                            <h5>Newsletter</h5>
+                            <h5 th:text="#{footerNewsletter}">Newsletter</h5>
                             <div class="form-group mb-4">
                                 <input type="email" class="form-control bg-transparent text-white placeholder-white"
                                     placeholder="Enter your Email here">
                                 <button type="submit"
                                     class="main-btn rounded-2 mt-3 border-white text-white">Subscribe</button>
                             </div>
-                            <h5>Stay Connected</h5>
+                            <h5 th:text="#{footerStayConnected}">Stay Connected</h5>
                             <ul class="social-network d-flex align-items-center p-0">
                                 <li><a href="#"><i class="fa-brands fa-facebook-f"></i></a></li>
                                 <li><a href="#"><i class="fa-brands fa-twitter"></i></a></li>
@@ -71,7 +71,7 @@
 
                 <!-- Copyright -->
                 <div class="container-fluid copyright-section text-center text-capitalize">
-                    <p>Copyright <a href="#">©️ TourHotel.</a> All Rights Reserved</p>
+                    <p th:text="#{footerCopyright}">Copyright <a href="#">©️ TourHotel.</a> All Rights Reserved</p>
                 </div>
             </section>
             <!-- Footer Section End -->
