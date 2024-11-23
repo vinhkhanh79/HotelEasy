@@ -12,11 +12,13 @@ import com.datn.tourhotel.model.dto.BookingDTO;
 import com.datn.tourhotel.model.dto.BookingInitiationDTO;
 import com.datn.tourhotel.model.dto.RoomSelectionDTO;
 import com.datn.tourhotel.model.enums.BookingStatus;
+import com.datn.tourhotel.model.enums.BookingType;
 import com.datn.tourhotel.model.enums.PaymentStatus;
 import com.datn.tourhotel.repository.BookingRepository;
 import com.datn.tourhotel.service.*;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -45,7 +47,12 @@ public class BookingServiceImpl implements BookingService {
                 .orElseThrow(() -> new EntityNotFoundException("Hotel not found with ID: " + bookingInitiationDTO.getHotelId()));
 
         Booking booking = mapBookingInitDtoToBookingModel(bookingInitiationDTO, customer, hotel);
-        booking.setStatus(BookingStatus.REFUNDED);
+        booking.setStatus(BookingStatus.PENDING);
+     // Set start and end times if available
+        if (bookingInitiationDTO.getStartTime() != null && bookingInitiationDTO.getEndTime() != null) {
+            booking.setStartTime(bookingInitiationDTO.getStartTime());
+            booking.setEndTime(bookingInitiationDTO.getEndTime());
+        }
 
         return bookingRepository.save(booking);
     }
@@ -54,6 +61,11 @@ public class BookingServiceImpl implements BookingService {
     @Transactional
     public BookingDTO confirmBooking(BookingInitiationDTO bookingInitiationDTO, Long customerId) {
         Booking savedBooking = this.saveBooking(bookingInitiationDTO, customerId);
+        // Map and validate the startTime and endTime
+        if (bookingInitiationDTO.getStartTime() != null && bookingInitiationDTO.getEndTime() != null) {
+            savedBooking.setStartTime(bookingInitiationDTO.getStartTime());
+            savedBooking.setEndTime(bookingInitiationDTO.getEndTime());
+        }
         Payment savedPayment = paymentService.savePayment(bookingInitiationDTO, savedBooking);
         savedBooking.setPayment(savedPayment);
         bookingRepository.save(savedBooking);
@@ -113,9 +125,9 @@ public class BookingServiceImpl implements BookingService {
         if (checkinDate.isBefore(LocalDate.now())) {
             throw new IllegalArgumentException("Check-in date cannot be in the past");
         }
-        if (checkoutDate.isBefore(checkinDate.plusDays(1))) {
-            throw new IllegalArgumentException("Check-out date must be after check-in date");
-        }
+//        if (checkoutDate.isBefore(checkinDate.plusDays(1))) {
+//            throw new IllegalArgumentException("Check-out date must be after check-in date");
+//        }
     }
     
     @Override
@@ -156,6 +168,9 @@ public class BookingServiceImpl implements BookingService {
                 .hotelId(booking.getHotel().getId())
                 .checkinDate(booking.getCheckinDate())
                 .checkoutDate(booking.getCheckoutDate())
+                .startTime(booking.getStartTime()) // Add startTime
+                .endTime(booking.getEndTime())     // Add endTime
+                .bookingType(booking.getBookingType())
                 .roomSelections(roomSelections)
                 .totalPrice(booking.getPayment().getTotalPrice())
                 .hotelName(booking.getHotel().getName())
@@ -166,6 +181,7 @@ public class BookingServiceImpl implements BookingService {
                 .paymentStatus(booking.getPayment().getPaymentStatus())
                 .paymentMethod(booking.getPayment().getPaymentMethod())
                 .status(booking.getStatus())
+                .bookingType(booking.getBookingType())
                 .build();
     }
 
@@ -175,7 +191,10 @@ public class BookingServiceImpl implements BookingService {
                 .hotel(hotel)
                 .checkinDate(bookingInitiationDTO.getCheckinDate())
                 .checkoutDate(bookingInitiationDTO.getCheckoutDate())
+                .startTime(bookingInitiationDTO.getStartTime())
+                .endTime(bookingInitiationDTO.getEndTime())
                 .status(BookingStatus.PENDING)
+                .bookingType(bookingInitiationDTO.getBookingType())
                 .build();
 
         for (RoomSelectionDTO roomSelection : bookingInitiationDTO.getRoomSelections()) {
@@ -188,7 +207,6 @@ public class BookingServiceImpl implements BookingService {
                 booking.getBookedRooms().add(bookedRoom);
             }
         }
-
         return booking;
     }
     @Override

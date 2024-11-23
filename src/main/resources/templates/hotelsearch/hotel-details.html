@@ -9,25 +9,55 @@
 <th:block layout:fragment="content">
     <div class="container mt-4">
         <div class="row justify-content-center mb-4">
-	        <div class="col-md-10">
-		        <form action="/hotel-details/update-dates" method="post">
-		            <div class="row mb-4">
-		                <div class="col-md-5">
-		                    <label for="checkinDate">Check-in Date:</label>
-		                    <input type="date" id="checkinDate" name="checkinDate" th:value="${checkinDate}" class="form-control">
-		                </div>
-		                <div class="col-md-5">
-		                    <label for="checkoutDate">Check-out Date:</label>
-		                    <input type="date" id="checkoutDate" name="checkoutDate" th:value="${checkoutDate}" class="form-control">
-		                </div>
-		                <div class="col-md-2 d-flex align-items-end">
-		                    <input type="hidden" name="hotelId" th:value="${hotel.id}"/>
-		            		<button type="submit" class="btn btn-primary mt-3">Update Dates</button>
-		            	</div>
-		            </div>
-		        </form>
-	        </div>
+            <div class="col-md-10">
+                <form action="/hotel-details/update-dates" method="post">
+                    <div class="row mt-3 mb-3">
+                        <!-- Loại đặt phòng -->
+                        <div class="col-md-2">
+                            <label for="bookingType">Booking Type:</label>
+                            <select id="bookingType" class="form-select" name="bookingType">
+                                <option value="DAYLY">Dayly</option>
+                                <option value="HOURLY">Hourly</option>
+                                <option value="OVERNIGHT">Overnight</option>
+                            </select>
+                        </div>
+                        <!-- Ngày check-in -->
+                        <div class="col-md-4">
+                            <label for="checkinDate">Check-in Date:</label>
+                            <input type="date" id="checkinDate" name="checkinDate" th:value="${checkinDate}" class="form-control">
+                        </div>
+                        <!-- Ngày check-out -->
+                        <div class="col-md-4">
+                            <label for="checkoutDate">Check-out Date:</label>
+                            <input type="date" id="checkoutDate" name="checkoutDate" th:value="${checkoutDate}" class="form-control">
+                        </div>
+                        <div class="col-md-2 d-flex align-items-end">
+                            <input type="hidden" name="hotelId" th:value="${hotel.id}" />
+                            <button type="submit" class="btn btn-primary mt-3">Update Booking</button>
+                        </div>
+                    </div>
+
+                    <div id="dateWarning" class="alert alert-warning" style="display: none;">
+                        Vui lòng chọn lại check-in date và check-out date để có thể book loại đặt phòng phù hợp.
+                    </div>
+
+                    <!-- Tùy chọn đặt theo giờ -->
+                    <div class="row mb-5" id="hourlyBookingOptions" style="display: none;">
+                        <div class="col-md-8 d-flex">
+                            <div class="me-3 flex-grow-1">
+                                <label for="startHour">Start Time:</label>
+                                <input type="time" id="startHour" name="startTime" class="form-control">
+                            </div>
+                            <div class="flex-grow-1">
+                                <label for="endHour">End Time:</label>
+                                <input type="time" id="endHour" name="endTime" class="form-control">
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
         </div>
+
         <div class="row align-items-stretch mb-5">
         <div class="col-md-6">
         	<div class="row text-center">
@@ -56,6 +86,7 @@
         <div class="row mt-5 mb-4">
     <div class="col-md-12">
         <form action="/booking/initiate" method="post" id="booking-form">
+            <input type="hidden" name="bookingType" id="bookingTypeHidden" value="DAYLY"/>
             <table class="table">
                 <thead>
                 <tr>
@@ -125,7 +156,8 @@
                 </tr>
                 </tbody>
             </table>
-            <!-- Total Price Section Below the Table -->
+
+            
 			<!-- Total Price Section Below the Table -->
 			<div class="row mb-2 justify-content-end">
 			    <div class="col-auto">
@@ -146,9 +178,13 @@
             <input type="hidden" name="checkinDate" th:value="${checkinDate}"/>
             <input type="hidden" name="checkoutDate" th:value="${checkoutDate}"/>
             <input type="hidden" name="durationDays" th:value="${durationDays}"/>
+            <input type="hidden" id="hiddenStartTime" name="startTime" />
+			<input type="hidden" id="hiddenEndTime" name="endTime" />
+			<input type="hidden" id="bookingTypeHidden" name="bookingType"/>
         </form>
     </div>
 </div>
+        
         <session id="facilities" class="mt-4">
 		    <div class="container">
 		        <h2 class="fw-bold mb-4 text-center">Facilities</h2>
@@ -192,9 +228,8 @@
 		            </div>
 		        </div>
 		    </div>
-</session>
-
-        <section id="policy" class="mt-4">
+		</session>
+<section id="policy" class="mt-4">
         	<div id="container">
         		<h2 class="fw-bold mb-4 text-center">Address</h2>
         		<iframe th:src="${hotel.addressDTO.location}" width="100%" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
@@ -228,6 +263,8 @@
 		    </div>
 		  </div>
 		</section>
+
+        
     </div>
 </th:block>
 <th:block layout:fragment="additional-scripts">
@@ -242,6 +279,170 @@
         /*]]>*/
     </script>
     <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const bookingType = document.getElementById("bookingType");
+        const bookingTypeHidden = document.getElementById("bookingTypeHidden");
+        const checkinDate = document.getElementById("checkinDate");
+        const checkoutDate = document.getElementById("checkoutDate");
+        const dateWarning = document.getElementById("dateWarning");
+        const hourlyBookingOptions = document.getElementById("hourlyBookingOptions");
+        const startHour = document.getElementById("startHour");
+        const endHour = document.getElementById("endHour");
+        const roomSelectElements = document.querySelectorAll(".room-select");
+        const totalPriceElement = document.getElementById("totalPrice");
+        const totalPriceInput = document.getElementById("totalPriceInput");
+        const reserveButton = document.getElementById("reserve-button");
+
+        bookingType.addEventListener("change", function () {
+            bookingTypeHidden.value = this.value; // Cập nhật giá trị bookingTypeHidden
+        });
+
+        // Đảm bảo giá trị được gán khi trang được tải lần đầu
+        bookingTypeHidden.value = bookingType.value;
+
+        function updateBookingTypeOptions() {
+            const checkin = new Date(checkinDate.value);
+            const checkout = new Date(checkoutDate.value);
+
+            if (checkin && checkout) {
+                if (checkin.toDateString() === checkout.toDateString()) {
+                    // Cùng ngày
+                    bookingType.value = "HOURLY"; // Chọn Hourly mặc định
+                    bookingType.querySelector("option[value='DAYLY']").style.display = "none";
+                    bookingType.querySelector("option[value='OVERNIGHT']").style.display = "none";
+                    hourlyBookingOptions.style.display = "block";
+                    dateWarning.style.display = "block"; // Ẩn thông báo
+                } else {
+                    // Khác ngày
+                    bookingType.querySelector("option[value='DAYLY']").style.display = "block";
+                    bookingType.querySelector("option[value='OVERNIGHT']").style.display = "block";
+                    bookingType.querySelector("option[value='HOURLY']").style.display = "none";
+                    hourlyBookingOptions.style.display = "none";
+                    dateWarning.style.display = "block"; // Hiển thị thông báo
+                }
+            } else {
+                // Nếu một trong hai ngày không được chọn
+                bookingType.querySelector("option[value='DAYLY']").style.display = "block";
+                bookingType.querySelector("option[value='OVERNIGHT']").style.display = "block";
+                hourlyBookingOptions.style.display = "none";
+                dateWarning.style.display = "none"; // Ẩn thông báo
+            }
+        }
+
+        // Thêm sự kiện thay đổi cho ngày check-in và check-out
+        checkinDate.addEventListener("change", updateBookingTypeOptions);
+        checkoutDate.addEventListener("change", updateBookingTypeOptions);
+
+        // Khởi động kiểm tra khi trang được tải
+        updateBookingTypeOptions();
+
+        function calculateHours(start, end) {
+            const [startH, startM] = start.split(":").map(Number);
+            const [endH, endM] = end.split(":").map(Number);
+            const startTime = startH + startM / 60;
+            const endTime = endH + endM / 60;
+
+            if (endTime <= startTime) return 0; // Giờ kết thúc phải sau giờ bắt đầu
+            return endTime - startTime;
+        }
+
+        function calculateTotalPrice() {
+            let totalPrice = 0;
+
+            roomSelectElements.forEach(select => {
+                const selectedCount = parseInt(select.value) || 0;
+                const pricePerDay = parseFloat(select.dataset.durationPrice) || 0;
+                let adjustedPrice = 0;
+
+                if (bookingType.value === "DAYLY") {
+                    adjustedPrice = pricePerDay;
+                } else if (bookingType.value === "HOURLY") {
+                    const start = startHour.value;
+                    const end = endHour.value;
+                    const hours = calculateHours(start, end);
+                    if (hours > 0) {
+                        adjustedPrice = (pricePerDay / 24) * hours;
+                    }
+                } else if (bookingType.value === "OVERNIGHT") {
+                    adjustedPrice = (pricePerDay / 24) * 12; // Giả sử qua đêm là 12 giờ
+                }
+
+                totalPrice += selectedCount * adjustedPrice;
+            });
+
+            // Hiển thị tổng giá
+            totalPriceElement.textContent = `${totalPrice.toLocaleString()} VND`;
+            totalPriceInput.value = totalPrice;
+
+            // Vô hiệu hóa nút "Reserve" nếu giá là 0
+            reserveButton.disabled = totalPrice === 0;
+        }
+
+        // Hiển thị tùy chọn giờ khi chọn "Hourly"
+        bookingType.addEventListener("change", function () {
+            if (bookingType.value === "HOURLY") {
+                // Lấy giờ hiện tại và cộng thêm 1 giờ, phút là 00
+                const now = new Date();
+                const startH = now.getHours();
+                const endH = (startH + 1) % 24;  // Cộng thêm 1 giờ
+
+                // Thiết lập phút là 00
+                startHour.value = `${startH}:${"00"}`;
+                endHour.value = `${endH}:${"00"}`;
+
+                hourlyBookingOptions.style.display = "block";
+            } else {
+                hourlyBookingOptions.style.display = "none";
+            }
+
+            // Tự động đặt giờ cho Overnight
+            if (bookingType.value === "OVERNIGHT") {
+                const today = new Date();
+                startHour.value = "21:00";
+                const tomorrow = new Date(today.getTime() + 24 * 60 * 60 * 1000); // Ngày mai
+                endHour.value = "12:00";
+
+                // Hiển thị tùy chọn giờ cho Overnight
+                hourlyBookingOptions.style.display = "block";
+            }
+
+            // Cập nhật giờ vào các hidden input
+            hiddenStartTime.value = startHour.value;
+            hiddenEndTime.value = endHour.value;
+
+            calculateTotalPrice();
+        });
+
+        // Tính toán lại khi thay đổi giờ
+        [startHour, endHour].forEach(input => {
+            input.addEventListener("change", function () {
+                hiddenStartTime.value = startHour.value; // Cập nhật giá trị hidden start time
+                hiddenEndTime.value = endHour.value; // Cập nhật giá trị hidden end time
+                calculateTotalPrice();
+            });
+        });
+
+        roomSelectElements.forEach(select => {
+            select.addEventListener("change", calculateTotalPrice);
+        });
+
+        // Tính toán lại khi khởi động
+        calculateTotalPrice();
+    });
+
+    document.getElementById('bookingType').addEventListener('change', function () {
+        document.getElementById('hiddenStartTime').value = startHour.value; // Assign start time
+        document.getElementById('hiddenEndTime').value = endHour.value;     // Assign end time
+        document.getElementById('bookingTypeHidden').value = this.value; // Update booking type
+    });
+
+    document.querySelectorAll('input[type="time"]').forEach(input => {
+        input.addEventListener('change', function () {
+            let [hours] = this.value.split(':');
+            this.value = `${hours}:00`;
+        });
+    });
+
     function changeImage(element) {
         // Lấy URL của hình ảnh từ hình ảnh nhỏ (thumbnail)
         const newSrc = element.src;

@@ -15,7 +15,7 @@
 <th:block layout:fragment="content">
 <div class="body py-5">
     <div class="container">
-        <div class="w-50 m-auto">
+        <div class="m-auto" style="width: 70%">
             <!-- Thêm lớp "my-4" để tạo ra khoảng cách trên và dưới tiêu đề trang -->
             <h1 class="my-3 text-danger text-center">Payment Fail</h1>
             <!-- Sử dụng lớp "alert" và "alert-danger" để tạo ra thông báo lỗi -->
@@ -35,6 +35,26 @@
                     <td>Payment Time:</td>
                     <td><span th:text="${paymentTime}">[payment time]</span></td>
                 </tr>
+                <tr>
+		            <td>Booking Type:</td>
+		            <td><span th:text="${bookingType}">[booking type]</span></td>
+		        </tr>
+		        <tr>
+		            <td>Check-in Date:</td>
+		            <td><span th:text="${checkinDate}">[check-in date]</span></td>
+		        </tr>
+		        <tr>
+		            <td>Check-out Date:</td>
+		            <td><span th:text="${checkoutDate}">[check-out date]</span></td>
+		        </tr>
+		        <tr>
+		            <td>Start Time:</td>
+		            <td><span th:text="${startTime}">[start time]</span></td>
+		        </tr>
+		        <tr>
+		            <td>End Time:</td>
+		            <td><span th:text="${endTime}">[end time]</span></td>
+		        </tr>
                 <tr>
                     <td>transaction Code:</td>
                     <td><span th:text="${transactionId}">[transaction ID]</span></td>

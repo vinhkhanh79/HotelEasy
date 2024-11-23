@@ -4,8 +4,11 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import com.datn.tourhotel.model.enums.BookingStatus;
+import com.datn.tourhotel.model.enums.BookingType;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -42,6 +45,12 @@ public class Booking {
 
     @Column(nullable = false)
     private LocalDate checkoutDate;
+    
+    @Column(nullable = true)
+    private LocalTime startTime;
+    
+    @Column(nullable = true)
+    private LocalTime endTime;
 
     @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
@@ -49,6 +58,10 @@ public class Booking {
 
     @OneToOne(mappedBy = "booking")
     private Payment payment;
+    
+    @Column(nullable = true)
+    @Enumerated(EnumType.STRING)
+    private BookingType bookingType;
     
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

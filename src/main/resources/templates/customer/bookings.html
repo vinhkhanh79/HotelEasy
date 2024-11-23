@@ -24,8 +24,9 @@
                                     </small>
                                 </p>
                                 <p class="card-text">
-                                    Check-in: <span th:text="${booking.checkinDate}"></span><br>
-                                    Check-out: <span th:text="${booking.checkoutDate}"></span>
+                                	Booking type: <span th:text="${booking.bookingType}"></span><br>
+                                    Check-in: <span th:text="${booking.checkinDate} +' '+ ${booking.startTime} + 'h'"></span><br>
+                                    Check-out: <span <span th:text="${booking.checkoutDate} +' '+ ${booking.endTime} + 'h'"></span>
                                 </p>
                                 <p class="card-text">
 								    Status: <span th:text="${booking.status}"

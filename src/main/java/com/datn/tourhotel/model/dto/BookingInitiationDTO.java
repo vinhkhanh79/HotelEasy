@@ -7,8 +7,11 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
+
+import com.datn.tourhotel.model.enums.BookingType;
 
 @Data
 @Builder
@@ -19,6 +22,9 @@ public class BookingInitiationDTO {
     private long hotelId;
     private LocalDate checkinDate;
     private LocalDate checkoutDate;
+    private LocalTime startTime;
+    private LocalTime endTime;
+    private BookingType bookingType;
     private long durationDays;
     private List<RoomSelectionDTO> roomSelections = new ArrayList<>();
     private BigDecimal totalPrice;

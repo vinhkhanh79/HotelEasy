@@ -21,16 +21,28 @@
                         <span class="mb-4" th:text="${bookingDTO.hotelAddress.addressLine + ', ' + bookingDTO.hotelAddress.city + ', ' + bookingDTO.hotelAddress.country}"></span>
                         <div class="row text-center my-5">
                             <div class="col-md-4">
-                                <h5>Check-in</h5>
+                                <h5>Booking type</h5>
+                                <span th:text="${bookingDTO.bookingType}"></span>
+                            </div>
+                            <div class="col-md-4">
+                                <h5>Check-in date</h5>
                                 <span th:text="${bookingDTO.checkinDate}"></span>
                             </div>
                             <div class="col-md-4">
-                                <h5>Check-out</h5>
+                                <h5>Check-out date</h5>
                                 <span th:text="${bookingDTO.checkoutDate}"></span>
                             </div>
                             <div class="col-md-4">
                                 <h5>Duration</h5>
-                                <span th:text="${days} + ' night(s)'"></span>
+                                <span th:text="${days} + ' day(s)'"></span>
+                            </div>
+                            <div class="col-md-4">
+                                <h5>Check-in hour</h5>
+                                <span th:text="${bookingDTO.startTime}"></span>
+                            </div>
+                            <div class="col-md-4">
+                                <h5>Check-out hour</h5>
+                                <span th:text="${bookingDTO.endTime}"></span>
                             </div>
                         </div>
                         <h5>Rooms:</h5>

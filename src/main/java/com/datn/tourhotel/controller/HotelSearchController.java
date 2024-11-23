@@ -77,6 +77,7 @@ public class HotelSearchController {
             }
 
             long durationDays = ChronoUnit.DAYS.between(parsedCheckinDate, parsedCheckoutDate);
+            durationDays = durationDays == 0 ? 1 : durationDays; // Nếu cùng ngày, tính là 1 ngày
 
             model.addAttribute("hotels", hotels);
             model.addAttribute("addressLine", addressLine);
@@ -118,6 +119,7 @@ public class HotelSearchController {
             HotelAvailabilityDTO hotelAvailabilityDTO = hotelSearchService.findAvailableHotelById(id, parsedCheckinDate, parsedCheckoutDate);
 
             long durationDays = ChronoUnit.DAYS.between(parsedCheckinDate, parsedCheckoutDate);
+            durationDays = durationDays == 0 ? 1 : durationDays; // Nếu cùng ngày, tính là 1 ngày
 
             model.addAttribute("hotel", hotelAvailabilityDTO);
             model.addAttribute("durationDays", durationDays);
@@ -179,9 +181,9 @@ public class HotelSearchController {
         if (checkinDate.isBefore(LocalDate.now())) {
             throw new IllegalArgumentException("Check-in date cannot be in the past");
         }
-        if (checkoutDate.isBefore(checkinDate.plusDays(1))) {
-            throw new IllegalArgumentException("Check-out date must be after check-in date");
-        }
+//        if (checkoutDate.isBefore(checkinDate.plusDays(1))) {
+//            throw new IllegalArgumentException("Check-out date must be after check-in date");
+//        }
     }
 
     private void parseAndValidateBookingDates(String checkinDate, String checkoutDate) {

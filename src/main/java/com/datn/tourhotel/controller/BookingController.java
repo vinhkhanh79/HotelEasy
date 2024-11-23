@@ -159,6 +159,10 @@ public class BookingController {
             redirectAttributes.addFlashAttribute("totalPrice", totalPrice);
             redirectAttributes.addFlashAttribute("paymentTime", paymentTime);
             redirectAttributes.addFlashAttribute("transactionId", transactionId);
+            redirectAttributes.addFlashAttribute("bookingType", bookingDTO.getBookingType());
+            redirectAttributes.addFlashAttribute("startTime", bookingDTO.getStartTime());
+            redirectAttributes.addFlashAttribute("endTime", bookingDTO.getEndTime());
+
             // Handle booking confirmation
             bookingService.confirmBookingFromPayment(orderInfo);
             redirectAttributes.addFlashAttribute("bookingDTO", bookingDTO);
@@ -251,8 +255,11 @@ public class BookingController {
                             + "               Transaction ID: %s<br>\n"
                             + "               Booking Information:<br>\n"
                             + "               Customer Name: %s<br>\n"
+                            + "				  Booking Type: %s<br>\n"
                             + "               Check-in Date: %s<br>\n"
                             + "               Check-out Date: %s<br>\n"
+                            + "				  Start Time: %s<br>\n"
+                            + "				  End Time: %s\n"
                             + "            </p>\n"
                             + "            <p>If you have any questions or need further assistance, feel free to contact us.</p>\n"
                             + "            <p>Thank you for choosing our services! We look forward to welcoming you.</p>\n"
@@ -271,8 +278,11 @@ public class BookingController {
                     paymentTime, // Thời gian thanh toán
                     transactionId, // Mã giao dịch
                     bookingDTO.getCustomerName(), // Tên khách hàng
+                    bookingDTO.getBookingType(),
                     bookingDTO.getCheckinDate(), // Ngày check-in
-                    bookingDTO.getCheckoutDate() // Ngày check-out
+                    bookingDTO.getCheckoutDate(), // Ngày check-out
+                    bookingDTO.getStartTime(),
+                    bookingDTO.getEndTime()
             );
 
             
@@ -286,6 +296,11 @@ public class BookingController {
             model.addAttribute("totalPrice", totalPrice);
             model.addAttribute("paymentTime", paymentTime);
             model.addAttribute("transactionId", transactionId);
+            model.addAttribute("checkinDate", bookingDTO.getCheckinDate());
+            model.addAttribute("checkoutDate", bookingDTO.getCheckoutDate());
+            model.addAttribute("bookingType", bookingDTO.getBookingType());
+            model.addAttribute("startTime", bookingDTO.getStartTime());
+            model.addAttribute("endTime", bookingDTO.getEndTime());
             return "/booking/orderfail";
         }
     }

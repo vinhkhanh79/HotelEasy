@@ -126,8 +126,8 @@ public class HotelSearchServiceImpl implements HotelSearchService {
         if (checkinDate.isBefore(LocalDate.now())) {
             throw new IllegalArgumentException("Check-in date cannot be in the past");
         }
-        if (checkoutDate.isBefore(checkinDate.plusDays(1))) {
-            throw new IllegalArgumentException("Check-out date must be after check-in date");
-        }
+//        if (checkoutDate.isBefore(checkinDate.plusDays(1))) {
+//            throw new IllegalArgumentException("Check-out date must be after check-in date");
+//        }
     }
 }
