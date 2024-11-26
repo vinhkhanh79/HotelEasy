@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -19,8 +20,10 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.datn.tourhotel.exception.HotelAlreadyExistsException;
 import com.datn.tourhotel.exception.UsernameAlreadyExistsException;
+import com.datn.tourhotel.model.Comment;
 import com.datn.tourhotel.model.HotelManager;
 import com.datn.tourhotel.model.dto.BookingDTO;
+import com.datn.tourhotel.model.dto.CommentDTO;
 import com.datn.tourhotel.model.dto.HotelDTO;
 import com.datn.tourhotel.model.dto.HotelRegistrationAdminDTO;
 import com.datn.tourhotel.model.dto.HotelRegistrationDTO;
@@ -29,6 +32,7 @@ import com.datn.tourhotel.model.dto.UserDTO;
 import com.datn.tourhotel.model.dto.UserRegistrationDTO;
 import com.datn.tourhotel.model.enums.RoomType;
 import com.datn.tourhotel.service.BookingService;
+import com.datn.tourhotel.service.CommentService;
 import com.datn.tourhotel.service.CustomerService;
 import com.datn.tourhotel.service.ExcelExportService;
 import com.datn.tourhotel.service.HotelManagerService;
@@ -59,6 +63,7 @@ public class AdminController {
     private final HotelManagerService hotelManagerService;
     private final PaymentService paymentService;
     private final ExcelExportService excelExportService;
+    private final CommentService commentService;
 
     @GetMapping("/dashboard")
     public String dashboard(Model model, HttpServletRequest request, @RequestParam(name = "earningsPeriod", required = false, defaultValue = "total") String period) {
@@ -426,6 +431,21 @@ public class AdminController {
         }
         return "redirect:/admin/bookings/" + id;
     }
+    @GetMapping("/comments")
+    public String listComments(Model model, HttpServletRequest request) {
+        String message = messageSource.getMessage("hello", null, "default message", request.getLocale());
+
+        List<CommentDTO> commentDTOList = commentService.findAllCommentList();
+        model.addAttribute("comments", commentDTOList);
+        return "admin/comments";
+    }
+    @PostMapping("/comments/delete/{id}")
+    public String deleteComment(@PathVariable Long id) {
+        commentService.deleteComment(id);
+        return "redirect:/admin/comments";
+    }
+
+
     @GetMapping("/hotels/export/excel")
     public void exportHotelsToExcel(HttpServletResponse response) throws IOException {
         List<HotelDTO> hotelList = hotelService.findAllHotels();

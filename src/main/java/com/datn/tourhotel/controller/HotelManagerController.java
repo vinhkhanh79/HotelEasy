@@ -19,13 +19,17 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.datn.tourhotel.exception.HotelAlreadyExistsException;
 import com.datn.tourhotel.exception.UsernameAlreadyExistsException;
+import com.datn.tourhotel.model.Hotel;
+import com.datn.tourhotel.model.User;
 import com.datn.tourhotel.model.dto.BookingDTO;
+import com.datn.tourhotel.model.dto.CommentDTO;
 import com.datn.tourhotel.model.dto.HotelDTO;
 import com.datn.tourhotel.model.dto.HotelRegistrationDTO;
 import com.datn.tourhotel.model.dto.RoomDTO;
 import com.datn.tourhotel.model.dto.UserDTO;
 import com.datn.tourhotel.model.enums.RoomType;
 import com.datn.tourhotel.service.BookingService;
+import com.datn.tourhotel.service.CommentService;
 import com.datn.tourhotel.service.CustomerService;
 import com.datn.tourhotel.service.ExcelExportService;
 import com.datn.tourhotel.service.HotelManagerService;
@@ -56,6 +60,7 @@ public class HotelManagerController {
     private final PaymentService paymentService;
     private final HotelManagerService hotelManagerService;
     private final ExcelExportService excelExportService;
+    private final CommentService commentService;
 
     @GetMapping("/dashboard")
     public String dashboard(HttpServletRequest request, Model model, @RequestParam(name = "earningsPeriod", required = false, defaultValue = "total") String period) {
@@ -417,10 +422,51 @@ public class HotelManagerController {
         }
         return "redirect:/manager/bookings/" + id;
     }
+    
+    @GetMapping("/comments")
+    public String listComments(Model model, HttpServletRequest request, @RequestParam(required = false) Long hotelId) {
+        // Get the current logged-in manager's hotel ID if necessary
+        if (hotelId == null) {
+            // You can use authentication or session to get the current hotel if the manager is logged in
+            hotelId = getCurrentManagerHotelId(); // Implement this method based on your auth system
+        }
+
+        // Retrieve comments for the specific hotel
+        List<CommentDTO> commentDTOList = commentService.findCommentsByHotel(hotelId);
+        model.addAttribute("comments", commentDTOList);
+        return "hotelmanager/comments";
+    }
+
+    @PostMapping("/comments/delete/{id}")
+    public String deleteComment(@PathVariable Long id) {
+        commentService.deleteComment(id);
+        return "redirect:/manager/comments";
+    }
 
     private Long getCurrentManagerId() {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         return userService.findUserByUsername(username).getHotelManager().getId();
+    }
+    private Long getCurrentManagerHotelId() {
+        // Get the currently logged-in user's username
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        
+        // Find the user by username and fetch the associated hotel manager
+        User currentUser = userService.findUserByUsername(username);
+        
+        // Ensure the user is a hotel manager and return the hotel ID of the first hotel in the list
+        if (currentUser != null && currentUser.getHotelManager() != null) {
+            List<Hotel> hotels = currentUser.getHotelManager().getHotels();
+            
+            // Check if the manager manages any hotels
+            if (hotels != null && !hotels.isEmpty()) {
+                return hotels.get(0).getId();  // Get the ID of the first hotel
+            } else {
+                throw new IllegalStateException("No hotels are assigned to this manager.");
+            }
+        } else {
+            throw new IllegalStateException("The current user is not a hotel manager.");
+        }
     }
     @GetMapping("/hotels/export/excel")
     public void exportHotelsToExcel(HttpServletResponse response) throws IOException {

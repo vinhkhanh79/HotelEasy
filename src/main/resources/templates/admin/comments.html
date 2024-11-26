@@ -2,7 +2,7 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{/admin/layout/layout-main}">
 <head>
-    <title>User List</title>
+    <title>Evaluate List</title>
 </head>
 <body>
 <th:block layout:fragment="content">
@@ -11,44 +11,50 @@
         <div class="position-sticky justify-content-center">
             <ul class="nav flex-column">
                 <li class="nav-item">
-                    <a class="nav-link ms-5" aria-current="page" th:href="@{/manager/dashboard(language=${#locale.language})}">
+                    <a class="nav-link ms-5" aria-current="page" th:href="@{/admin/dashboard(language=${#locale.language})}">
                         <i class="bi bi-house-door-fill"></i>
                         <span class="ml-2 h5" th:text="#{dashboardTitle}">Dashboard</span>
                     </a>
                 </li>
                 <hr>
                 <li class="nav-item ms-5">
-                    <a class="nav-link" th:href="@{/manager/users(language=${#locale.language})}">
+                        <a class="nav-link" th:href="@{/admin/users/add(language=${#locale.language})}">
+                            <i class="bi bi-people-fill"></i>
+                            <span class="ml-2 h5" th:text="#{dashboardNavAddUsers}">Add Users</span>
+                        </a>
+                    </li>
+                <li class="nav-item ms-5">
+                    <a class="nav-link" th:href="@{/admin/users(language=${#locale.language})}">
                         <i class="bi bi-people-fill"></i>
                         <span class="ml-2 h5" th:text="#{dashboardNavUsers}">Users</span>
                     </a>
                 </li>
                 <li class="nav-item ms-5">
-                    <a class="nav-link" th:href="@{/manager/hotels/add(language=${#locale.getLanguage()})}">
+                    <a class="nav-link" th:href="@{/admin/hotels/add(language=${#locale.getLanguage()})}">
                         <i class="bi bi-building"></i>
                         <span class="ml-2 h5" th:text="#{dashboardNavAddHotels}">Add hotels</span>
                     </a>
                 </li>
                 <li class="nav-item ms-5">
-                    <a class="nav-link" th:href="@{/manager/hotels(language=${#locale.getLanguage()})}">
+                    <a class="nav-link" th:href="@{/admin/hotels(language=${#locale.language})}">
                         <i class="bi bi-building"></i>
                         <span class="ml-2 h5" th:text="#{dashboardNavHotels}">Hotels</span>
                     </a>
                 </li>
                 <li class="nav-item ms-5">
-                    <a class="nav-link" th:href="@{/manager/bookings(language=${#locale.getLanguage()})}">
+                    <a class="nav-link" th:href="@{/admin/bookings(language=${#locale.language})}">
                         <i class="bi bi-calendar-check"></i>
                         <span class="ml-2 h5" th:text="#{dashboardNavBookings}">Bookings</span>
                     </a>
                 </li>
                 <li class="nav-item ms-5">
-                    <a class="nav-link" th:href="@{/manager/report(language=${#locale.language})}">
+                    <a class="nav-link" th:href="@{/admin/report(language=${#locale.language})}">
                         <i class="bi bi-bar-chart-line"></i>
                         <span class="ml-2 h5" th:text="#{dashboardNavReports}">Reports</span>
                     </a>
                 </li>
                 <li class="nav-item ms-5">
-                    <a class="nav-link" th:href="@{/manager/comments(language=${#locale.language})}">
+                    <a class="nav-link" th:href="@{/admin/comments(language=${#locale.language})}">
                         <i class="bi bi-star-fill"></i>
                         <span class="ml-2 h5" th:text="#{dashboardNavEvaluates}">Evaluates</span>
                     </a>
@@ -59,57 +65,45 @@
     <main class="col-md-9 ml-sm-auto col-lg-10 px-md-4 py-4 mt-4 mb-5">
         <div class="row" style="min-height: 50vh;">
             <div class="col-md-12">
-                <h2 th:text="#{dashboardUserList}">User List</h2>
-                <div th:if="${success}">
-                    <div class="alert alert-success text-center">
-                        User ID: <span th:text="${updatedUserId}"></span> info has been successfully updated
-                    </div>
-                </div>
-                <div class="text-end"> 
-	                <a href="/manager/users/export/excel" class="btn btn-info mb-3 ">
-					    Export to Excel
-					</a>
-				</div>
-                <table class="table table-striped align-middle">
-                    <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Username</th>
-                        <th>Name</th>
-                        <th>Last Name</th>
-                        <th>Phone</th>
-                        <th>Email</th>
-                        <th>Birthday</th>
-                        <th>Role</th>
-                        <th>Edit</th>
-                        <th>Delete</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr class="align-middle" th:each="user : ${users}">
-                        <td th:text="${user.id}"></td>
-                        <td th:text="${user.username}"></td>
-                        <td th:text="${user.name}"></td>
-                        <td th:text="${user.lastName}"></td>
-                        <td th:text="${user.phone}"></td>
-                        <td th:text="${user.email}"></td>
-                        <td th:text="${user.birthday}"></td>
-                        <td th:text="${user.role.roleType.name()}"></td>
-                        <td>
-                            <a th:href="@{/manager/users/edit/{id}(id=${user.id},language=${#locale.getLanguage()})}">Edit</a>
+                <h2 th:text="#{dashboardEvaluateList}">Evaluate List</h2>
 
-                        </td>
-                        <td>
-                            <form method="post" th:if="${user.role.roleType.name() != 'ADMIN'}"
-                                  th:action="@{/admin/users/delete/{id}(id=${user.id})}"
-                                  onsubmit="return confirm('Are you sure you want to delete this user?');">
-                                <input type="hidden" name="_method" value="DELETE"/>
-                                <button type="submit" class="btn btn-danger btn-sm">Delete</button>
-                            </form>
-                        </td>
-                    </tr>
-                    </tbody>
-                </table>
+
+                <table class="table table-striped align-middle">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Username</th>
+                                <th>Name</th>
+                                <th>Content</th>
+                                <th>Rating</th>
+                                <th>Hotel</th>
+                                <th>Created Date</th>
+                                <th>Delete</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="comment : ${comments}">
+                                <td th:text="${comment.id}"></td>
+                                <td th:text="${comment.username}"></td>
+                                <td th:text="${comment.name}"></td>
+                                <td th:text="${comment.content}"></td>
+                                <td>
+							        <span style="color: black; font-size: larger;">
+							            <span th:text="${comment.rating}"></span>
+							            <span style="color: yellow; font-size: 1.5rem;">&#9733;</span>
+							        </span>
+							    </td>
+							    <td th:text="${comment.hotelName}"></td>
+                                <td th:text="${#temporals.format(comment.createdDate, 'yyyy-MM-dd HH:mm')}"></td>
+                                <td>
+							        <form method="post" th:action="@{/admin/comments/delete/{id}(id=${comment.id})}" onsubmit="return confirm('Are you sure you want to delete this comment?');">
+							            <input type="hidden" name="_method" value="DELETE"/>
+							            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+							        </form>
+							    </td>
+                            </tr>
+                        </tbody>
+                    </table>
                 <div class="pagination-container text-center mt-4">
 				    <button id="prevPage" class="btn btn-outline-primary mx-1">«</button>
 				    <span id="pageNumbers"></span>

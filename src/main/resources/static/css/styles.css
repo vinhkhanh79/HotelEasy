@@ -6,6 +6,21 @@
     margin: 0;
     padding: 0;
 }
+.star {
+    font-size: 2rem; /* Cỡ chữ cho sao */
+    cursor: pointer;
+    color: #ccc; /* Màu mặc định của sao (trống) */
+    transition: color 0.3s ease; /* Hiệu ứng chuyển màu */
+}
+
+.star.selected {
+    color: gold; /* Màu vàng cho sao được chọn */
+}
+
+.star.hovered {
+    color: gold; /* Màu vàng khi hover vào sao */
+}
+
 
 :root {
     /* Background Color */
