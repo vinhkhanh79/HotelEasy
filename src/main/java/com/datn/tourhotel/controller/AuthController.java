@@ -23,10 +23,12 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.datn.tourhotel.exception.UsernameAlreadyExistsException;
+import com.datn.tourhotel.model.Post;
 import com.datn.tourhotel.model.User;
 import com.datn.tourhotel.model.dto.HotelDTO;
 import com.datn.tourhotel.model.dto.HotelSearchDTO;
@@ -39,6 +41,7 @@ import com.datn.tourhotel.repository.UserRepository;
 import com.datn.tourhotel.security.RedirectUtil;
 import com.datn.tourhotel.service.HotelSearchService;
 import com.datn.tourhotel.service.HotelService;
+import com.datn.tourhotel.service.PostService;
 import com.datn.tourhotel.service.UserService;
 
 @Controller
@@ -51,6 +54,7 @@ public class AuthController {
     private final UserService userService;
     private final HotelService hotelService;
     private final UserRepository userRepository;
+    private final PostService postService;
     UserDetails userDetails;
 
     @GetMapping("/")
@@ -58,21 +62,31 @@ public class AuthController {
     	String message = messageSource.getMessage("hello", null, "default message", request.getLocale());
         String redirect = getAuthenticatedUserRedirectUrl(authentication);
         List<HotelDTO> hotels = hotelService.findAllHotels();
+        List<Post> posts = postService.getAllPosts(); // Lấy danh sách bài viết mới nhất
+        model.addAttribute("posts", posts);
         model.addAttribute("hotels", hotels);
         if (redirect != null) return redirect;
         log.debug("Accessing home page");
         System.out.println(hotels); 
         return "index";
     }
-    @GetMapping("/post/post1")
-    public String post1() {
-    	return "post/post1";
+    @GetMapping("/post/{id}")
+    public String viewPost(@PathVariable Long id, Model model) {
+        // Fetch the post data from the database
+        Optional<Post> post = postService.findById(id);
+
+        if (post.isPresent()) {
+            // Add post data to the model
+            model.addAttribute("post", post.get());
+        } else {
+            // Handle the case where the post is not found
+            model.addAttribute("error", "Post not found");
+        }
+
+        // Return the view name
+        return "post/post";
     }
-    
-    @GetMapping("/post/post2")
-    public String post2() {
-    	return "post/post2";
-    }
+
 
     @GetMapping("/login")
     public String loginPage(Authentication authentication, HttpServletRequest request) {

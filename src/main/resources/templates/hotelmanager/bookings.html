@@ -36,6 +36,18 @@
                     </a>
                 </li>
                 <li class="nav-item ms-5">
+                    <a class="nav-link" th:href="@{/manager/posts/add(language=${#locale.getLanguage()})}">
+                        <i class="bi bi-file-earmark-text"></i>
+                        <span class="ml-2 h5" th:text="#{dashboardNavAddPosts}">Add posts</span>
+                    </a>
+                </li>
+                <li class="nav-item ms-5">
+                    <a class="nav-link" th:href="@{/manager/posts(language=${#locale.language})}">
+                        <i class="bi bi-file-earmark-text"></i>
+                        <span class="ml-2 h5" th:text="#{dashboardNavPosts}">Posts</span>
+                    </a>
+                </li>
+                <li class="nav-item ms-5">
                     <a class="nav-link" th:href="@{/manager/bookings(language=${#locale.getLanguage()})}">
                         <i class="bi bi-calendar-check"></i>
                         <span class="ml-2 h5" th:text="#{dashboardNavBookings}">Bookings</span>
@@ -67,12 +79,13 @@
                 <table class="table table-striped align-middle">
                     <thead>
                     <tr>
-                        <th>Hotel</th>
-                        <th>Confirmation No.</th>
-                        <th>Customer</th>
-                        <th>Total Price</th>
-                        <th>Payment Status</th>
-                        <th>Booking Status</th>
+                        <th class="sortable" data-column="hotel">Hotel</th>
+                        <th class="sortable" data-column="confirmationNo">Confirmation No.</th>
+                        <th class="sortable" data-column="customer">Customer</th>
+                        <th class="sortable" data-column="totalPrice">Total Price</th>
+                        <th class="sortable" data-column="paymentStatus">Payment Status</th>
+                        <th class="sortable" data-column="bookingStatus">Booking Status</th>
+                        <th class="sortable" data-column="bookingDate">Booking Date</th>
                         <th></th>
                     </tr>
                     </thead>
@@ -84,6 +97,7 @@
                         <td th:text="'$ ' + ${#numbers.formatDecimal(booking.totalPrice, 0, 'COMMA', 2, 'POINT')}"></td>
                         <td th:text="${booking.paymentStatus}"></td>
                         <td th:text="${booking.status}"></td>
+                        <td th:text="${booking.bookingDate}"></td>
                         <td>
                             <a th:href="@{/manager/bookings/{id}(id=${booking.id})}" class="btn btn-primary btn-sm">Details</a>
                         </td>
@@ -100,6 +114,43 @@
         </div>
     </div>
     <script>
+    document.querySelectorAll('.sortable').forEach(header => {
+        header.addEventListener('click', function () {
+            const column = header.getAttribute('data-column');
+            const isAscending = header.classList.contains('asc');
+            const direction = isAscending ? -1 : 1;
+
+            // Loại bỏ lớp "asc" và "desc" khỏi tất cả các tiêu đề
+            document.querySelectorAll('.sortable').forEach(h => {
+                h.classList.remove('asc', 'desc');
+            });
+
+            // Gắn lại lớp tương ứng
+            header.classList.add(isAscending ? 'desc' : 'asc');
+
+            // Lấy dữ liệu từ bảng
+            const rowsArray = Array.from(document.querySelectorAll('tbody tr'));
+
+            // Sắp xếp
+            rowsArray.sort((rowA, rowB) => {
+                const cellA = rowA.querySelector(`td:nth-child(${header.cellIndex + 1})`).innerText.trim();
+                const cellB = rowB.querySelector(`td:nth-child(${header.cellIndex + 1})`).innerText.trim();
+
+                if (!isNaN(cellA) && !isNaN(cellB)) {
+                    // Sắp xếp số
+                    return direction * (parseFloat(cellA) - parseFloat(cellB));
+                } else {
+                    // Sắp xếp chuỗi
+                    return direction * cellA.localeCompare(cellB);
+                }
+            });
+
+            // Cập nhật lại bảng
+            const tbody = document.querySelector('tbody');
+            rowsArray.forEach(row => tbody.appendChild(row));
+        });
+    });
+
 		// Lấy danh sách các hàng trong bảng (trừ tiêu đề)
 		const rows = document.querySelectorAll('tbody tr');
 		const rowsPerPage = 10;

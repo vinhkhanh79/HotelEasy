@@ -20,12 +20,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.datn.tourhotel.model.Booking;
+import com.datn.tourhotel.model.Post;
 import com.datn.tourhotel.model.User;
 import com.datn.tourhotel.model.dto.BookingDTO;
 import com.datn.tourhotel.model.dto.HotelDTO;
 import com.datn.tourhotel.model.dto.UserDTO;
 import com.datn.tourhotel.service.BookingService;
 import com.datn.tourhotel.service.HotelService;
+import com.datn.tourhotel.service.PostService;
 import com.datn.tourhotel.service.UserService;
 
 import java.time.LocalDate;
@@ -44,6 +46,7 @@ public class CustomerController {
     private final UserService userService;
     private final BookingService bookingService;
     private final HotelService hotelService;
+    private final PostService postService;
     @GetMapping("/dashboard")
     public String dashboard(Model model, Authentication auth, UserDetails userDetails) {
         System.out.println(auth.getCredentials());
@@ -55,6 +58,8 @@ public class CustomerController {
     public String index(Model model, HttpServletRequest request) {
     	String message = messageSource.getMessage("hello", null, "default message", request.getLocale());
         List<HotelDTO> hotels = hotelService.findAllHotels();
+        List<Post> posts = postService.getAllPosts(); // Lấy danh sách bài viết mới nhất
+        model.addAttribute("posts", posts);
         model.addAttribute("hotels", hotels);
         return "redirect:/index?language=" + request.getParameter("language");
     }

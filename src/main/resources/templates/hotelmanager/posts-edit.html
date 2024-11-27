@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{/admin/layout/layout-main}">
+<head>
+    <title>Add Hotel</title>
+    <script type="text/javascript">
+        function previewImage(event, previewId) {
+            var reader = new FileReader();
+            var imgElement = document.getElementById(previewId);
+
+            reader.onload = function() {
+                if (reader.readyState === 2) {
+                    imgElement.src = reader.result; // Set the src to the file's result
+                }
+            }
+            reader.readAsDataURL(event.target.files[0]); // Read the file input as DataURL
+        }
+    </script>
+</head>
+<body>
+<th:block layout:fragment="content">
+<div class="container-fluid">
+    <div class="row">
+    <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+        <div class="position-sticky justify-content-center">
+            <ul class="nav flex-column">
+                <li class="nav-item">
+                    <a class="nav-link ms-5" aria-current="page" th:href="@{/manager/dashboard(language=${#locale.language})}">
+                        <i class="bi bi-house-door-fill"></i>
+                        <span class="ml-2 h5" th:text="#{dashboardTitle}">Dashboard</span>
+                    </a>
+                </li>
+                <hr>
+                <li class="nav-item ms-5">
+                    <a class="nav-link" th:href="@{/manager/users(language=${#locale.language})}">
+                        <i class="bi bi-people-fill"></i>
+                        <span class="ml-2 h5" th:text="#{dashboardNavUsers}">Users</span>
+                    </a>
+                </li>
+                <li class="nav-item ms-5">
+                    <a class="nav-link" th:href="@{/manager/hotels/add(language=${#locale.getLanguage()})}">
+                        <i class="bi bi-building"></i>
+                        <span class="ml-2 h5" th:text="#{dashboardNavAddHotels}">Add hotels</span>
+                    </a>
+                </li>
+                <li class="nav-item ms-5">
+                    <a class="nav-link" th:href="@{/manager/hotels(language=${#locale.getLanguage()})}">
+                        <i class="bi bi-building"></i>
+                        <span class="ml-2 h5" th:text="#{dashboardNavHotels}">Hotels</span>
+                    </a>
+                </li>
+                <li class="nav-item ms-5">
+                    <a class="nav-link" th:href="@{/manager/posts/add(language=${#locale.getLanguage()})}">
+                        <i class="bi bi-file-earmark-text"></i>
+                        <span class="ml-2 h5" th:text="#{dashboardNavAddPosts}">Add posts</span>
+                    </a>
+                </li>
+                <li class="nav-item ms-5">
+                    <a class="nav-link" th:href="@{/manager/posts(language=${#locale.language})}">
+                        <i class="bi bi-file-earmark-text"></i>
+                        <span class="ml-2 h5" th:text="#{dashboardNavPosts}">Posts</span>
+                    </a>
+                </li>
+                <li class="nav-item ms-5">
+                    <a class="nav-link" th:href="@{/manager/bookings(language=${#locale.getLanguage()})}">
+                        <i class="bi bi-calendar-check"></i>
+                        <span class="ml-2 h5" th:text="#{dashboardNavBookings}">Bookings</span>
+                    </a>
+                </li>
+                <li class="nav-item ms-5">
+                    <a class="nav-link" th:href="@{/manager/report(language=${#locale.language})}">
+                        <i class="bi bi-bar-chart-line"></i>
+                        <span class="ml-2 h5" th:text="#{dashboardNavReports}">Reports</span>
+                    </a>
+                </li>
+                <li class="nav-item ms-5">
+                    <a class="nav-link" th:href="@{/manager/comments(language=${#locale.language})}">
+                        <i class="bi bi-star-fill"></i>
+                        <span class="ml-2 h5" th:text="#{dashboardNavEvaluates}">Evaluates</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    <main class="col-md-9 ml-sm-auto col-lg-10 px-md-4 py-4 mt-4 mb-5">
+            <div class="col-md-8 offset-md-2">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="text-center" th:text="#{dashboardAddPost}">Add New Post</h2>
+                    </div>
+                    <div class="card-body">
+                        <form method="post" th:action="@{/manager/posts/edit/{id}(id=${post.id})}" th:object="${post}" enctype="multipart/form-data">
+                            <div class="form-group mb-3">
+                                <label class="form-label" for="title">Title:</label>
+                                <input class="form-control" id="title" type="text" th:field="*{title}"
+                                       placeholder="Enter post title">
+                                <p class="text-danger" th:if="${#fields.hasErrors('title')}" th:errors="*{title}"></p>
+                            </div>
+                            
+                            <div class="form-group mb-3">
+                                <label class="form-label" for="description">Description:</label>
+                                <textarea class="form-control" id="description" rows="3" th:field="*{description}"
+                                          placeholder="Enter post description"></textarea>
+                                <p class="text-danger" th:if="${#fields.hasErrors('description')}" th:errors="*{description}"></p>
+                            </div>
+
+                            <div class="form-group mb-3">
+                                <label class="form-label" for="category">Category:</label>
+                                <input class="form-control" id="category" type="text" th:field="*{category}"
+                                       placeholder="Enter post category">
+                                <p class="text-danger" th:if="${#fields.hasErrors('category')}" th:errors="*{category}"></p>
+                            </div>
+
+                            <!-- Main Image Upload -->
+							    <label class="form-label">Main Image:</label>
+							    <div class="col-md-4 mx-auto">
+							        <div class="form-group mb-3 d-flex justify-content-center">
+							            <label for="img-input1" class="img-upload-container" style="cursor: pointer; height: 170px; width:109%; display: block; border: 2px solid #ccc; border-radius: 10px; overflow: hidden;">
+							                <img id="img-preview1" th:src="${post.img}" alt="Choose Your Image" class="img-fluid rounded-3" style="height: 100%; width:100%; object-fit: cover;">
+							            </label>
+							            <input class="form-control mt-2" name="imageFile" id="img-input1" type="file" accept="image/*" onchange="previewImage(event, 'img-preview1')" style="display: none;">
+							            <p class="text-danger" th:if="${#fields.hasErrors('img')}" th:errors="*{img}"></p>
+							        </div>
+							    </div>
+							    
+							    <div class="form-group mb-3">
+	                                <label class="form-label" for="figcaption">Image Caption:</label>
+	                                <input class="form-control" id="figcaption" type="text" th:field="*{figcaption}"
+	                                       placeholder="Enter image caption">
+	                                <p class="text-danger" th:if="${#fields.hasErrors('figcaption')}" th:errors="*{figcaption}"></p>
+	                            </div>
+							    
+							    <div class="form-group mb-3">
+	                                <label class="form-label" for="content">Content:</label>
+	                                <textarea class="form-control" id="content" rows="6" th:field="*{content}"
+	                                          placeholder="Enter post content"></textarea>
+	                                <p class="text-danger" th:if="${#fields.hasErrors('content')}" th:errors="*{content}"></p>
+	                            </div>
+							
+							    <!-- Second Image Upload -->
+							    <label class="form-label">Image 2:</label>
+							    <div class="col-md-4 mx-auto">
+							        <div class="form-group mb-3 d-flex justify-content-center">
+							            <label for="img-input2" class="img-upload-container" style="cursor: pointer; height: 170px; width:109%; display: block; border: 2px solid #ccc; border-radius: 10px; overflow: hidden;">
+							                <img id="img-preview2" th:src="${post.img2}" alt="Choose Your Image" class="img-fluid rounded-3" style="height: 100%; width:100%; object-fit: cover;">
+							            </label>
+							            <input class="form-control mt-2" name="imageFile2" id="img-input2" type="file" accept="image/*" onchange="previewImage(event, 'img-preview2')" style="display: none;">
+							            <p class="text-danger" th:if="${#fields.hasErrors('img2')}" th:errors="*{img2}"></p>
+							        </div>
+							    </div>
+							    
+							    <div class="form-group mb-3">
+	                                <label class="form-label" for="figcaption2">Image Caption 2:</label>
+	                                <input class="form-control" id="figcaption2" type="text" th:field="*{figcaption2}"
+	                                       placeholder="Enter image caption 2">
+	                                <p class="text-danger" th:if="${#fields.hasErrors('figcaption2')}" th:errors="*{figcaption2}"></p>
+	                            </div>
+							    
+							    <div class="form-group mb-3">
+	                                <label class="form-label" for="content2">Content:</label>
+	                                <textarea class="form-control" id="content2" rows="6" th:field="*{content2}"
+	                                          placeholder="Enter post content 2"></textarea>
+	                                <p class="text-danger" th:if="${#fields.hasErrors('content2')}" th:errors="*{content2}"></p>
+	                            </div>
+							
+							    <!-- Third Image Upload -->
+							    <label class="form-label">Image 3:</label>
+							    <div class="col-md-4 mx-auto">
+							        <div class="form-group mb-3 d-flex justify-content-center">
+							            <label for="img-input3" class="img-upload-container" style="cursor: pointer; height: 170px; width:109%; display: block; border: 2px solid #ccc; border-radius: 10px; overflow: hidden;">
+							                <img id="img-preview3" th:src="${post.img3}" alt="Choose Your Image" class="img-fluid rounded-3" style="height: 100%; width:100%; object-fit: cover;">
+							            </label>
+							            <input class="form-control mt-2" name="imageFile3" id="img-input3" type="file" accept="image/*" onchange="previewImage(event, 'img-preview3')" style="display: none;">
+							            <p class="text-danger" th:if="${#fields.hasErrors('img3')}" th:errors="*{img3}"></p>
+							        </div>
+							    </div>
+							    
+							    <div class="form-group mb-3">
+	                                <label class="form-label" for="figcaption3">Image Caption 3:</label>
+	                                <input class="form-control" id="figcaption3" type="text" th:field="*{figcaption3}"
+	                                       placeholder="Enter image caption 3">
+	                                <p class="text-danger" th:if="${#fields.hasErrors('figcaption3')}" th:errors="*{figcaption3}"></p>
+	                            </div>
+							    
+							    <div class="form-group mb-3">
+	                                <label class="form-label" for="content3">Content:</label>
+	                                <textarea class="form-control" id="content3" rows="6" th:field="*{content3}"
+	                                          placeholder="Enter post content 3"></textarea>
+	                                <p class="text-danger" th:if="${#fields.hasErrors('content3')}" th:errors="*{content3}"></p>
+	                            </div>
+
+                            <div class="form-group mb-3">
+                                <label class="form-label" for="location">Location:</label>
+                                <input class="form-control" id="location" type="text" th:field="*{location}"
+                                       placeholder="Enter post location">
+                                <p class="text-danger" th:if="${#fields.hasErrors('location')}" th:errors="*{location}"></p>
+                            </div>
+
+                            <div class="form-group mb-3">
+                                <button type="submit" class="btn btn-primary">Edit Post</button>
+                                <a th:href="@{/manager/posts}" class="btn btn-secondary">Cancel</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    </div>
+</th:block>
+</body>
+</html>

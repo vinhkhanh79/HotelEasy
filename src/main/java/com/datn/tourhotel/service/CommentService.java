@@ -13,4 +13,6 @@ public interface CommentService {
      List<CommentDTO> findAllCommentList();
      void deleteComment(Long id);
      List<CommentDTO> findCommentsByHotel(Long hotelId);
+     List<Object[]> getTopHotelsWithFiveStarRatings();
+     List<Object[]> getTopHotelsWithFiveStarRatingsByManager(Long managerId);
 }

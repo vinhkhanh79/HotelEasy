@@ -37,6 +37,18 @@
                     </a>
                 </li>
                 <li class="nav-item ms-5">
+                    <a class="nav-link" th:href="@{/manager/posts/add(language=${#locale.getLanguage()})}">
+                        <i class="bi bi-file-earmark-text"></i>
+                        <span class="ml-2 h5" th:text="#{dashboardNavAddPosts}">Add posts</span>
+                    </a>
+                </li>
+                <li class="nav-item ms-5">
+                    <a class="nav-link" th:href="@{/manager/posts(language=${#locale.language})}">
+                        <i class="bi bi-file-earmark-text"></i>
+                        <span class="ml-2 h5" th:text="#{dashboardNavPosts}">Posts</span>
+                    </a>
+                </li>
+                <li class="nav-item ms-5">
                     <a class="nav-link" th:href="@{/manager/bookings(language=${#locale.getLanguage()})}">
                         <i class="bi bi-calendar-check"></i>
                         <span class="ml-2 h5" th:text="#{dashboardNavBookings}">Bookings</span>
@@ -58,7 +70,7 @@
         </div>
     </nav>
     <main class="col-md-9 ml-sm-auto col-lg-10 px-md-4 py-4 mt-3 mb-5">
-    <div style="display: flex; justify-content: space-between; gap: 20px;">
+    	<div style="display: flex; justify-content: space-between; gap: 20px;">
 		    <div style="flex: 1; height: 400px;">
 		    <h2 th:text="#{dashboardTopRevenueHotel}">Revenue Hotel Overview</h2>
 		        <canvas id="myChart"></canvas>
@@ -67,6 +79,10 @@
 		    <h2 th:text="#{dashboardTopCustomer}">Top Customer Payment</h2>
 		        <canvas id="topCustomersChart"></canvas>
 		    </div>
+		</div>
+        <div class="col-md-12 mt-5">
+		    <h2>Top 10 Hotels with Most 5-Star Ratings (Managed by You)</h2>
+		    <canvas id="topFiveStarHotelsChart"></canvas>
 		</div>
 	        
         <h2 class="mt-4" th:text="#{dashboardRevenueHotelInDay}">Total revenue by day</h2>
@@ -172,7 +188,58 @@
 	            left: 40
 	        }
 	    });
-	    
+	 // Dữ liệu từ backend
+	    const topHotelNames = [[${topHotelNames}]].map(name => name.replace(/"/g, '')); // Xóa dấu ngoặc nếu cần
+	    const fiveStarCounts = [[${fiveStarCounts}]];
+
+	    // Hiển thị biểu đồ
+	    const ctxTopFiveStarHotels = document.getElementById('topFiveStarHotelsChart').getContext('2d');
+
+	    new Chart(ctxTopFiveStarHotels, {
+	        type: 'bar',
+	        data: {
+	            labels: topHotelNames,
+	            datasets: [{
+	                label: '5-Star Ratings',
+	                data: fiveStarCounts,
+	                backgroundColor: 'rgba(54, 162, 235, 0.2)',
+	                borderColor: 'rgba(54, 162, 235, 1)',
+	                borderWidth: 1
+	            }]
+	        },
+	        options: {
+	            responsive: true,
+	            scales: {
+	                y: {
+	                    beginAtZero: true,
+	                    ticks: {
+	                        callback: function(value) {
+	                            return value.toLocaleString(); // Định dạng số
+	                        }
+	                    }
+	                },
+	                x: {
+	                    ticks: {
+	                        autoSkip: false,
+	                        maxRotation: 45,
+	                        minRotation: 0
+	                    }
+	                }
+	            },
+	            plugins: {
+	                legend: {
+	                    display: false
+	                },
+	                tooltip: {
+	                    callbacks: {
+	                        label: function(context) {
+	                            return context.raw.toLocaleString(); // Định dạng số trong tooltip
+	                        }
+	                    }
+	                }
+	            }
+	        }
+	    });
 	    /* Đoạn mã Chartist: Earnings Per Week Chart */
 	    console.log("Initializing Chartist chart for Earnings Per Week");
 	

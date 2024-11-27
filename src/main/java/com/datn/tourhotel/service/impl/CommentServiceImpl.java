@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -110,9 +111,18 @@ public class CommentServiceImpl implements CommentService {
                 .img(comment.getUser().getImg())
                 .content(comment.getContent())
                 .rating(comment.getRating())
+                .hotelName(comment.getHotel().getName())
                 .createdDate(comment.getCreatedDate())
                 .isDelete(comment.isDelete())
                 .build()).toList();
+    }
+    @Override
+    public List<Object[]> getTopHotelsWithFiveStarRatings() {
+        List<Object[]> results = commentRepository.findTopHotelsWithFiveStarRatings(PageRequest.of(0, 10));
+        return results;
+    }
+    public List<Object[]> getTopHotelsWithFiveStarRatingsByManager(Long managerId) {
+        return commentRepository.findTopHotelsWithFiveStarRatingsByManager(managerId, PageRequest.of(0, 10));
     }
 
 

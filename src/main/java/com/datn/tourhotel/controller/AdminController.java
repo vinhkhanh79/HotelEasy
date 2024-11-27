@@ -18,10 +18,13 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.cloudinary.Cloudinary;
 import com.datn.tourhotel.exception.HotelAlreadyExistsException;
 import com.datn.tourhotel.exception.UsernameAlreadyExistsException;
 import com.datn.tourhotel.model.Comment;
 import com.datn.tourhotel.model.HotelManager;
+import com.datn.tourhotel.model.Post;
+import com.datn.tourhotel.model.User;
 import com.datn.tourhotel.model.dto.BookingDTO;
 import com.datn.tourhotel.model.dto.CommentDTO;
 import com.datn.tourhotel.model.dto.HotelDTO;
@@ -31,6 +34,7 @@ import com.datn.tourhotel.model.dto.RoomDTO;
 import com.datn.tourhotel.model.dto.UserDTO;
 import com.datn.tourhotel.model.dto.UserRegistrationDTO;
 import com.datn.tourhotel.model.enums.RoomType;
+import com.datn.tourhotel.repository.UserRepository;
 import com.datn.tourhotel.service.BookingService;
 import com.datn.tourhotel.service.CommentService;
 import com.datn.tourhotel.service.CustomerService;
@@ -38,6 +42,7 @@ import com.datn.tourhotel.service.ExcelExportService;
 import com.datn.tourhotel.service.HotelManagerService;
 import com.datn.tourhotel.service.HotelService;
 import com.datn.tourhotel.service.PaymentService;
+import com.datn.tourhotel.service.PostService;
 import com.datn.tourhotel.service.UserService;
 
 import java.io.IOException;
@@ -47,6 +52,10 @@ import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/admin")
@@ -64,6 +73,10 @@ public class AdminController {
     private final PaymentService paymentService;
     private final ExcelExportService excelExportService;
     private final CommentService commentService;
+    private final Cloudinary cloudinary;
+    private final UserRepository userRepository;
+    @Autowired
+    private PostService postService;
 
     @GetMapping("/dashboard")
     public String dashboard(Model model, HttpServletRequest request, @RequestParam(name = "earningsPeriod", required = false, defaultValue = "total") String period) {
@@ -133,6 +146,22 @@ public class AdminController {
         BigDecimal earningsThisMonthAdmin = paymentService.getEarningsByPeriodAdmin("month");
         BigDecimal earningsThisYearAdmin = paymentService.getEarningsByPeriodAdmin("year");
         BigDecimal earningsTotalAdmin = paymentService.getEarningsByPeriodAdmin("total");
+        
+     // Lấy danh sách Top 10 khách sạn có nhiều đánh giá 5 sao nhất
+        List<Object[]> topHotelsWithFiveStarRatings = commentService.getTopHotelsWithFiveStarRatings();
+        
+        List<String> hotelNames = new ArrayList<>();
+
+//        List<String> hotelNames = topHotelsWithFiveStarRatings.stream()
+//                .map(result -> (String) result[0])
+//                .collect(Collectors.toList());
+
+        List<Long> fiveStarCounts = topHotelsWithFiveStarRatings.stream()
+                .map(result -> (Long) result[1])
+                .collect(Collectors.toList());
+
+        model.addAttribute("topHotelNames", hotelNames);
+        model.addAttribute("fiveStarCounts", fiveStarCounts);
 
         // Add earnings data to the model for use in the frontend
         model.addAttribute("earningsToday", earningsTodayAdmin);
@@ -165,7 +194,7 @@ public class AdminController {
         
         model.addAttribute("greetingMessage", message);
         List<Object[]> topHotelsByEarnings = paymentService.getTopHotelsByEarnings();
-        List<String> hotelNames = new ArrayList<>();
+        
         List<BigDecimal> hotelEarnings = new ArrayList<>();
 
         for (Object[] result : topHotelsByEarnings) {
@@ -175,8 +204,164 @@ public class AdminController {
 
         model.addAttribute("hotelNames", hotelNames);
         model.addAttribute("hotelEarnings", hotelEarnings);
+        
+        List<Object[]> topCustomers = paymentService.getTopCustomersByEarnings();
+        List<String> customerNames = new ArrayList<>();
+        List<BigDecimal> customerEarnings = new ArrayList<>();
+
+        // Chỉ lấy 10 khách hàng đầu tiên
+        int count = Math.min(topCustomers.size(), 10);
+        for (int i = 0; i < count; i++) {
+            customerNames.add((String) topCustomers.get(i)[0]);
+            customerEarnings.add((BigDecimal) topCustomers.get(i)[1]);
+        }
+
+        model.addAttribute("topCustomerNames", customerNames);
+        model.addAttribute("topCustomerEarnings", customerEarnings);
         return "admin/report";
     }
+    @GetMapping("/posts")
+    public String listPosts(Model model, HttpServletRequest request) {
+        // Optionally use messages for localization (not necessary for post listing)
+        String message = messageSource.getMessage("hello", null, "default message", request.getLocale());
+        
+        // Get the list of posts
+        List<Post> postList = postService.getAllPosts();
+        
+        // Add the post list to the model
+        model.addAttribute("posts", postList);
+        
+        // Add current username (if needed for display or authentication)
+        String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
+        model.addAttribute("currentUsername", currentUsername);
+        
+        // Return the name of the view to display (admin/posts.html)
+        return "admin/posts";
+    }
+
+ // Hiển thị form thêm bài post
+    @GetMapping("/posts/add")
+    public String showAddPostForm(Model model) {
+    	String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
+        model.addAttribute("currentUsername", currentUsername);
+        model.addAttribute("post", new Post());
+        return "admin/posts-add"; // Đây là file HTML hiển thị form
+    }
+
+    @PostMapping("/posts/add")
+    public String savePost(@ModelAttribute("post") Post post,
+                           @RequestParam(value = "imageFile", required = false) MultipartFile image1,
+                           @RequestParam(value = "imageFile2", required = false) MultipartFile image2,
+                           @RequestParam(value = "imageFile3", required = false) MultipartFile image3,
+                           RedirectAttributes redirectAttributes) {
+        try {
+            // Upload 3 ảnh lên Cloudinary
+            if (image1 != null && !image1.isEmpty()) {
+                Map uploadResult = cloudinary.uploader().upload(image1.getBytes(), Map.of("public_id", UUID.randomUUID().toString()));
+                post.setImg(uploadResult.get("url").toString()); // Set URL ảnh đầu tiên
+            }
+            if (image2 != null && !image2.isEmpty()) {
+                Map uploadResult = cloudinary.uploader().upload(image2.getBytes(), Map.of("public_id", UUID.randomUUID().toString()));
+                post.setImg2(uploadResult.get("url").toString()); // Set URL ảnh thứ hai
+            }
+            if (image3 != null && !image3.isEmpty()) {
+                Map uploadResult = cloudinary.uploader().upload(image3.getBytes(), Map.of("public_id", UUID.randomUUID().toString()));
+                post.setImg3(uploadResult.get("url").toString()); // Set URL ảnh thứ ba
+            }
+         // Tự động gán thông tin người tạo (User hiện tại)
+            String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
+            User currentUser = userRepository.findByUsername(currentUsername); // Tìm User từ DB
+            post.setCreatedBy(currentUser); // Gán User cho bài viết
+
+            // Lưu bài post
+            postService.savePost(post);
+            
+            // Thêm thông báo thành công
+            redirectAttributes.addFlashAttribute("successMessage", "Post '" + post.getTitle() + "' has been successfully added!");
+        } catch (IOException e) {
+            log.error("Image upload failed: {}", e.getMessage());
+            throw new RuntimeException("Image upload failed", e);
+        }
+        return "redirect:/admin/posts"; // Redirect về trang danh sách bài post
+    }
+    @GetMapping("/posts/edit/{id}")
+    public String showEditPostForm(@PathVariable Long id, Model model) {
+    	String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
+        model.addAttribute("currentUsername", currentUsername);
+        Optional<Post> optionalPost = postService.getPostById(id);
+        if (optionalPost.isPresent()) {
+            model.addAttribute("post", optionalPost.get());
+            return "admin/posts-edit"; // Trả về view form chỉnh sửa
+        } else {
+            return "redirect:/admin/posts"; // Nếu không tìm thấy bài viết, quay lại danh sách
+        }
+    }
+
+    @PostMapping("/posts/edit/{id}")
+    public String updatePost(@PathVariable Long id,
+                             @ModelAttribute("post") Post updatedPost,
+                             @RequestParam(value = "imageFile", required = false) MultipartFile image1,
+                             @RequestParam(value = "imageFile2", required = false) MultipartFile image2,
+                             @RequestParam(value = "imageFile3", required = false) MultipartFile image3,
+                             RedirectAttributes redirectAttributes) {
+        Optional<Post> optionalPost = postService.getPostById(id);
+
+        if (optionalPost.isPresent()) {
+            Post existingPost = optionalPost.get();
+            existingPost.setTitle(updatedPost.getTitle());
+            existingPost.setDescription(updatedPost.getDescription());
+            existingPost.setContent(updatedPost.getContent());
+            existingPost.setContent2(updatedPost.getContent2());
+            existingPost.setContent3(updatedPost.getContent3());
+            existingPost.setFigcaption2(updatedPost.getFigcaption2());
+            existingPost.setFigcaption3(updatedPost.getFigcaption3());
+            existingPost.setCategory(updatedPost.getCategory());
+            existingPost.setCategory(updatedPost.getCategory());
+            existingPost.setLocation(updatedPost.getLocation());
+
+            try {
+                // Upload và cập nhật ảnh mới nếu có
+                if (image1 != null && !image1.isEmpty()) {
+                    Map uploadResult = cloudinary.uploader().upload(image1.getBytes(), Map.of("public_id", UUID.randomUUID().toString()));
+                    existingPost.setImg(uploadResult.get("url").toString());
+                }
+
+                if (image2 != null && !image2.isEmpty()) {
+                    Map uploadResult = cloudinary.uploader().upload(image2.getBytes(), Map.of("public_id", UUID.randomUUID().toString()));
+                    existingPost.setImg2(uploadResult.get("url").toString());
+                }
+
+                if (image3 != null && !image3.isEmpty()) {
+                    Map uploadResult = cloudinary.uploader().upload(image3.getBytes(), Map.of("public_id", UUID.randomUUID().toString()));
+                    existingPost.setImg3(uploadResult.get("url").toString());
+                }
+
+                // Lưu lại bài viết đã chỉnh sửa
+                postService.savePost(existingPost);
+                
+                // Thêm thông báo thành công
+                redirectAttributes.addFlashAttribute("successMessage", "Post '" + updatedPost.getTitle() + "' has been successfully added!");
+
+            } catch (IOException e) {
+                e.printStackTrace();
+                throw new RuntimeException("Image upload failed", e);
+            }
+        }
+
+        return "redirect:/admin/posts"; // Quay lại trang danh sách bài viết
+    }
+
+    @PostMapping("/posts/delete/{id}")
+    public String deletePost(@PathVariable Long id) {
+        Optional<Post> optionalPost = postService.getPostById(id);
+        if (optionalPost.isPresent()) {
+            Post post = optionalPost.get();
+            post.setDelete(true); // Set isDelete thành true
+            postService.savePost(post); // Cập nhật lại bài viết
+        }
+        return "redirect:/admin/posts"; // Quay lại trang danh sách bài viết
+    }
+
 
     @GetMapping("/users")
     public String listUsers(@RequestParam(value = "username", required = false) String username, Model model, HttpServletRequest request) {
@@ -433,6 +618,8 @@ public class AdminController {
     }
     @GetMapping("/comments")
     public String listComments(Model model, HttpServletRequest request) {
+    	String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
+        model.addAttribute("currentUsername", currentUsername);
         String message = messageSource.getMessage("hello", null, "default message", request.getLocale());
 
         List<CommentDTO> commentDTOList = commentService.findAllCommentList();

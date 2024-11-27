@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{/layout/layout-main}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hotels in Ho Chi Minh City - Learn and Book</title>
+    <meta name="description" content="Discover top hotels in Ho Chi Minh City, from 5-star to 4-star with modern amenities and ideal locations.">
+    <meta name="keywords" content="hotels, Ho Chi Minh City, 5-star, 4-star, booking, accommodations">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <th:block layout:fragment="content">
+        <header class="bg-info text-white text-center py-4">
+            <h1 th:text="${post.title}"></h1>
+            <p th:text="${post.description}"></p>
+        </header>
+        <main class="container mt-4">
+            <section>
+            	<h2 class="mb-3" th:text="${post.title}"></h2>
+                <p th:text="${post.description}"></p>
+                <!-- Display the main post image dynamically -->
+                <figure class="text-center">
+                    <img th:src="@{${post.img}}" alt="Main Image" class="img-fluid rounded" style="width: 1000px; height: 700px;">
+                    <figcaption th:text="${post.figcaption}"></figcaption>
+                </figure>
+            </section>
+            <section>
+                <div th:text="${post.content}"></div>
+
+                <!-- Display other images -->
+                <figure class="text-center">
+                    <img th:src="@{${post.img2}}" alt="Additional Image 1" class="img-fluid rounded" style="width: 1000px; height: 700px;">
+                    <figcaption th:text="${post.figcaption2}"></figcaption>
+                </figure>
+                <div th:text="${post.content2}"></div>
+                <figure class="text-center">
+                    <img th:src="@{${post.img3}}" alt="Additional Image 2" class="img-fluid rounded" style="width: 1000px; height: 700px;">
+                    <figcaption th:text="${post.figcaption3}"></figcaption>
+                </figure>
+                <div th:text="${post.content3}"></div>
+                <section id="policy" class="mt-4">
+		        	<div id="container">
+		        		<h2 class="fw-bold mb-4 text-center">Location</h2>
+		        		<iframe th:src="${post.location}" width="100%" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+		        	</div>
+		        </section>
+            </section>
+        </main>
+        <footer class="bg-light text-center py-3">
+            <p>&copy; 2023 Hotels in Ho Chi Minh City. All rights reserved.</p>
+        </footer>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    </th:block>
+</body>
+</html>

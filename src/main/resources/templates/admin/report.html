@@ -43,6 +43,18 @@
                     </a>
                 </li>
                 <li class="nav-item ms-5">
+                    <a class="nav-link" th:href="@{/admin/posts/add(language=${#locale.getLanguage()})}">
+                        <i class="bi bi-file-earmark-text"></i>
+                        <span class="ml-2 h5" th:text="#{dashboardNavAddPosts}">Add posts</span>
+                    </a>
+                </li>
+                <li class="nav-item ms-5">
+                    <a class="nav-link" th:href="@{/admin/posts(language=${#locale.language})}">
+                        <i class="bi bi-file-earmark-text"></i>
+                        <span class="ml-2 h5" th:text="#{dashboardNavPosts}">Posts</span>
+                    </a>
+                </li>
+                <li class="nav-item ms-5">
                     <a class="nav-link" th:href="@{/admin/bookings(language=${#locale.language})}">
                         <i class="bi bi-calendar-check"></i>
                         <span class="ml-2 h5" th:text="#{dashboardNavBookings}">Bookings</span>
@@ -74,7 +86,16 @@
 		        <canvas id="topHotelsChart"></canvas>
 		    </div>
 		</div>
-	        
+		<div style="display: flex; justify-content: space-between; gap: 20px;">s
+		    <div style="flex: 1; height: 400px;">
+		    	<h2 th:text="#{dashboardTopCustomer}">Top Customer Payment</h2>
+		        <canvas id="topCustomersChart"></canvas>
+		    </div>
+	        <div style="flex: 1; height: 400px;" class="col-md-12 mt-5">
+			    <h2>Top 10 Hotels with Most 5-Star Ratings</h2>
+			    <canvas id="topFiveStarHotelsChart"></canvas>
+			</div>
+		</div>
         <h2 class="mt-4" th:text="#{dashboardRevenueHotelInDay}">Total revenue by day</h2>
         	<div id="traffic-chart" style="height: 400px;"></div>
         	
@@ -92,6 +113,31 @@
     <script src="https://cdn.jsdelivr.net/npm/chartist@0.11.4/dist/chartist.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script th:inline="javascript">
+    const topCustomerNames = [[${topCustomerNames}]];
+    const topCustomerEarnings = [[${topCustomerEarnings}]];
+
+    // Tạo biểu đồ
+    const ctxTopCustomers = document.getElementById('topCustomersChart').getContext('2d');
+    new Chart(ctxTopCustomers, {
+        type: 'bar',
+        data: {
+            labels: topCustomerNames, // Tên khách hàng
+            datasets: [{
+                label: 'Earnings (VND)',
+                data: topCustomerEarnings, // Tổng thu nhập của từng khách hàng
+                backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
     console.log("Initializing Top Hotels Earnings Chart");
 
     const hotelNames = [[${hotelNames}]]; // Tên khách sạn
@@ -130,6 +176,57 @@
             plugins: {
                 legend: {
                     display: false // Ẩn chú thích
+                }
+            }
+        }
+    });
+ // Dữ liệu được truyền từ backend (Spring) sang frontend (JS)
+    const topHotelNames = JSON.parse('[[${topHotelNames}]]'.replace(/'/g, '"'));
+    const fiveStarCounts = JSON.parse('[[${fiveStarCounts}]]'.replace(/'/g, '"'));
+
+    const ctxTopFiveStarHotels = document.getElementById('topFiveStarHotelsChart').getContext('2d');
+
+    new Chart(ctxTopFiveStarHotels, {
+        type: 'bar',
+        data: {
+            labels: topHotelNames,
+            datasets: [{
+                label: '5-Star Ratings',
+                data: fiveStarCounts,
+                backgroundColor: 'rgba(255, 206, 86, 0.2)',
+                borderColor: 'rgba(255, 206, 86, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) {
+                            return value.toLocaleString(); // Định dạng số
+                        }
+                    }
+                },
+                x: {
+                    ticks: {
+                        autoSkip: false, // Hiển thị đầy đủ nhãn
+                        maxRotation: 45, // Xoay nhãn 45 độ nếu quá dài
+                        minRotation: 0
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false // Ẩn chú thích
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return context.raw.toLocaleString(); // Định dạng số trong tooltip
+                        }
+                    }
                 }
             }
         }

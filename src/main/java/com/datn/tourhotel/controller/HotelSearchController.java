@@ -22,6 +22,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.datn.tourhotel.model.Booking;
 import com.datn.tourhotel.model.Comment;
 import com.datn.tourhotel.model.Customer;
+import com.datn.tourhotel.model.Post;
 import com.datn.tourhotel.model.User;
 import com.datn.tourhotel.model.dto.CommentDTO;
 import com.datn.tourhotel.model.dto.HotelAvailabilityDTO;
@@ -34,6 +35,7 @@ import com.datn.tourhotel.security.CustomUserDetails;
 import com.datn.tourhotel.service.CommentService;
 import com.datn.tourhotel.service.HotelSearchService;
 import com.datn.tourhotel.service.HotelService;
+import com.datn.tourhotel.service.PostService;
 import com.datn.tourhotel.service.UserService;
 
 import java.security.Principal;
@@ -59,12 +61,15 @@ public class HotelSearchController {
     private final UserRepository userRepository;
     private final BookingRepository bookingRepository;
     private final CommentRepository commentRepository;
+    private final PostService postService;
     UserDetails userDetails;
     
     @GetMapping("/index")
     public String showSearchForm(@ModelAttribute("hotelSearchDTO") HotelSearchDTO hotelSearchDTO, Model model, HttpServletRequest request) {
     	 String message = messageSource.getMessage("hello", null, "default message", request.getLocale());
     	 List<HotelDTO> hotels = hotelService.findAllHotels();
+    	 List<Post> posts = postService.getAllPosts(); // Lấy danh sách bài viết mới nhất
+         model.addAttribute("posts", posts);
          model.addAttribute("hotels", hotels);
         return "index";
     }

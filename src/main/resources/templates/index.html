@@ -398,30 +398,30 @@
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-md-6 mb-4">
-                            <div class="card p-0 border-0 rounded-0">
-                                <img src="https://res.cloudinary.com/dliwvet1v/image/upload/v1729860266/blog/v3awtsv30cnajttwep0f.jpg" alt="">
-                                <div class="blog-content bg-white p-4">
-                                    <h5 class="text-decoration-underline mb-4" th:text="#{hotelDetails}">Hotels in Ho Chi Minh City</h5>
-                                    <h6>By Admin - March 18, 2024</h6>
-                                    <p class="mt-2">Ho Chi Minh City is a bustling metropolis with a wide range of hotels, from budget to luxury. Below are some standout hotels in Ho Chi Minh City.</p>
-                                    <a href="/post/post1" class="main-btn mt-2" th:text="#{readMoreButton}">Read More</a>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6 mb-4">
-                            <div class="card p-0 border-0 rounded-0">
-                                <img src="https://res.cloudinary.com/dliwvet1v/image/upload/v1729760813/blog/tdicicjrcq9udztgtmrd.jpg" alt="">
-                                <div class="blog-content bg-white p-4">
-                                    <h5 class="text-decoration-underline mb-4" th:text="#{hotelDetails}">Discover Ho Chi Minh City - The Vibrant Heart of Vietnam</h5>
-                                    <h6>By Admin - February 20, 2024</h6>
-                                    <p class="mt-2">Experience famous tourist destinations and a variety of accommodation spaces in Ho Chi Minh City you should try one a life.</p>
-                                    <a href="/post/post2" class="main-btn mt-2" th:text="#{readMoreButton}">Read More</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+		                <div th:each="post : ${posts}" class="col-md-6 mb-4">
+		                    <div class="card p-0 border-0 rounded-0">
+		                        <!-- Display the post image -->
+		                        <img th:src="${post.img}" alt="Post Image" class="card-img-top" style="height: 300px; object-fit: cover;">
+		                        
+		                        <div class="blog-content bg-white p-4">
+		                            <!-- Display post title -->
+		                            <h5 class="text-decoration-underline mb-4" th:text="${post.title}">Post Title</h5>
+		                            <h6>By <span th:text="${post.createdBy.name}">Admin</span> - <span th:text="${#temporals.format(post.createdDate, 'yyyy-MM-dd HH:mm')}"></span></h6>		                            
+		                            <!-- Display post description -->
+		                            <p class="mt-2" th:text="${post.description}">Post description here...</p>
+		                            
+		                            <!-- Link to read more -->
+		                            <a th:href="@{/post/{id}(id=${post.id})}" class="main-btn mt-2">Read More</a>
+		                        </div>
+		                    </div>
+		                </div>
+               		</div>
+               		<!-- "Show More" button -->
+			        <div class="row text-center">
+			            <div class="col-12">
+			                <button id="show-more-btn2" class="main-btn rounded-3 px-lg-4" th:text="#{showMore}">Show More</button>
+			            </div>
+			        </div>
                 <div class="our-partner-slider mt-5">
                     <div class="container swiper our-partner">
                         <div class="swiper-wrapper">
