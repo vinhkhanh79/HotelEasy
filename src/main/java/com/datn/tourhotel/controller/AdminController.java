@@ -33,6 +33,7 @@ import com.datn.tourhotel.model.dto.HotelRegistrationDTO;
 import com.datn.tourhotel.model.dto.RoomDTO;
 import com.datn.tourhotel.model.dto.UserDTO;
 import com.datn.tourhotel.model.dto.UserRegistrationDTO;
+import com.datn.tourhotel.model.dto.VoucherDTO;
 import com.datn.tourhotel.model.enums.RoomType;
 import com.datn.tourhotel.repository.UserRepository;
 import com.datn.tourhotel.service.BookingService;
@@ -44,6 +45,7 @@ import com.datn.tourhotel.service.HotelService;
 import com.datn.tourhotel.service.PaymentService;
 import com.datn.tourhotel.service.PostService;
 import com.datn.tourhotel.service.UserService;
+import com.datn.tourhotel.service.VoucherService;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -75,6 +77,7 @@ public class AdminController {
     private final CommentService commentService;
     private final Cloudinary cloudinary;
     private final UserRepository userRepository;
+    private final VoucherService voucherService;
     @Autowired
     private PostService postService;
 
@@ -496,33 +499,52 @@ public class AdminController {
     }
 
     @PostMapping("/hotels/add")
-    public String addHotel(@Valid @ModelAttribute("hotel") HotelRegistrationAdminDTO hotelRegistrationAdminDTO,
-                           @RequestParam Long managerId,
-                           @RequestParam("imageFile") MultipartFile imageFile,
-                           @RequestParam("imageFile2") MultipartFile imageFile2,
-                           @RequestParam("imageFile3") MultipartFile imageFile3,
-                           @RequestParam("roomImages1") List<MultipartFile> roomImages1,
-                           @RequestParam("roomImages2") List<MultipartFile> roomImages2,
-                           @RequestParam("roomImages3") List<MultipartFile> roomImages3,
-                           BindingResult result, RedirectAttributes redirectAttributes) {
+    public String addHotel(
+            @Valid @ModelAttribute("hotel") HotelRegistrationAdminDTO hotelRegistrationAdminDTO,
+            BindingResult result,
+            @RequestParam Long managerId,
+            @RequestParam("imageFile") MultipartFile imageFile,
+            @RequestParam("imageFile2") MultipartFile imageFile2,
+            @RequestParam("imageFile3") MultipartFile imageFile3,
+            @RequestParam(value = "roomImages1", required = false) List<MultipartFile> roomImages1,
+            @RequestParam(value = "roomImages2", required = false) List<MultipartFile> roomImages2,
+            @RequestParam(value = "roomImages3", required = false) List<MultipartFile> roomImages3,
+            RedirectAttributes redirectAttributes,
+            Model model) {
+
         if (result.hasErrors()) {
             log.warn("Hotel creation failed due to validation errors: {}", result.getAllErrors());
+
+            // Add the manager list back to the model to display in the form
+            List<HotelManager> managers = hotelManagerService.findAll();
+            model.addAttribute("managers", managers);
+
             return "admin/hotels-add";
         }
+
         try {
-            // Lấy đối tượng HotelManager từ database
+            // Get the HotelManager object from the database
             HotelManager manager = hotelManagerService.findById(managerId)
-                    .orElseThrow(() -> new RuntimeException("Hotel Manager not found"));
-            
-            // Truyền đối tượng manager vào phương thức saveHotelAdmin
+                    .orElseThrow(() -> new EntityNotFoundException("Manager not found"));
+
+            // Save the hotel
             hotelService.saveHotelAdmin(hotelRegistrationAdminDTO, imageFile, imageFile2, imageFile3, roomImages1, roomImages2, roomImages3, manager);
-            redirectAttributes.addFlashAttribute("message", "Hotel " + hotelRegistrationAdminDTO.getName() + " added successfully");
-            return "redirect:/admin/hotels";
+
         } catch (HotelAlreadyExistsException e) {
             result.rejectValue("name", "hotel.exists", e.getMessage());
+
+            // Repopulate the manager list in case of specific errors
+            List<HotelManager> managers = hotelManagerService.findAll();
+            model.addAttribute("managers", managers);
+
             return "admin/hotels-add";
         }
+
+        redirectAttributes.addFlashAttribute("addedHotelName", hotelRegistrationAdminDTO.getName());
+        return "redirect:/admin/hotels?success";
     }
+
+
 
     @GetMapping("/hotels/edit/{id}")
     public String showEditHotelForm(@PathVariable Long id, Model model, HttpServletRequest request) {
@@ -538,25 +560,37 @@ public class AdminController {
     }
 
     @PostMapping("/hotels/edit/{id}")
-    public String editHotel(@PathVariable Long id, @Valid @ModelAttribute("hotel") HotelDTO hotelDTO,
+    public String editHotel(
+            @PathVariable Long id,
+            @Valid @ModelAttribute("hotel") HotelDTO hotelDTO,
             BindingResult result,
-    		@RequestParam("imageFile") MultipartFile imageFile,
+            @RequestParam("imageFile") MultipartFile imageFile,
             @RequestParam("imageFile2") MultipartFile imageFile2,
             @RequestParam("imageFile3") MultipartFile imageFile3,
             @RequestParam(value = "roomImages", required = false) List<MultipartFile> roomImages,
             @RequestParam(value = "roomImages2", required = false) List<MultipartFile> roomImages2,
             @RequestParam(value = "roomImages3", required = false) List<MultipartFile> roomImages3,
-            RedirectAttributes redirectAttributes) {
+            RedirectAttributes redirectAttributes,
+            Model model) {
+
         if (result.hasErrors()) {
+            // Repopulate managers for the view
+            List<HotelManager> managers = hotelManagerService.findAll();
+            model.addAttribute("managers", managers); // Re-add the manager list to the model
             return "admin/hotels-edit";
         }
+
         try {
-        	HotelManager manager = hotelManagerService.findById(hotelDTO.getManagerId())
+            HotelManager manager = hotelManagerService.findById(hotelDTO.getManagerId())
                     .orElseThrow(() -> new EntityNotFoundException("Manager not found"));
             hotelDTO.setManager(manager);
             hotelService.updateHotel(hotelDTO, imageFile, imageFile2, imageFile3, roomImages, roomImages2, roomImages3);
         } catch (HotelAlreadyExistsException e) {
             result.rejectValue("name", "hotel.exists", e.getMessage());
+
+            // Repopulate managers again in case of specific errors
+            List<HotelManager> managers = hotelManagerService.findAll();
+            model.addAttribute("managers", managers);
             return "admin/hotels-edit";
         }
 
@@ -564,10 +598,91 @@ public class AdminController {
         return "redirect:/admin/hotels?success";
     }
 
+
     @PostMapping("/hotels/delete/{id}")
     public String deleteHotel(@PathVariable Long id) {
         hotelService.deleteHotelById(id);
         return "redirect:/admin/hotels";
+    }
+    
+    @GetMapping("/vouchers/add")
+    public String showAddVoucherForm(Model model) {
+        // Khởi tạo một đối tượng VoucherDTO trống để binding với form
+        model.addAttribute("voucher", new VoucherDTO());
+        String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
+        model.addAttribute("currentUsername", currentUsername);
+        return "admin/vouchers-add";
+    }
+    @PostMapping("/vouchers/add")
+    public String addVoucher(@Valid @ModelAttribute("voucher") VoucherDTO voucherDTO,
+                             BindingResult result,
+                             Model model,
+                             RedirectAttributes redirectAttributes) {
+        if (result.hasErrors()) {
+            log.warn("Voucher creation failed due to validation errors: {}", result.getAllErrors());
+            return "admin/vouchers-add";
+        }
+        try {
+            // Lấy username hiện tại
+            String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
+            voucherDTO.setCreatedBy(currentUsername);
+            model.addAttribute("currentUsername", currentUsername);
+
+            // Gọi service để lưu voucher
+            voucherService.saveVoucher(voucherDTO);
+            redirectAttributes.addFlashAttribute("success", "Voucher " + voucherDTO.getName() + " added successfully");
+            return "redirect:/admin/vouchers";
+        } catch (Exception e) {
+            result.rejectValue("name", "voucher.exists", e.getMessage());
+            return "admin/vouchers-add";
+        }
+    }
+
+    @GetMapping("/vouchers/edit/{id}")
+    public String showEditVoucherForm(@PathVariable Long id, Model model) {
+        VoucherDTO voucherDTO = voucherService.findVoucherById(id);
+        model.addAttribute("voucher", voucherDTO);
+        String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
+        model.addAttribute("currentUsername", currentUsername);
+        return "admin/vouchers-edit";
+    }
+
+    @PostMapping("/vouchers/edit/{id}")
+    public String editVoucher(@PathVariable Long id,
+            @Valid @ModelAttribute("voucher") VoucherDTO voucherDTO,
+            BindingResult result,
+            RedirectAttributes redirectAttributes) {
+        if (result.hasErrors()) {
+            return "admin/vouchers-edit";
+        }
+        try {
+            voucherService.updateVoucher(id, voucherDTO);
+            redirectAttributes.addFlashAttribute("success", "Voucher " + voucherDTO.getName() + " updated successfully");
+            return "redirect:/admin/vouchers";
+        } catch (Exception e) {
+            result.rejectValue("name", "voucher.exists", e.getMessage());
+            return "admin/vouchers-edit";
+        }
+    }
+
+    @PostMapping("/vouchers/delete/{id}")
+    public String deleteVoucher(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        try {
+            voucherService.deleteVoucher(id); // Truyền id vào service
+            redirectAttributes.addFlashAttribute("success", "Voucher deleted successfully");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Error deleting voucher: " + e.getMessage());
+        }
+        return "redirect:/admin/vouchers";
+    }
+
+    @GetMapping("/vouchers")
+    public String listVouchers(Model model) {
+        List<VoucherDTO> vouchers = voucherService.getVouchers(); // Lấy các voucher chưa bị xóa
+        model.addAttribute("vouchers", vouchers);
+        String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
+        model.addAttribute("currentUsername", currentUsername);
+        return "admin/vouchers";
     }
 
     @GetMapping("/bookings")
@@ -650,4 +765,5 @@ public class AdminController {
         List<UserDTO> users = userService.findAllUsers();
         excelExportService.exportUsersToExcel(response, users);
     }
+
 }

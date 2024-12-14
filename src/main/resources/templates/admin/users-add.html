@@ -35,73 +35,85 @@
 <body>
 <th:block layout:fragment="content">
     <div class="row">
-    <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
-        <div class="position-sticky justify-content-center">
-            <ul class="nav flex-column">
-                <li class="nav-item">
-                    <a class="nav-link ms-5" aria-current="page" th:href="@{/admin/dashboard(language=${#locale.language})}">
-                        <i class="bi bi-house-door-fill"></i>
-                        <span class="ml-2 h5" th:text="#{dashboardTitle}">Dashboard</span>
-                    </a>
-                </li>
-                <hr>
-                <li class="nav-item ms-5">
-                    <a class="nav-link" th:href="@{/admin/users/add(language=${#locale.language})}">
-                        <i class="bi bi-people-fill"></i>
-                        <span class="ml-2 h5" th:text="#{dashboardNavAddUsers}">Add Users</span>
-                    </a>
-                </li>
-                <li class="nav-item ms-5">
-                    <a class="nav-link" th:href="@{/admin/users(language=${#locale.language})}">
-                        <i class="bi bi-people-fill"></i>
-                        <span class="ml-2 h5" th:text="#{dashboardNavUsers}">Users</span>
-                    </a>
-                </li>
-                <li class="nav-item ms-5">
-                    <a class="nav-link" th:href="@{/admin/hotels/add(language=${#locale.getLanguage()})}">
-                        <i class="bi bi-building"></i>
-                        <span class="ml-2 h5" th:text="#{dashboardNavAddHotels}">Add hotels</span>
-                    </a>
-                </li>
-                <li class="nav-item ms-5">
-                    <a class="nav-link" th:href="@{/admin/hotels(language=${#locale.language})}">
-                        <i class="bi bi-building"></i>
-                        <span class="ml-2 h5" th:text="#{dashboardNavHotels}">Hotels</span>
-                    </a>
-                </li>
-                <li class="nav-item ms-5">
-                    <a class="nav-link" th:href="@{/admin/posts/add(language=${#locale.getLanguage()})}">
-                        <i class="bi bi-file-earmark-text"></i>
-                        <span class="ml-2 h5" th:text="#{dashboardNavAddPosts}">Add posts</span>
-                    </a>
-                </li>
-                <li class="nav-item ms-5">
-                    <a class="nav-link" th:href="@{/admin/posts(language=${#locale.language})}">
-                        <i class="bi bi-file-earmark-text"></i>
-                        <span class="ml-2 h5" th:text="#{dashboardNavPosts}">Posts</span>
-                    </a>
-                </li>
-                <li class="nav-item ms-5">
-                    <a class="nav-link" th:href="@{/admin/bookings(language=${#locale.language})}">
-                        <i class="bi bi-calendar-check"></i>
-                        <span class="ml-2 h5" th:text="#{dashboardNavBookings}">Bookings</span>
-                    </a>
-                </li>
-                <li class="nav-item ms-5">
-                    <a class="nav-link" th:href="@{/admin/report(language=${#locale.language})}">
-                        <i class="bi bi-bar-chart-line"></i>
-                        <span class="ml-2 h5" th:text="#{dashboardNavReports}">Reports</span>
-                    </a>
-                </li>
-                <li class="nav-item ms-5">
-                    <a class="nav-link" th:href="@{/admin/comments(language=${#locale.language})}">
-                        <i class="bi bi-star-fill"></i>
-                        <span class="ml-2 h5" th:text="#{dashboardNavEvaluates}">Evaluates</span>
-                    </a>
-                </li>
-            </ul>
-        </div>
-    </nav>
+        <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+            <div class="position-sticky justify-content-center">
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link ms-5" aria-current="page" th:href="@{/admin/dashboard(language=${#locale.language})}">
+                            <i class="bi bi-house-door-fill"></i>
+                            <span class="ml-2 h5" th:text="#{dashboardTitle}">Dashboard</span>
+                        </a>
+                    </li>
+                    <hr>
+                    <li class="nav-item ms-5">
+                        <a class="nav-link" th:href="@{/admin/users/add(language=${#locale.language})}">
+                            <i class="bi bi-people-fill"></i>
+                            <span class="ml-2 h5" th:text="#{dashboardNavAddUsers}">Add Users</span>
+                        </a>
+                    </li>
+                    <li class="nav-item ms-5">
+                        <a class="nav-link" th:href="@{/admin/users(language=${#locale.language})}">
+                            <i class="bi bi-people-fill"></i>
+                            <span class="ml-2 h5" th:text="#{dashboardNavUsers}">Users</span>
+                        </a>
+                    </li>
+                    <li class="nav-item ms-5">
+                        <a class="nav-link" th:href="@{/admin/hotels/add(language=${#locale.getLanguage()})}">
+                            <i class="bi bi-building"></i>
+                            <span class="ml-2 h5" th:text="#{dashboardNavAddHotels}">Add hotels</span>
+                        </a>
+                    </li>
+                    <li class="nav-item ms-5">
+                        <a class="nav-link" th:href="@{/admin/hotels(language=${#locale.language})}">
+                            <i class="bi bi-building"></i>
+                            <span class="ml-2 h5" th:text="#{dashboardNavHotels}">Hotels</span>
+                        </a>
+                    </li>
+                    <li class="nav-item ms-5">
+                        <a class="nav-link" th:href="@{/admin/posts/add(language=${#locale.getLanguage()})}">
+                            <i class="bi bi-file-earmark-text"></i>
+                            <span class="ml-2 h5" th:text="#{dashboardNavAddPosts}">Add posts</span>
+                        </a>
+                    </li>
+                    <li class="nav-item ms-5">
+                        <a class="nav-link" th:href="@{/admin/posts(language=${#locale.language})}">
+                            <i class="bi bi-file-earmark-text"></i>
+                            <span class="ml-2 h5" th:text="#{dashboardNavPosts}">Posts</span>
+                        </a>
+                    </li>
+                    <li class="nav-item ms-5">
+                        <a class="nav-link" th:href="@{/admin/bookings(language=${#locale.language})}">
+                            <i class="bi bi-calendar-check"></i>
+                            <span class="ml-2 h5" th:text="#{dashboardNavBookings}">Bookings</span>
+                        </a>
+                    </li>
+                    <li class="nav-item ms-5">
+                        <a class="nav-link" th:href="@{/admin/vouchers/add(language=${#locale.language})}">
+                            <i class="bi bi-ticket-detailed"></i>
+                            <span class="ml-2 h5" th:text="#{dashboardNavAddVouchers}">Add Vouchers</span>
+                        </a>
+                    </li>
+                    <li class="nav-item ms-5">
+                        <a class="nav-link" th:href="@{/admin/vouchers(language=${#locale.language})}">
+                            <i class="bi bi-ticket-detailed"></i>
+                            <span class="ml-2 h5" th:text="#{dashboardNavVouchers}">Vouchers</span>
+                        </a>
+                    </li>
+                    <li class="nav-item ms-5">
+                        <a class="nav-link" th:href="@{/admin/report(language=${#locale.language})}">
+                            <i class="bi bi-bar-chart-line"></i>
+                            <span class="ml-2 h5" th:text="#{dashboardNavReports}">Reports</span>
+                        </a>
+                    </li>
+                    <li class="nav-item ms-5">
+                        <a class="nav-link" th:href="@{/admin/comments(language=${#locale.language})}">
+                            <i class="bi bi-star-fill"></i>
+                            <span class="ml-2 h5" th:text="#{dashboardNavEvaluates}">Evaluates</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
     <main class="col-md-9 ml-sm-auto col-lg-10 px-md-4 py-4 mt-4 mb-5">
             <div class="col-md-8 offset-md-2">
                 <div class="card">

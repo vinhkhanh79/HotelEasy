@@ -156,7 +156,6 @@
                 </tr>
                 </tbody>
             </table>
-
             
 			<!-- Total Price Section Below the Table -->
 			<div class="row mb-2 justify-content-end">
@@ -182,6 +181,22 @@
 			<input type="hidden" id="hiddenEndTime" name="endTime" />
 			<input type="hidden" id="bookingTypeHidden" name="bookingType"/>
         </form>
+        
+		<div class="row mb-2 justify-content-end mt-3">
+			<div  class="alert text-center" th:if="${!isLoggedIn}">
+		        <h5>You must <a href="/login">log in</a> to have many voucher!</h5>
+		    </div>
+		    <div class="col-auto d-flex align-items-center" th:if="${isLoggedIn}">
+		    <div>
+		        <h4 class="me-2"><strong>Voucher: </strong></h4>
+		    </div>
+		    <div class="col-auto d-flex align-items-center">
+		        <input type="text" id="voucherCode" placeholder="Enter voucher code" class="form-control" />
+		        <button id="applyVoucher" class="btn btn-primary ms-2">Apply</button>
+		    </div>
+		    </div>
+		</div>
+
     </div>
 </div>
 <div class="comments-section">
@@ -600,6 +615,87 @@
             this.value = `${hours}:00`;
         });
     });
+    
+    const languageLinks = document.querySelectorAll('.language-link');
+    const currentUrl = new URL(window.location.href);
+
+    // Lấy các tham số từ URL hiện tại
+    const checkinDate = currentUrl.searchParams.get('checkinDate');
+    const checkoutDate = currentUrl.searchParams.get('checkoutDate');
+
+    // Duyệt qua tất cả các liên kết chuyển ngôn ngữ
+    languageLinks.forEach(link => {
+        const lang = link.getAttribute('data-lang');
+        const newUrl = new URL(currentUrl); // Sao chép URL hiện tại
+
+        // Thay đổi tham số 'language'
+        newUrl.searchParams.set('language', lang);
+
+        // Giữ nguyên các tham số checkinDate và checkoutDate
+        if (checkinDate) newUrl.searchParams.set('checkinDate', checkinDate);
+        if (checkoutDate) newUrl.searchParams.set('checkoutDate', checkoutDate);
+
+        // Gán URL mới vào href của liên kết
+        link.href = newUrl.toString();
+    });
+    
+    document.getElementById('applyVoucher').addEventListener('click', function() {
+        const voucherCode = document.getElementById('voucherCode').value;
+        const totalPriceInput = document.getElementById('totalPriceInput');
+        const totalPriceDisplay = document.getElementById('totalPrice');
+        const applyButton = document.getElementById('applyVoucher');
+        const originalVoucherCode = applyButton.dataset.voucherCode || ''; // Store the original voucher code
+
+        let totalPrice = parseFloat(totalPriceInput.value) || 0;
+
+        // If a voucher code is already applied, display a message and do nothing
+        if (voucherCode === originalVoucherCode && originalVoucherCode !== '') {
+            alert('Voucher has already been applied!'); // Display English message
+            return; // Prevent reapplying the same voucher
+        }
+
+        fetch(`/api/vouchers/apply?code=${voucherCode}&totalPrice=${totalPrice}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const discountAmount = data.discountAmount;
+                    const newTotalPrice = totalPrice - discountAmount;
+
+                    const formattedPrice = newTotalPrice.toLocaleString();
+                    totalPriceDisplay.textContent = formattedPrice + ' VND';
+                    totalPriceInput.value = newTotalPrice.toFixed(2);
+
+                    alert('Voucher applied successfully!'); // English message
+
+                    // Disable the Apply button after successful application
+                    applyButton.style.display = 'block'; // Hide the button
+
+                    // Store the applied voucher code in a data attribute
+                    applyButton.dataset.voucherCode = voucherCode;
+
+                } else {
+                    alert(data.message); // Show error message
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred. Please try again.'); // English message
+            });
+    });
+
+
+    // Reset the button if the user changes the voucher code
+    document.getElementById('voucherCode').addEventListener('input', function() {
+        const voucherCode = document.getElementById('voucherCode').value;
+        const applyButton = document.getElementById('applyVoucher');
+        const originalVoucherCode = applyButton.dataset.voucherCode || '';
+
+        // Show the Apply button again if the voucher code is different
+        if (voucherCode !== originalVoucherCode && voucherCode !== '') {
+            applyButton.style.display = 'inline-block'; // Show Apply button
+        }
+    });
+
 
     function changeImage(element) {
         // Lấy URL của hình ảnh từ hình ảnh nhỏ (thumbnail)
@@ -611,6 +707,7 @@
         // Thay đổi src của hình ảnh chính bằng URL mới
         mainImage.src = newSrc;
     }
+    
 </script>
     
 </th:block>

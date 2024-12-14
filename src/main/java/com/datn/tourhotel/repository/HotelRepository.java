@@ -13,19 +13,27 @@ import java.util.Optional;
 
 @Repository
 public interface HotelRepository extends JpaRepository<Hotel, Long> {
+	
+	List<Hotel> findAllByIsDeleteFalse();
 
-    Optional<Hotel> findByName(String name);
+    // Find hotel by name, ensuring it's not deleted
+    Optional<Hotel> findByNameAndIsDeleteFalse(String name);
 
-    List<Hotel> findAllByHotelManager_Id(Long id);
+    // Find all hotels by hotel manager ID, ensuring they are not deleted
+    List<Hotel> findAllByHotelManager_IdAndIsDeleteFalse(Long id);
 
-    Optional<Hotel> findByIdAndHotelManager_Id(Long id, Long managerId);
+    // Find hotel by ID and hotel manager ID, ensuring it's not deleted
+    Optional<Hotel> findByIdAndHotelManager_IdAndIsDeleteFalse(Long id, Long managerId);
     
-    @Query("SELECT COUNT(h) FROM Hotel h WHERE h.hotelManager.id = :managerId")
+    // Count hotels by manager ID, ensuring they are not deleted
+    @Query("SELECT COUNT(h) FROM Hotel h WHERE h.hotelManager.id = :managerId AND h.isDelete = false")
     Long countHotelsByManagerId(@Param("managerId") Long managerId);
 
-    @Query("SELECT h FROM Hotel h WHERE h.address.addressLine = :addressLine")
-    List<Hotel> findHotelsByaddressLine(@Param("addressLine") String addressLine);
+    // Find hotels by address line, ensuring they are not deleted
+    @Query("SELECT h FROM Hotel h WHERE h.address.addressLine = :addressLine AND h.isDelete = false")
+    List<Hotel> findHotelsByAddressLine(@Param("addressLine") String addressLine);
 
+    // Find hotels with available rooms, ensuring they are not deleted
     @Query("SELECT h " +
             "FROM Hotel h " +
             "JOIN h.rooms r " +
@@ -33,6 +41,7 @@ public interface HotelRepository extends JpaRepository<Hotel, Long> {
             "AND a.date >= :checkinDate AND a.date < :checkoutDate " +
             "WHERE h.address.addressLine = :addressLine " +
             "AND (a IS NULL OR a.availableRooms > 0) " +
+            "AND h.isDelete = false " +
             "GROUP BY h.id, h.name, h.address, h.hotelManager, h.img, h.img2, h.img3, h.describe " +
             "HAVING COUNT(DISTINCT a.date) + SUM(CASE WHEN a IS NULL THEN 1 ELSE 0 END) = :numberOfDays")
     List<Hotel> findHotelsWithAvailableRooms(@Param("addressLine") String addressLine,
@@ -40,7 +49,7 @@ public interface HotelRepository extends JpaRepository<Hotel, Long> {
                                              @Param("checkoutDate") LocalDate checkoutDate,
                                              @Param("numberOfDays") Long numberOfDays);
 
-
+    // Find hotels without availability records, ensuring they are not deleted
     @Query("SELECT h " +
             "FROM Hotel h " +
             "WHERE h.address.addressLine = :addressLine " +
@@ -49,11 +58,13 @@ public interface HotelRepository extends JpaRepository<Hotel, Long> {
             "   FROM Availability a " +
             "   WHERE a.room.hotel.id = h.id " +
             "   AND a.date >= :checkinDate AND a.date < :checkoutDate" +
-            ")")
+            ") " +
+            "AND h.isDelete = false")
     List<Hotel> findHotelsWithoutAvailabilityRecords(@Param("addressLine") String addressLine,
                                                      @Param("checkinDate") LocalDate checkinDate,
                                                      @Param("checkoutDate") LocalDate checkoutDate);
 
+    // Find hotels with partial availability records, ensuring they are not deleted
     @Query("SELECT h " +
             "FROM Hotel h " +
             "JOIN h.rooms r " +
@@ -61,6 +72,7 @@ public interface HotelRepository extends JpaRepository<Hotel, Long> {
             "AND a.date >= :checkinDate AND a.date < :checkoutDate " +
             "WHERE h.address.addressLine = :addressLine " +
             "AND (a IS NULL OR a.availableRooms > 0) " +
+            "AND h.isDelete = false " +
             "GROUP BY h.id, h.name, h.address, h.hotelManager, h.img, h.img2, h.img3, h.describe " +
             "HAVING COUNT(DISTINCT a.date) < :numberOfDays " +
             "AND COUNT(DISTINCT CASE WHEN a.availableRooms > 0 THEN a.date END) > 0")
@@ -68,6 +80,5 @@ public interface HotelRepository extends JpaRepository<Hotel, Long> {
                                                          @Param("checkinDate") LocalDate checkinDate,
                                                          @Param("checkoutDate") LocalDate checkoutDate,
                                                          @Param("numberOfDays") Long numberOfDays);
-
 
 }

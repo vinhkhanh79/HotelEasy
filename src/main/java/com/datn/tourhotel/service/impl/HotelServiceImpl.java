@@ -41,7 +41,7 @@ public class HotelServiceImpl implements HotelService {
     public Hotel saveHotel(HotelRegistrationDTO hotelRegistrationDTO, MultipartFile multipartFile, MultipartFile multipartFile2, MultipartFile multipartFile3, List<MultipartFile> roomImages1, List<MultipartFile> roomImages2, List<MultipartFile> roomImages3) {
         log.info("Attempting to save a new hotel: {}", hotelRegistrationDTO.toString());
 
-        Optional<Hotel> existingHotel = hotelRepository.findByName(hotelRegistrationDTO.getName());
+        Optional<Hotel> existingHotel = hotelRepository.findByNameAndIsDeleteFalse(hotelRegistrationDTO.getName());
         if (existingHotel.isPresent()) {
             throw new HotelAlreadyExistsException("This hotel name is already registered!");
         }
@@ -156,7 +156,7 @@ public class HotelServiceImpl implements HotelService {
         log.info("Attempting to save a new hotel: {}", hotelRegistrationAdminDTO.toString());
 
         // Kiểm tra xem tên khách sạn đã tồn tại chưa
-        Optional<Hotel> existingHotel = hotelRepository.findByName(hotelRegistrationAdminDTO.getName());
+        Optional<Hotel> existingHotel = hotelRepository.findByNameAndIsDeleteFalse(hotelRegistrationAdminDTO.getName());
         if (existingHotel.isPresent()) {
             throw new HotelAlreadyExistsException("This hotel name is already registered!");
         }
@@ -262,7 +262,7 @@ public class HotelServiceImpl implements HotelService {
 
     @Override
     public HotelDTO findHotelDtoByName(String name) {
-        Hotel hotel = hotelRepository.findByName(name)
+        Hotel hotel = hotelRepository.findByNameAndIsDeleteFalse(name)
                 .orElseThrow(() -> new EntityNotFoundException("Hotel not found"));
         return mapHotelToHotelDto(hotel);
     }
@@ -281,11 +281,15 @@ public class HotelServiceImpl implements HotelService {
 
     @Override
     public List<HotelDTO> findAllHotels() {
-        List<Hotel> hotels = hotelRepository.findAll();
+        // Fetch only hotels that are not marked as deleted
+        List<Hotel> hotels = hotelRepository.findAllByIsDeleteFalse();
+        
+        // Convert the list of hotels to DTOs
         return hotels.stream()
                 .map(this::mapHotelToHotelDto)
                 .collect(Collectors.toList());
     }
+
 
     @Override
     @Transactional
@@ -365,18 +369,32 @@ public class HotelServiceImpl implements HotelService {
     @Override
     public void deleteHotelById(Long id) {
         log.info("Attempting to delete hotel with ID: {}", id);
-        hotelRepository.deleteById(id);
-        log.info("Successfully deleted hotel with ID: {}", id);
+        
+        Optional<Hotel> hotelOptional = hotelRepository.findById(id);
+        if (hotelOptional.isPresent()) {
+            Hotel hotel = hotelOptional.get();
+            
+            // Set the isDelete flag to true to mark the hotel as deleted
+            hotel.setIsDelete(true);
+            
+            // Save the updated hotel object back to the database
+            hotelRepository.save(hotel);
+            
+            log.info("Successfully marked hotel with ID: {} as deleted", id);
+        } else {
+            log.warn("Hotel with ID: {} not found", id);
+        }
     }
+
     @Override
     public List<Hotel> findAllHotelsByManagerId(Long managerId) {
-        List<Hotel> hotels = hotelRepository.findAllByHotelManager_Id(managerId);
+        List<Hotel> hotels = hotelRepository.findAllByHotelManager_IdAndIsDeleteFalse(managerId);
         return (hotels != null) ? hotels : Collections.emptyList();
     }
 
     @Override
     public List<HotelDTO> findAllHotelDtosByManagerId(Long managerId) {
-        List<Hotel> hotels = hotelRepository.findAllByHotelManager_Id(managerId);
+        List<Hotel> hotels = hotelRepository.findAllByHotelManager_IdAndIsDeleteFalse(managerId);
         if (hotels != null) {
             return hotels.stream()
                     .map(this::mapHotelToHotelDto)
@@ -387,7 +405,7 @@ public class HotelServiceImpl implements HotelService {
 
     @Override
     public HotelDTO findHotelByIdAndManagerId(Long hotelId, Long managerId) {
-        Hotel hotel = hotelRepository.findByIdAndHotelManager_Id(hotelId, managerId)
+        Hotel hotel = hotelRepository.findByIdAndHotelManager_IdAndIsDeleteFalse(hotelId, managerId)
                 .orElseThrow(() -> new EntityNotFoundException("Hotel not found"));
         return mapHotelToHotelDto(hotel);
     }
@@ -398,7 +416,7 @@ public class HotelServiceImpl implements HotelService {
     public HotelDTO updateHotelByManagerId(HotelDTO hotelDTO, Long managerId, MultipartFile hotelImage, MultipartFile hotelImage2, MultipartFile hotelImage3, List<MultipartFile> roomImages1, List<MultipartFile> roomImages2, List<MultipartFile> roomImages3) {
         log.info("Attempting to update hotel with ID: {} for Manager ID: {}", hotelDTO.getId(), managerId);
 
-        Hotel existingHotel = hotelRepository.findByIdAndHotelManager_Id(hotelDTO.getId(), managerId)
+        Hotel existingHotel = hotelRepository.findByIdAndHotelManager_IdAndIsDeleteFalse(hotelDTO.getId(), managerId)
                 .orElseThrow(() -> new EntityNotFoundException("Hotel not found"));
 
         if (hotelNameExistsAndNotSameHotel(hotelDTO.getName(), hotelDTO.getId())) {
@@ -472,11 +490,20 @@ public class HotelServiceImpl implements HotelService {
     @Override
     public void deleteHotelByIdAndManagerId(Long hotelId, Long managerId) {
         log.info("Attempting to delete hotel with ID: {} for Manager ID: {}", hotelId, managerId);
-        Hotel hotel = hotelRepository.findByIdAndHotelManager_Id(hotelId, managerId)
+        
+        // Find the hotel with the specified ID and manager ID, ensuring it's not marked as deleted
+        Hotel hotel = hotelRepository.findByIdAndHotelManager_IdAndIsDeleteFalse(hotelId, managerId)
                 .orElseThrow(() -> new EntityNotFoundException("Hotel not found"));
-        hotelRepository.delete(hotel);
-        log.info("Successfully deleted hotel with ID: {} for Manager ID: {}", hotelId, managerId);
+
+        // Set the isDelete flag to true to mark the hotel as deleted
+        hotel.setIsDelete(true);
+
+        // Save the updated hotel object with the isDelete flag set to true
+        hotelRepository.save(hotel);
+        
+        log.info("Successfully marked hotel with ID: {} as deleted for Manager ID: {}", hotelId, managerId);
     }
+
 
     private Hotel mapHotelRegistrationDtoToHotel(HotelRegistrationDTO dto) {
         return Hotel.builder()
@@ -485,6 +512,7 @@ public class HotelServiceImpl implements HotelService {
                 .img(dto.getImg())
                 .img2(dto.getImg2())
                 .img3(dto.getImg3())
+                .isDelete(false)
 //                .addressDTO(addressDTO)
 //                .roomDTOs(roomDTOs)
                 .build();
@@ -497,6 +525,7 @@ public class HotelServiceImpl implements HotelService {
                 .img(dto.getImg())
                 .img2(dto.getImg2())
                 .img3(dto.getImg3())
+                .isDelete(false)
 //                .addressDTO(addressDTO)
 //                .roomDTOs(roomDTOs)
                 .build();
@@ -519,12 +548,13 @@ public class HotelServiceImpl implements HotelService {
                 .describe(hotel.getDescribe())
                 .addressDTO(addressDTO)
                 .roomDTOs(roomDTOs)
+//                .isDelete(hotel.getIsDelete())
                 .managerUsername(hotel.getHotelManager().getUser().getUsername())
                 .build();
     }
 
     private boolean hotelNameExistsAndNotSameHotel(String name, Long hotelId) {
-        Optional<Hotel> existingHotelWithSameName = hotelRepository.findByName(name);
+        Optional<Hotel> existingHotelWithSameName = hotelRepository.findByNameAndIsDeleteFalse(name);
         return existingHotelWithSameName.isPresent() && !existingHotelWithSameName.get().getId().equals(hotelId);
     }
 

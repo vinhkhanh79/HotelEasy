@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
@@ -24,6 +25,7 @@ import com.datn.tourhotel.model.Comment;
 import com.datn.tourhotel.model.Customer;
 import com.datn.tourhotel.model.Post;
 import com.datn.tourhotel.model.User;
+import com.datn.tourhotel.model.Voucher;
 import com.datn.tourhotel.model.dto.CommentDTO;
 import com.datn.tourhotel.model.dto.HotelAvailabilityDTO;
 import com.datn.tourhotel.model.dto.HotelDTO;
@@ -31,12 +33,14 @@ import com.datn.tourhotel.model.dto.HotelSearchDTO;
 import com.datn.tourhotel.repository.BookingRepository;
 import com.datn.tourhotel.repository.CommentRepository;
 import com.datn.tourhotel.repository.UserRepository;
+import com.datn.tourhotel.repository.VoucherRepository;
 import com.datn.tourhotel.security.CustomUserDetails;
 import com.datn.tourhotel.service.CommentService;
 import com.datn.tourhotel.service.HotelSearchService;
 import com.datn.tourhotel.service.HotelService;
 import com.datn.tourhotel.service.PostService;
 import com.datn.tourhotel.service.UserService;
+import com.datn.tourhotel.service.VoucherService;
 
 import java.security.Principal;
 import java.time.LocalDate;
@@ -44,8 +48,11 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoUnit;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Optional;
 
 @Controller
 @RequiredArgsConstructor
@@ -62,6 +69,8 @@ public class HotelSearchController {
     private final BookingRepository bookingRepository;
     private final CommentRepository commentRepository;
     private final PostService postService;
+    private final VoucherService voucherService;
+    private final VoucherRepository voucherRepository;
     UserDetails userDetails;
     
     @GetMapping("/index")
@@ -165,16 +174,6 @@ public class HotelSearchController {
             boolean hasBooked = false;
             boolean hasCommented = false;
 
-//            if (isLoggedIn) {
-//                UserDetails userDetails = getUserDetailsFromAuthentication(authentication);
-//                User user = userRepository.findByUsername(userDetails.getUsername());
-//                if (user != null) {
-//                	List<Booking> bookings = bookingRepository.findBookingsByCustomerAndHotel(user.getId(), id);
-//                	hasBooked = !bookings.isEmpty();
-//                    hasCommented = commentRepository.existsByUserIdAndHotelId(user.getId(), id);
-//                    log.info("Checking booking for user {} at hotel {}: {}", user.getId(), id, hasBooked);
-//                }
-//            }
             if (isLoggedIn) {
                 UserDetails userDetails = getUserDetailsFromAuthentication(authentication);
                 User user = userRepository.findByUsername(userDetails.getUsername());
@@ -248,6 +247,21 @@ public class HotelSearchController {
             redirectAttributes.addFlashAttribute("errorMessage", "An unexpected error occurred. Please try again later.");
             return "redirect:/index";
         }
+    }
+    @GetMapping("/api/vouchers/apply")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> applyVoucher(@RequestParam String code, @RequestParam double totalPrice) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            double discount = voucherService.calculateDiscount(code, totalPrice);
+            double discountAmount = totalPrice * discount; // Tính số tiền giảm
+            response.put("success", true);
+            response.put("discountAmount", discountAmount);
+        } catch (IllegalArgumentException e) {
+            response.put("success", false);
+            response.put("message", e.getMessage());
+        }
+        return ResponseEntity.ok(response);
     }
     @PostMapping("/hotel-details/{id}/add-comment")
     public String addComment(@PathVariable Long id,

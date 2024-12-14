@@ -86,32 +86,33 @@
 					       </ul>
 					     </li>
 					     <li class="nav-item dropdown">
-					       <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false" th:text="#{language}">
-					         Language
-					       </a>
-					       <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-					       	<li class="nav-item">
-					         	<a class="nav-link" href="?language=en">
-					         		<i class="bi bi-box-arrow-in-right" th:text="#{english}"></i> 
-					         	</a> 
-					         </li>
-					         <li class="nav-item">
-					         	<a class="nav-link" href="?language=vi_VN">
-					         		<i class="bi bi-box-arrow-in-right" th:text="#{vietNam}"></i> 
-					         	</a> 
-					         </li>
-					         <li class="nav-item">
-					         	<a class="nav-link" href="?language=ja_JP">
-					         		<i class="bi bi-box-arrow-in-right" th:text="#{japanese}"></i> 
-					         	</a> 
-					         </li>
-					         <li class="nav-item">
-					         	<a class="nav-link" href="?language=fr_FR">
-					         		<i class="bi bi-box-arrow-in-right" th:text="#{france}"></i> 
-					         	</a> 
-					         </li>
-					       </ul>
-					     </li>
+    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false" th:text="#{language}">
+        Language
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+        <li class="nav-item">
+            <a class="nav-link language-link" data-lang="en" href="?language=en">
+                <i class="bi bi-box-arrow-in-right" th:text="#{english}"></i> 
+            </a> 
+        </li>
+        <li class="nav-item">
+            <a class="nav-link language-link" data-lang="vi_VN" href="?language=vi_VN">
+                <i class="bi bi-box-arrow-in-right" th:text="#{vietNam}"></i> 
+            </a> 
+        </li>
+        <li class="nav-item">
+            <a class="nav-link language-link" data-lang="ja_JP" href="?language=ja_JP">
+                <i class="bi bi-box-arrow-in-right" th:text="#{japanese}"></i> 
+            </a> 
+        </li>
+        <li class="nav-item">
+            <a class="nav-link language-link" data-lang="fr_FR" href="?language=fr_FR">
+                <i class="bi bi-box-arrow-in-right" th:text="#{france}"></i> 
+            </a> 
+        </li>
+    </ul>
+</li>
+
 
                         <!-- Admin -->
                         <li class="nav-item" sec:authorize="hasRole('ROLE_ADMIN')">

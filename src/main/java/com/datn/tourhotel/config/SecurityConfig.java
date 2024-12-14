@@ -50,7 +50,7 @@ public class SecurityConfig {
         http.csrf(csrf -> csrf.disable());
 
         http.authorizeHttpRequests((authorize) ->
-                        authorize.requestMatchers("/css/**", "/js/**", "/webjars/**" , "/search/**" , "/search-results/**" , "/hotel-details/**" , "/img/**", "/language/**","/post/**").permitAll()
+                        authorize.requestMatchers("/css/**", "/js/**", "/webjars/**" , "/search/**" , "/search-results/**" , "/hotel-details/**" , "/img/**", "/language/**","/post/**","/api/vouchers/**").permitAll()
                                 .requestMatchers("/home/**", "/index/**", "/register/**", "/forgotPass/**", "/login/**").permitAll()
                                 .requestMatchers("/admin/**").hasRole("ADMIN")
                                 .requestMatchers("/customer/**").hasRole("CUSTOMER")

@@ -8,8 +8,7 @@ import java.util.List;
 import java.util.Objects;
 
 @Entity
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -44,6 +43,9 @@ public class Hotel {
     @ManyToOne
     @JoinColumn(nullable = false)
     private HotelManager hotelManager;
+    
+    @Column(nullable = true)
+    private Boolean isDelete; // Trạng thái (ACTIVE, INACTIVE)
 
     @Override
     public String toString() {

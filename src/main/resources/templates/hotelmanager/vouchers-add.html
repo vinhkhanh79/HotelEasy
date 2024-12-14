@@ -2,17 +2,12 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{/admin/layout/layout-main}">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Account Details</title>
-    <!-- Bootstrap CSS -->
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <title>Add Voucher</title>
 </head>
 <body>
 <th:block layout:fragment="content">
-<div class="container-fluid">
     <div class="row">
-    <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+        <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
         <div class="position-sticky justify-content-center">
             <ul class="nav flex-column">
                 <li class="nav-item">
@@ -32,6 +27,7 @@
                     <a class="nav-link" th:href="@{/manager/hotels/add(language=${#locale.getLanguage()})}">
                         <i class="bi bi-building"></i>
                         <span class="ml-2 h5" th:text="#{dashboardNavAddHotels}">Add hotels</span>
+                    </a>
                 </li>
                 <li class="nav-item ms-5">
                     <a class="nav-link" th:href="@{/manager/hotels(language=${#locale.getLanguage()})}">
@@ -84,57 +80,64 @@
             </ul>
         </div>
     </nav>
-    <main class="col-md-9 ml-sm-auto col-lg-10 px-md-4 py-4 mt-4 mb-5">
-        <div class="col-md-8 offset-md-2">
+        <main class="col-md-9 ml-sm-auto col-lg-10 px-md-4 py-4 mt-4 mb-5">
+            <div class="col-md-8 offset-md-2">
                 <div class="card">
                     <div class="card-header">
-                        <h2 class="text-center">User Account Details</h2>
+                        <h2 class="text-center" th:text="#{dashboardNavAddVouchers}">Add Voucher</h2>
                     </div>
-                    <div th:if="${param.success}">
-	                    <div class="alert alert-success">User info successfully updated</div>
-	                </div>
                     <div class="card-body">
-                        <form>
-                            <div class="row mb-3 ms-5">
-                                <div class="col-md-5 me-5" style="height: 310px; width:295px;">
-                                    <img th:src="${user.img}" class="img-fluid w-100 rounded-3" style="height: 100%; width: 100%; object-fit: cover;">
-                                </div>
-                                <div class="col-md-7">
-                                    <div class="mb-3">
-                                        <label for="username" class="form-label fw-bold">Username:</label>
-                                        <input class="form-control-plaintext" id="username" readonly type="text" th:value="${user.username}">
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="name" class="form-label fw-bold">First Name:</label>
-                                        <input class="form-control-plaintext" id="name" readonly type="text" th:value="${user.name}">
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="lastName" class="form-label fw-bold">Last Name:</label>
-                                        <input class="form-control-plaintext" id="lastName" readonly type="text" th:value="${user.lastName}">
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="email" class="form-label fw-bold">Email:</label>
-                                        <input class="form-control-plaintext" id="email" readonly type="text" th:value="${user.email}">
-                                    </div>
-									<div class="mb-3">
-                                        <label for="phone" class="form-label fw-bold">Phone:</label>
-                                        <input class="form-control-plaintext" id="phone" readonly type="text" th:value="${user.phone}">
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="phone" class="form-label fw-bold">Birthday:</label>
-                                        <input class="form-control-plaintext" id="birthday" readonly type="date" th:value="${user.birthday}">
-                                    </div>
-                                    <div class="d-flex justify-content-end">
-                                        <a th:href="@{/manager/account/edit}" class="btn btn-primary">Edit User Info</a>
-                                    </div>
-                                </div>
+                        <form method="post" th:action="@{/manager/vouchers/add}" th:object="${voucher}" enctype="multipart/form-data">
+                            <div class="form-group mb-3">
+                                <label for="code">Code:</label>
+                                <input class="form-control" id="code" type="text" th:field="*{code}"
+                                       placeholder="Enter voucher code" required>
+                                <p class="text-danger" th:if="${#fields.hasErrors('code')}" th:errors="*{code}"></p>
+                            </div>
+                            <div class="form-group mb-3">
+                                <label for="name">Name:</label>
+                                <input class="form-control" id="name" type="text" th:field="*{name}"
+                                       placeholder="Enter voucher name" required>
+                                <p class="text-danger" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></p>
+                            </div>
+                            <div class="form-group mb-3">
+                                <label for="discount">Discount:</label>
+                                <input class="form-control" id="discount" type="number" step="0.01" th:field="*{discount}"
+                                       placeholder="Enter discount value (e.g., 10 or 0.2)" required>
+                                <p class="text-danger" th:if="${#fields.hasErrors('discount')}" th:errors="*{discount}"></p>
+                            </div>
+                            <div class="form-group mb-3">
+                                <label for="maxUsageLimit">Max Usage Limit:</label>
+                                <input class="form-control" id="maxUsageLimit" type="number" th:field="*{maxUsageLimit}"
+                                       placeholder="Enter max usage limit (optional)">
+                                <p class="text-danger" th:if="${#fields.hasErrors('maxUsageLimit')}" th:errors="*{maxUsageLimit}"></p>
+                            </div>
+                            <div class="form-group mb-3">
+                                <label for="startDate">Start Date:</label>
+                                <input class="form-control" id="startDate" type="datetime-local" th:field="*{startDate}" required>
+                                <p class="text-danger" th:if="${#fields.hasErrors('startDate')}" th:errors="*{startDate}"></p>
+                            </div>
+                            <div class="form-group mb-3">
+                                <label for="endDate">End Date:</label>
+                                <input class="form-control" id="endDate" type="datetime-local" th:field="*{endDate}" required>
+                                <p class="text-danger" th:if="${#fields.hasErrors('endDate')}" th:errors="*{endDate}"></p>
+                            </div>
+
+                            <div class="form-group mb-3">
+                                <label for="description">Description:</label>
+                                <textarea class="form-control" id="description" th:field="*{description}" rows="4"
+                                          placeholder="Enter voucher description (optional)"></textarea>
+                                <p class="text-danger" th:if="${#fields.hasErrors('description')}" th:errors="*{description}"></p>
+                            </div>
+                            <div class="form-group text-end">
+                                <button type="submit" class="btn btn-primary">Create</button>
+                                <a th:href="@{/manager/vouchers}" class="btn btn-secondary">Cancel</a>
                             </div>
                         </form>
                     </div>
-	            </div>
+                </div>
             </div>
-    </main>
-    </div>
+        </main>
     </div>
 </th:block>
 </body>

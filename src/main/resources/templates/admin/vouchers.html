@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{/admin/layout/layout-main}">
+<head>
+    <title>Voucher List</title>
+</head>
+<body>
+<th:block layout:fragment="content">
+    <div class="row">
+        <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+            <div class="position-sticky justify-content-center mb-5">
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link ms-5" aria-current="page" th:href="@{/admin/dashboard(language=${#locale.language})}">
+                            <i class="bi bi-house-door-fill"></i>
+                            <span class="ml-2 h5" th:text="#{dashboardTitle}">Dashboard</span>
+                        </a>
+                    </li>
+                    <hr>
+                    <li class="nav-item ms-5">
+                        <a class="nav-link" th:href="@{/admin/users/add(language=${#locale.language})}">
+                            <i class="bi bi-people-fill"></i>
+                            <span class="ml-2 h5" th:text="#{dashboardNavAddUsers}">Add Users</span>
+                        </a>
+                    </li>
+                    <li class="nav-item ms-5">
+                        <a class="nav-link" th:href="@{/admin/users(language=${#locale.language})}">
+                            <i class="bi bi-people-fill"></i>
+                            <span class="ml-2 h5" th:text="#{dashboardNavUsers}">Users</span>
+                        </a>
+                    </li>
+                    <li class="nav-item ms-5">
+                        <a class="nav-link" th:href="@{/admin/hotels/add(language=${#locale.getLanguage()})}">
+                            <i class="bi bi-building"></i>
+                            <span class="ml-2 h5" th:text="#{dashboardNavAddHotels}">Add hotels</span>
+                        </a>
+                    </li>
+                    <li class="nav-item ms-5">
+                        <a class="nav-link" th:href="@{/admin/hotels(language=${#locale.language})}">
+                            <i class="bi bi-building"></i>
+                            <span class="ml-2 h5" th:text="#{dashboardNavHotels}">Hotels</span>
+                        </a>
+                    </li>
+                    <li class="nav-item ms-5">
+                        <a class="nav-link" th:href="@{/admin/posts/add(language=${#locale.getLanguage()})}">
+                            <i class="bi bi-file-earmark-text"></i>
+                            <span class="ml-2 h5" th:text="#{dashboardNavAddPosts}">Add posts</span>
+                        </a>
+                    </li>
+                    <li class="nav-item ms-5">
+                        <a class="nav-link" th:href="@{/admin/posts(language=${#locale.language})}">
+                            <i class="bi bi-file-earmark-text"></i>
+                            <span class="ml-2 h5" th:text="#{dashboardNavPosts}">Posts</span>
+                        </a>
+                    </li>
+                    <li class="nav-item ms-5">
+                        <a class="nav-link" th:href="@{/admin/bookings(language=${#locale.language})}">
+                            <i class="bi bi-calendar-check"></i>
+                            <span class="ml-2 h5" th:text="#{dashboardNavBookings}">Bookings</span>
+                        </a>
+                    </li>
+                    <li class="nav-item ms-5">
+                        <a class="nav-link" th:href="@{/admin/vouchers/add(language=${#locale.language})}">
+                            <i class="bi bi-ticket-detailed"></i>
+                            <span class="ml-2 h5" th:text="#{dashboardNavAddVouchers}">Add Vouchers</span>
+                        </a>
+                    </li>
+                    <li class="nav-item ms-5">
+                        <a class="nav-link" th:href="@{/admin/vouchers(language=${#locale.language})}">
+                            <i class="bi bi-ticket-detailed"></i>
+                            <span class="ml-2 h5" th:text="#{dashboardNavVouchers}">Vouchers</span>
+                        </a>
+                    </li>
+                    <li class="nav-item ms-5">
+                        <a class="nav-link" th:href="@{/admin/report(language=${#locale.language})}">
+                            <i class="bi bi-bar-chart-line"></i>
+                            <span class="ml-2 h5" th:text="#{dashboardNavReports}">Reports</span>
+                        </a>
+                    </li>
+                    <li class="nav-item ms-5">
+                        <a class="nav-link" th:href="@{/admin/comments(language=${#locale.language})}">
+                            <i class="bi bi-star-fill"></i>
+                            <span class="ml-2 h5" th:text="#{dashboardNavEvaluates}">Evaluates</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+        <main class="col-md-9 ml-sm-auto col-lg-10 px-md-4 py-4 mt-4 mb-5">
+            <div class="row" style="min-height: 50vh;">
+                <div class="col-md-12">
+                    <h2 th:text="#{dashboardVoucherList}">Voucher List</h2>
+                    <div th:if="${success}">
+                        <div class="alert alert-success text-center">
+                            Voucher ID: <span th:text="${updatedVoucherId}"></span> info has been successfully updated
+                        </div>
+                    </div>
+                    <table class="table table-striped align-middle">
+                        <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Voucher Name</th>
+                            <th>Discount (%)</th>
+                            <th>Start Date</th>
+                            <th>End Date</th>
+                            <th>Edit</th>
+                            <th>Delete</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr class="align-middle" th:each="voucher : ${vouchers}">
+                            <td th:text="${voucher.id}"></td>
+                            <td th:text="${voucher.name}"></td>
+                            <td th:text="${voucher.discount}"></td>
+                            <td th:text="${voucher.startDate}"></td>
+                            <td th:text="${voucher.endDate}"></td>
+                            <td>
+                                <a th:href="@{/admin/vouchers/edit/{id}(id=${voucher.id},language=${#locale.getLanguage()})}">Edit</a>
+                            </td>
+                            <td>
+                                <form method="post"
+                                      th:action="@{/admin/vouchers/delete/{id}(id=${voucher.id})}"
+                                      onsubmit="return confirm('Are you sure you want to delete this voucher?');">
+                                    <input type="hidden" name="_method" value="DELETE"/>
+                                    <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                    <div class="pagination-container text-center mt-4">
+                        <button id="prevPage" class="btn btn-outline-primary mx-1">«</button>
+                        <span id="pageNumbers"></span>
+                        <button id="nextPage" class="btn btn-outline-primary mx-1">»</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script>
+        // Phân trang, giữ nguyên logic như danh sách người dùng
+        const rows = document.querySelectorAll('tbody tr');
+        const rowsPerPage = 10;
+        let currentPage = 1;
+        const totalPages = Math.ceil(rows.length / rowsPerPage);
+
+        function displayPage(page) {
+            rows.forEach((row, index) => row.style.display = 'none');
+            const start = (page - 1) * rowsPerPage;
+            const end = start + rowsPerPage;
+            rows.forEach((row, index) => {
+                if (index >= start && index < end) row.style.display = '';
+            });
+        }
+
+        function setupPagination() {
+            const pageNumbersContainer = document.getElementById('pageNumbers');
+            pageNumbersContainer.innerHTML = '';
+            for (let i = 1; i <= totalPages; i++) {
+                const pageNumberBtn = document.createElement('button');
+                pageNumberBtn.classList.add('btn', 'btn-outline-primary', 'mx-1');
+                pageNumberBtn.innerText = i;
+                pageNumberBtn.addEventListener('click', function () {
+                    currentPage = i;
+                    displayPage(currentPage);
+                    updatePageButtons();
+                });
+                pageNumbersContainer.appendChild(pageNumberBtn);
+            }
+            updatePageButtons();
+        }
+
+        function updatePageButtons() {
+            document.getElementById('prevPage').disabled = currentPage === 1;
+            document.getElementById('nextPage').disabled = currentPage === totalPages;
+            document.querySelectorAll('#pageNumbers button').forEach((button, index) => {
+                button.classList.toggle('active', index + 1 === currentPage);
+            });
+        }
+
+        document.getElementById('prevPage').addEventListener('click', () => {
+            if (currentPage > 1) {
+                currentPage--;
+                displayPage(currentPage);
+                updatePageButtons();
+            }
+        });
+        document.getElementById('nextPage').addEventListener('click', () => {
+            if (currentPage < totalPages) {
+                currentPage++;
+                displayPage(currentPage);
+                updatePageButtons();
+            }
+        });
+
+        displayPage(currentPage);
+        setupPagination();
+    </script>
+</th:block>
+</body>
+</html>
