@@ -42,7 +42,7 @@ public interface HotelRepository extends JpaRepository<Hotel, Long> {
             "WHERE h.address.addressLine = :addressLine " +
             "AND (a IS NULL OR a.availableRooms > 0) " +
             "AND h.isDelete = false " +
-            "GROUP BY h.id, h.name, h.address, h.hotelManager, h.img, h.img2, h.img3, h.describe " +
+            "GROUP BY h.id, h.name, h.address, h.hotelManager, h.img, h.img2, h.img3, h.describe, h.isDelete " +
             "HAVING COUNT(DISTINCT a.date) + SUM(CASE WHEN a IS NULL THEN 1 ELSE 0 END) = :numberOfDays")
     List<Hotel> findHotelsWithAvailableRooms(@Param("addressLine") String addressLine,
                                              @Param("checkinDate") LocalDate checkinDate,
@@ -73,7 +73,7 @@ public interface HotelRepository extends JpaRepository<Hotel, Long> {
             "WHERE h.address.addressLine = :addressLine " +
             "AND (a IS NULL OR a.availableRooms > 0) " +
             "AND h.isDelete = false " +
-            "GROUP BY h.id, h.name, h.address, h.hotelManager, h.img, h.img2, h.img3, h.describe " +
+            "GROUP BY h.id, h.name, h.address, h.hotelManager, h.img, h.img2, h.img3, h.describe, h.isDelete " +
             "HAVING COUNT(DISTINCT a.date) < :numberOfDays " +
             "AND COUNT(DISTINCT CASE WHEN a.availableRooms > 0 THEN a.date END) > 0")
     List<Hotel> findHotelsWithPartialAvailabilityRecords(@Param("addressLine") String addressLine,
