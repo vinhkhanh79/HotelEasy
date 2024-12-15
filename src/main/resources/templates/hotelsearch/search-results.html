@@ -3,6 +3,21 @@
       layout:decorate="~{/layout/layout-main}">
 <head>
     <title>Search Results</title>
+    <script>
+        // Hàm để định dạng giá tiền
+        function formatPrice(price) {
+            return price.toLocaleString('en-US');  // Định dạng với dấu phẩy, kiểu Mỹ
+        }
+
+        // Hàm cập nhật giá sau khi trang tải
+        document.addEventListener("DOMContentLoaded", function () {
+            const priceElements = document.querySelectorAll('.price');  // Lấy tất cả các phần tử có class 'price'
+            priceElements.forEach(function (element) {
+                const price = parseFloat(element.innerText.replace(/,/g, '')); // Chuyển giá trị sang kiểu số
+                element.innerText = formatPrice(price);  // Cập nhật lại giá
+            });
+        });
+    </script>
 </head>
 <body>
 <th:block layout:fragment="content" class="mt-3">
@@ -43,10 +58,10 @@
                     <div class="">
                         <th:block th:each="room : ${hotel.roomDTOs}">
                             <p th:if="${room.roomType.name() == 'SINGLE'}">
-                                Single: <strong th:text="${room.pricePerNight}">0</strong> VND/Night
+                                Single: <strong class="price" th:text="${room.pricePerNight}">0</strong> VND/Night
                             </p>
                             <p th:if="${room.roomType.name() == 'DOUBLE'}">
-                                Double: <strong th:text="${room.pricePerNight}">0</strong> VND/Night
+                                Double: <strong class="price" th:text="${room.pricePerNight}">0</strong> VND/Night
                             </p>
                         </th:block>
                     </div>
