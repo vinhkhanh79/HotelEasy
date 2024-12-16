@@ -291,27 +291,27 @@ public class HotelSearchController {
         }
 
         // Parse dates
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        LocalDate checkin, checkout;
-
-        try {
-            checkin = LocalDate.parse(checkinDate, formatter);
-            checkout = LocalDate.parse(checkoutDate, formatter);
-        } catch (DateTimeParseException e) {
-            log.error("Invalid date format for check-in or check-out.");
-            redirectAttributes.addFlashAttribute("errorMessage", "Invalid date format.");
-            return String.format("redirect:/hotel-details/%d?checkinDate=%s&checkoutDate=%s", id, checkinDate, checkoutDate);
-        }
-
-        if (checkout.isBefore(checkin)) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Check-out date must be after check-in date.");
-            return String.format("redirect:/hotel-details/%d?checkinDate=%s&checkoutDate=%s", id, checkinDate, checkoutDate);
-        }
-
-        if (rating < 1 || rating > 5) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Rating must be between 1 and 5.");
-            return String.format("redirect:/hotel-details/%d?checkinDate=%s&checkoutDate=%s", id, checkinDate, checkoutDate);
-        }
+//        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+//        LocalDate checkin, checkout;
+//
+//        try {
+//            checkin = LocalDate.parse(checkinDate, formatter);
+//            checkout = LocalDate.parse(checkoutDate, formatter);
+//        } catch (DateTimeParseException e) {
+//            log.error("Invalid date format for check-in or check-out.");
+//            redirectAttributes.addFlashAttribute("errorMessage", "Invalid date format.");
+//            return String.format("redirect:/hotel-details/%d?checkinDate=%s&checkoutDate=%s", id, checkinDate, checkoutDate);
+//        }
+//
+//        if (checkout.isBefore(checkin)) {
+//            redirectAttributes.addFlashAttribute("errorMessage", "Check-out date must be after check-in date.");
+//            return String.format("redirect:/hotel-details/%d?checkinDate=%s&checkoutDate=%s", id, checkinDate, checkoutDate);
+//        }
+//
+//        if (rating < 1 || rating > 5) {
+//            redirectAttributes.addFlashAttribute("errorMessage", "Rating must be between 1 and 5.");
+//            return String.format("redirect:/hotel-details/%d?checkinDate=%s&checkoutDate=%s", id, checkinDate, checkoutDate);
+//        }
 
         try {
             log.info("Adding evaluate for hotel ID: {}", id);
@@ -323,13 +323,6 @@ public class HotelSearchController {
                 redirectAttributes.addFlashAttribute("errorMessage", "User not found. Please log in again.");
                 return "redirect:/login";
             }
-
-//            boolean hasBooked = bookingRepository.existsByUserIdAndHotelId(user.getId(), id);
-//            if (!hasBooked) {
-//                log.warn("User {} has not booked hotel ID: {}", user.getUsername(), id);
-//                redirectAttributes.addFlashAttribute("errorMessage", "You can only evaluate on hotels you've booked.");
-//                return String.format("redirect:/hotel-details/%d?checkinDate=%s&checkoutDate=%s", id, checkinDate, checkoutDate);
-//            }
 
             commentService.addComment(id, user.getId(), content, rating);
             redirectAttributes.addFlashAttribute("successMessage", "Your evaluate has been added!");

@@ -55,6 +55,11 @@
 					         		<i class="bi bi-box-arrow-in-right" th:text="#{myAccount}"></i>
 					         	</a> 
 					         </li>
+					         <li class="nav-item" sec:authorize="hasRole('ROLE_ADMIN')">
+					         	<a class="nav-link" th:href="@{/admin/account(language=${#locale.getLanguage()})}">
+					         		<i class="bi bi-box-arrow-in-right" th:text="#{myAccount}"></i>
+					         	</a> 
+					         </li>
 					         <li class="nav-item" sec:authorize="isAnonymous()">
 					         	<a class="nav-link" th:href="@{/register/customer(language=${#locale.getLanguage()})}">
 					         		<i class="bi bi-box-arrow-in-right" th:text="#{register}"></i>

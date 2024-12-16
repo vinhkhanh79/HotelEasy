@@ -609,15 +609,6 @@ public class HotelManagerController {
         if (result.hasErrors()) {
             return "hotelmanager/vouchers-edit";
         }
-
-        String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
-        Voucher existingVoucher = voucherService.getVoucher(id);
-
-        if (!existingVoucher.getCreatedBy().equals(currentUsername)) {
-            redirectAttributes.addFlashAttribute("error", "You do not have permission to edit this voucher.");
-            return "redirect:/manager/vouchers";
-        }
-
         try {
             voucherService.updateVoucher(id, voucherDTO);
             redirectAttributes.addFlashAttribute("success", "Voucher " + voucherDTO.getName() + " updated successfully");

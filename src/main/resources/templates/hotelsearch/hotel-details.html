@@ -484,7 +484,7 @@
                     bookingType.querySelector("option[value='DAYLY']").style.display = "none";
                     bookingType.querySelector("option[value='OVERNIGHT']").style.display = "none";
                     hourlyBookingOptions.style.display = "block";
-                    dateWarning.style.display = "block"; // Ẩn thông báo
+                    dateWarning.style.display = "block"; // Hiển thị thông báo
                 } else {
                     // Khác ngày
                     bookingType.querySelector("option[value='DAYLY']").style.display = "block";
@@ -661,9 +661,13 @@
                     const discountAmount = data.discountAmount;
                     const newTotalPrice = totalPrice - discountAmount;
 
-                    const formattedPrice = newTotalPrice.toLocaleString();
+                    // Làm tròn giá trị xuống số nguyên (không có phần thập phân)
+                    const roundedPrice = Math.floor(newTotalPrice); // Dùng Math.round() nếu muốn làm tròn gần nhất
+
+                    // Định dạng số tiền hiển thị
+                    const formattedPrice = roundedPrice.toLocaleString();
                     totalPriceDisplay.textContent = formattedPrice + ' VND';
-                    totalPriceInput.value = newTotalPrice.toFixed(2);
+                    totalPriceInput.value = roundedPrice; // Lưu giá trị đã làm tròn vào input
 
                     alert('Voucher applied successfully!'); // English message
 
@@ -682,6 +686,7 @@
                 alert('An error occurred. Please try again.'); // English message
             });
     });
+
 
 
     // Reset the button if the user changes the voucher code

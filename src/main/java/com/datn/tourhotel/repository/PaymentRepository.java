@@ -31,6 +31,9 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
 	    // Tổng tiền thanh toán tổng cộng
 	    @Query("SELECT SUM(p.totalPrice) FROM Payment p")
 	    BigDecimal getTotalEarningsAdmin();
+	    
+	    
+	    
 	
 		@Query("SELECT DAY(p.paymentDate) AS day, SUM(p.totalPrice) AS total FROM Payment p " +
 	 	       "WHERE YEAR(p.paymentDate) = YEAR(CURRENT_DATE) " +
@@ -50,6 +53,9 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
 	 	       "ORDER BY WEEK(p.paymentDate)")
 	 	List<Object[]> getTotalEarningsPerWeekInYearAdmin();
 	 	
+	 	
+	 	
+	 	
 		// Tổng tiền thanh toán trong một ngày
 		@Query("SELECT SUM(p.totalPrice) FROM Payment p WHERE p.booking.hotel.hotelManager.id = :managerId AND CAST(p.paymentDate AS DATE) = CAST(GETDATE() AS DATE)")
 		BigDecimal getTotalEarningsToday(@Param("managerId") Long managerId);
@@ -68,6 +74,10 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
 	    // Tổng tiền thanh toán tổng cộng
 	    @Query("SELECT SUM(p.totalPrice) FROM Payment p WHERE p.booking.hotel.hotelManager.id = :managerId")
 	    BigDecimal getTotalEarnings(@Param("managerId") Long managerId);
+	    
+	    
+	    
+	    
 	    
 	    @Query("SELECT DAY(p.paymentDate) AS day, SUM(p.totalPrice) AS total FROM Payment p " +
 	    	       "WHERE p.booking.hotel.hotelManager.id = :managerId " +

@@ -100,7 +100,7 @@
                         <tr>
                             <th>ID</th>
                             <th>Voucher Name</th>
-                            <th>Discount (%)</th>
+                            <th>Discount (VND)</th>
                             <th>Start Date</th>
                             <th>End Date</th>
                             <th>Edit</th>
@@ -111,7 +111,7 @@
                         <tr class="align-middle" th:each="voucher : ${vouchers}">
                             <td th:text="${voucher.id}"></td>
                             <td th:text="${voucher.name}"></td>
-                            <td th:text="${voucher.discount}"></td>
+                            <td th:text="${voucher.discount}" class="formatted-discount"></td>
                             <td th:text="${voucher.startDate}"></td>
                             <td th:text="${voucher.endDate}"></td>
                             <td>
@@ -169,6 +169,22 @@
             }
             updatePageButtons();
         }
+        
+        const discountCells = document.querySelectorAll('.formatted-discount');
+        
+        // Format numbers with commas
+        function formatCurrency(value) {
+            return new Intl.NumberFormat('de-DE').format(value);
+        }
+
+        // Apply the formatting to each discount cell
+        discountCells.forEach(function(cell) {
+            const value = cell.innerText.trim();
+            if (value) {
+                const formattedValue = formatCurrency(value);
+                cell.innerText = formattedValue;
+            }
+        });
 
         function updatePageButtons() {
             document.getElementById('prevPage').disabled = currentPage === 1;

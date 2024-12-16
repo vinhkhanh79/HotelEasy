@@ -25,6 +25,9 @@ public interface HotelRepository extends JpaRepository<Hotel, Long> {
     // Find hotel by ID and hotel manager ID, ensuring it's not deleted
     Optional<Hotel> findByIdAndHotelManager_IdAndIsDeleteFalse(Long id, Long managerId);
     
+ // Find hotel by ID and hotel manager ID, ensuring it's not deleted
+    Optional<Hotel> findByIdAndIsDeleteFalse(Long id);
+    
     // Count hotels by manager ID, ensuring they are not deleted
     @Query("SELECT COUNT(h) FROM Hotel h WHERE h.hotelManager.id = :managerId AND h.isDelete = false")
     Long countHotelsByManagerId(@Param("managerId") Long managerId);

@@ -205,6 +205,21 @@
 		    });
 		}
 		
+		// Hàm rút gọn nội dung của ô bảng
+		function truncateText(selector, maxLength) {
+		    const cells = document.querySelectorAll(selector);
+		    cells.forEach(cell => {
+		        if (cell.innerText.length > maxLength) {
+		            cell.innerText = cell.innerText.substring(0, maxLength) + '...';
+		        }
+		    });
+		}
+
+		// Áp dụng rút gọn cho các cột có nội dung dài
+		truncateText('td:nth-child(2)', 30);  // Rút gọn cột "Title" sau 30 ký tự
+		truncateText('td:nth-child(3)', 30);  // Rút gọn cột "Description" sau 50 ký tự
+		truncateText('td:nth-child(4)', 30);  
+		truncateText('td:nth-child(5)', 20); 
 		function setupPagination() {
 		    const pageNumbersContainer = document.getElementById('pageNumbers');
 		    pageNumbersContainer.innerHTML = '';

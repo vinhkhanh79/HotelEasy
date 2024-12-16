@@ -58,7 +58,7 @@ public class Post {
     @Column(unique = true, nullable = true, length = 5000)
     private String figcaption3;
     
-    @Column(unique = true, nullable = true)
+    @Column(unique = true, nullable = true, length = 5000)
     private String location;
     
     @ManyToOne(fetch = FetchType.LAZY)

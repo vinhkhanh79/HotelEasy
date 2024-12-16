@@ -206,6 +206,100 @@ public class AuthController {
             return "account/changePass";
         }
     }
+    
+    @GetMapping("/admin/changePass")
+    public String showChangePasswordFormAdmin(Model model, HttpServletRequest request) {
+    	String message = messageSource.getMessage("hello", null, "default message", request.getLocale());
+        model.addAttribute("passwordChangeDTO", new PasswordChangeDTO());
+        return "account/changePassAdmin";
+    }
+
+    @PostMapping("/admin/changePass")
+    public String changePasswordAdmin(
+            @Valid @ModelAttribute("passwordChangeDTO") PasswordChangeDTO passwordChangeDTO,
+            BindingResult result,
+            Authentication authentication,
+            RedirectAttributes redirectAttributes) {
+
+        if (result.hasErrors()) {
+            log.warn("Password change failed due to validation error: {}", result.getAllErrors());
+            return "account/changePassAdmin";
+        }
+
+        if (!passwordChangeDTO.isPasswordsMatching()) {
+            result.rejectValue("confirmNewPassword", "error.passwordChangeDTO", "New password and confirmation do not match.");
+            return "account/changePassAdmin";
+        }
+
+        try {
+
+            if (authentication.getPrincipal() instanceof DefaultOAuth2User) {
+                DefaultOAuth2User oauth2User = (DefaultOAuth2User) authentication.getPrincipal();
+                userDetails = new CustomUserDetails(oauth2User);
+            } else if (authentication.getPrincipal() instanceof UserDetails) {
+                userDetails = (UserDetails) authentication.getPrincipal();
+            } else {
+                throw new IllegalStateException("Unknown principal type");
+            }
+
+            String username = userDetails.getUsername();
+            userService.changePassword(username, passwordChangeDTO.getCurrentPassword(), passwordChangeDTO.getNewPassword());
+            redirectAttributes.addFlashAttribute("success", "Password change successful for user: " + username);
+            return "redirect:/admin/changePass?success";
+
+        } catch (Exception e) {
+            log.error("Password change failed: {}", e.getMessage());
+            result.rejectValue("currentPassword", "error.passwordChangeDTO", "Current password is incorrect.");
+            return "account/changePassAdmin";
+        }
+    }
+    
+    @GetMapping("/manager/changePass")
+    public String showChangePasswordFormManager(Model model, HttpServletRequest request) {
+    	String message = messageSource.getMessage("hello", null, "default message", request.getLocale());
+        model.addAttribute("passwordChangeDTO", new PasswordChangeDTO());
+        return "account/changePassManager";
+    }
+
+    @PostMapping("/manager/changePass")
+    public String changePasswordManager(
+            @Valid @ModelAttribute("passwordChangeDTO") PasswordChangeDTO passwordChangeDTO,
+            BindingResult result,
+            Authentication authentication,
+            RedirectAttributes redirectAttributes) {
+
+        if (result.hasErrors()) {
+            log.warn("Password change failed due to validation error: {}", result.getAllErrors());
+            return "account/changePassManager";
+        }
+
+        if (!passwordChangeDTO.isPasswordsMatching()) {
+            result.rejectValue("confirmNewPassword", "error.passwordChangeDTO", "New password and confirmation do not match.");
+            return "account/changePassManager";
+        }
+
+        try {
+
+            if (authentication.getPrincipal() instanceof DefaultOAuth2User) {
+                DefaultOAuth2User oauth2User = (DefaultOAuth2User) authentication.getPrincipal();
+                userDetails = new CustomUserDetails(oauth2User);
+            } else if (authentication.getPrincipal() instanceof UserDetails) {
+                userDetails = (UserDetails) authentication.getPrincipal();
+            } else {
+                throw new IllegalStateException("Unknown principal type");
+            }
+
+            String username = userDetails.getUsername();
+            userService.changePassword(username, passwordChangeDTO.getCurrentPassword(), passwordChangeDTO.getNewPassword());
+            redirectAttributes.addFlashAttribute("success", "Password change successful for user: " + username);
+            return "redirect:/manager/changePass?success";
+
+        } catch (Exception e) {
+            log.error("Password change failed: {}", e.getMessage());
+            result.rejectValue("currentPassword", "error.passwordChangeDTO", "Current password is incorrect.");
+            return "account/changePassManager";
+        }
+    }
 
     
     @GetMapping("/forgotPass/customer")

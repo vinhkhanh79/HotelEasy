@@ -27,7 +27,7 @@ public class Hotel {
     
     private String img3; 
     
-    @Column(unique = true, nullable = true)
+    @Column(unique = true, nullable = true, length = 5000)
     private String describe;
     
     @OneToOne(cascade = CascadeType.ALL)

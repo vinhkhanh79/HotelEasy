@@ -114,7 +114,7 @@
                         <td th:text="${booking.bookingDate}"></td>
                         <td th:text="${booking.hotelName}"></td>
                         <td th:text="${booking.customerEmail}"></td>
-                        <td th:text="'$ ' + ${#numbers.formatDecimal(booking.totalPrice, 0, 'COMMA', 2, 'POINT')}"></td>
+                        <td th:text="${#numbers.formatDecimal(booking.totalPrice, 0, 'COMMA', 2, 'POINT')} + ' VND'"></td>
                         <td th:text="${booking.paymentStatus}"></td>
                         <td th:text="${booking.status}"></td>
                         <td>

@@ -269,14 +269,14 @@ public class HotelServiceImpl implements HotelService {
 
     @Override
     public HotelDTO findHotelDtoById(Long id) {
-        Hotel hotel = hotelRepository.findById(id)
+        Hotel hotel = hotelRepository.findByIdAndIsDeleteFalse(id)
                 .orElseThrow(() -> new EntityNotFoundException("Hotel not found"));
         return mapHotelToHotelDto(hotel);
     }
 
     @Override
     public Optional<Hotel> findHotelById(Long id) {
-        return hotelRepository.findById(id);
+        return hotelRepository.findByIdAndIsDeleteFalse(id);
     }
 
     @Override
@@ -296,7 +296,7 @@ public class HotelServiceImpl implements HotelService {
     public HotelDTO updateHotel(HotelDTO hotelDTO, MultipartFile multipartFile, MultipartFile multipartFile2, MultipartFile multipartFile3, List<MultipartFile> roomImages1, List<MultipartFile> roomImages2, List<MultipartFile> roomImages3){
         log.info("Attempting to update hotel with ID: {}", hotelDTO.getId());
 
-        Hotel existingHotel = hotelRepository.findById(hotelDTO.getId())
+        Hotel existingHotel = hotelRepository.findByIdAndIsDeleteFalse(hotelDTO.getId())
                 .orElseThrow(() -> new EntityNotFoundException("Hotel not found"));
 
         if (hotelNameExistsAndNotSameHotel(hotelDTO.getName(), hotelDTO.getId())) {
@@ -370,7 +370,7 @@ public class HotelServiceImpl implements HotelService {
     public void deleteHotelById(Long id) {
         log.info("Attempting to delete hotel with ID: {}", id);
         
-        Optional<Hotel> hotelOptional = hotelRepository.findById(id);
+        Optional<Hotel> hotelOptional = hotelRepository.findByIdAndIsDeleteFalse(id);
         if (hotelOptional.isPresent()) {
             Hotel hotel = hotelOptional.get();
             

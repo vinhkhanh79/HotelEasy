@@ -385,6 +385,9 @@ public class AdminController {
     }
     @GetMapping("/users/add")
     public String showAddUserForm(Model model) {
+    	// Add current username (if needed for display or authentication)
+        String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
+        model.addAttribute("currentUsername", currentUsername);
         model.addAttribute("user", new UserRegistrationDTO()); // Khởi tạo đối tượng mới
         return "admin/users-add"; // Trả về view cho form thêm người dùng
     }
@@ -605,6 +608,15 @@ public class AdminController {
         return "redirect:/admin/hotels";
     }
     
+    @GetMapping("/vouchers")
+    public String listVouchers(Model model) {
+        List<VoucherDTO> vouchers = voucherService.getVouchers(); // Lấy các voucher chưa bị xóa
+        model.addAttribute("vouchers", vouchers);
+        String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
+        model.addAttribute("currentUsername", currentUsername);
+        return "admin/vouchers";
+    }
+    
     @GetMapping("/vouchers/add")
     public String showAddVoucherForm(Model model) {
         // Khởi tạo một đối tượng VoucherDTO trống để binding với form
@@ -674,15 +686,6 @@ public class AdminController {
             redirectAttributes.addFlashAttribute("error", "Error deleting voucher: " + e.getMessage());
         }
         return "redirect:/admin/vouchers";
-    }
-
-    @GetMapping("/vouchers")
-    public String listVouchers(Model model) {
-        List<VoucherDTO> vouchers = voucherService.getVouchers(); // Lấy các voucher chưa bị xóa
-        model.addAttribute("vouchers", vouchers);
-        String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
-        model.addAttribute("currentUsername", currentUsername);
-        return "admin/vouchers";
     }
 
     @GetMapping("/bookings")

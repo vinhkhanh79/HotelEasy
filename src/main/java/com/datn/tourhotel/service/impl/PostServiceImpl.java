@@ -24,7 +24,7 @@ public class PostServiceImpl implements PostService {
 
     // Tìm bài post theo ID
     public Optional<Post> getPostById(Long id) {
-        return postRepository.findById(id);
+        return postRepository.findByIdAndIsDeleteFalse(id);
     }
     
     @Override
@@ -34,10 +34,10 @@ public class PostServiceImpl implements PostService {
     // Implement the findById method
     @Override
     public Optional<Post> findById(Long id) {
-        return postRepository.findById(id); // Fetch the post by ID from the repository
+        return postRepository.findByIdAndIsDeleteFalse(id); // Fetch the post by ID from the repository
     }
     public List<Post> getPostsByCreatedBy(User user) {
-        return postRepository.findByCreatedBy(user);
+        return postRepository.findByCreatedByAndIsDeleteFalse(user);
     }
 
 }
